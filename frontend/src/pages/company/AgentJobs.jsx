@@ -7,6 +7,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { rq } from '../../lib/company';
 import { Chip } from '../me/kit';
+import { IcMessage } from '../../components/icons';
 
 const when = (v) => (v ? new Date(v).toLocaleString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) : '');
 
@@ -109,7 +110,7 @@ export default function AgentJobs({ c }) {
   const saved = (x) => setD({ ...d, jobs: d.jobs.map((j) => (j.id === x.id ? { ...j, ...x } : j)) });
   return (
     <section className="mcard stack g12" aria-labelledby="ag-co-h" data-testid="ag-co">
-      <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">💬</span><span className="mcard-ht">
+      <header className="mcard-h"><span className="mcard-ic" aria-hidden="true"><IcMessage /></span><span className="mcard-ht">
         <h2 id="ag-co-h" className="mcard-title">Call / message matching candidates</h2>
         <span className="mcard-sub">When a job is live, Nm7 messages up to {d.perJob} best-matching people who said yes to WhatsApp or calls, asks your yes/no questions and books one of your interview times. Never at night, never anyone who said Stop.</span>
       </span></header>

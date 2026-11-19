@@ -17,9 +17,10 @@ import { keepAccount, readAccount } from '../../lib/recruiterPortal';
 import { Chip } from '../me/kit';
 import '../../styles/me-kit.css';
 import '../../styles/company-signup.css';
+import { IcBuilding, IcCheck, IcClock, IcFile, IcMail, IcUser } from '../../components/icons';
 
 const STEPS = ['details', 'registration', 'emails', 'team', 'review'];
-const STEP_IC = ['▤', '§', '✉', '☺', '✓'];
+const STEP_IC = [<IcBuilding key="i" />, <IcFile key="i" />, <IcMail key="i" />, <IcUser key="i" />, <IcCheck key="i" />];
 
 /** Round P, Phase 3: the top of each step card: its number in a blue circle and its name in serif. */
 function StepHead({ t, i, sub }) {
@@ -41,7 +42,7 @@ function SideCard({ t, step, individual }) {
           const state = step >= 4 && i < 2 ? 'done' : (step >= 2 && i === 0 ? 'done' : (i === (step >= 2 ? 1 : 0) ? 'now' : ''));
           return (
             <li key={k} className={state}>
-              <span className="msteps-dot" aria-hidden="true">{state === 'done' ? '✓' : i + 1}</span>
+              <span className="msteps-dot" aria-hidden="true">{state === 'done' ? <IcCheck size={14} /> : i + 1}</span>
               <span className="stack g4"><strong className="small">{t(`co.trustName.${k}`)}</strong><span className="xs muted">{t(`co.trust.${k}`)}</span></span>
             </li>
           );
@@ -140,7 +141,7 @@ export default function CompanySignup() {
         </div>
         <div className="cs-progress" aria-hidden="true"><span style={{ width: `${(Math.min(d.step, STEPS.length - 1) / (STEPS.length - 1)) * 100}%` }} /></div>
         <ol className="co-steps cs-steps" aria-label={t('co.steps')}>
-          {STEPS.map((s, i) => <li key={s} aria-current={d.step === i ? 'step' : undefined} data-done={i < d.step || undefined}><span className="co-step-n">{i < d.step ? '✓' : i + 1}</span><span className="cs-step-name">{t(`co.step.${s}`)}</span></li>)}
+          {STEPS.map((s, i) => <li key={s} aria-current={d.step === i ? 'step' : undefined} data-done={i < d.step || undefined}><span className="co-step-n">{i < d.step ? <IcCheck size={14} /> : i + 1}</span><span className="cs-step-name">{t(`co.step.${s}`)}</span></li>)}
         </ol>
         <div className="cs-layout">
         <div className="cs-col stack g16">
@@ -151,8 +152,8 @@ export default function CompanySignup() {
             <StepHead t={t} i={0} />
             <fieldset className="co-fieldset cs-choices">
               <legend className="label">{t('co.f.accountType')}</legend>
-              <label className="cs-choice"><input type="radio" name="acct" value="company" checked={!individual} onChange={() => set('details.category', 'startup')} /><span className="cs-choice-ic" aria-hidden="true">▦</span><span>{t('co.f.typeCompany')}</span></label>
-              <label className="cs-choice"><input type="radio" name="acct" value="individual" checked={individual} onChange={() => set('details.category', 'individual')} /><span className="cs-choice-ic" aria-hidden="true">☺</span><span>{t('co.f.typeIndividual')}</span></label>
+              <label className="cs-choice"><input type="radio" name="acct" value="company" checked={!individual} onChange={() => set('details.category', 'startup')} /><span className="cs-choice-ic" aria-hidden="true"><IcBuilding /></span><span>{t('co.f.typeCompany')}</span></label>
+              <label className="cs-choice"><input type="radio" name="acct" value="individual" checked={individual} onChange={() => set('details.category', 'individual')} /><span className="cs-choice-ic" aria-hidden="true"><IcUser /></span><span>{t('co.f.typeIndividual')}</span></label>
             </fieldset>
             <Field id="co-name" error={fieldErr['co-name']} label={individual ? t('co.f.yourName') : t('co.f.legalName')}>
               <input id="co-name" className="input" required minLength={2} maxLength={120} value={c.details.legalName} onChange={(e) => set('details.legalName', e.target.value)} />
@@ -286,10 +287,10 @@ function EmailsStep({ t, d, setD, company, setCompany, individual, busy, run, go
             <button type="submit" className="btn btn-signal" disabled={!!busy || (sent && code.length !== 6)}>{busy ? t('co.wait') : sent ? t('co.email.confirm') : t('co.email.send')}</button>
           </div>
         </form>
-      ) : <p className="cs-ok small" data-testid="co-admin-ok"><span className="cs-ok-ic" aria-hidden="true">✓</span><span>{t('co.email.adminOk', { email: company.adminEmail })}</span></p>}
+      ) : <p className="cs-ok small" data-testid="co-admin-ok"><span className="cs-ok-ic" aria-hidden="true"><IcCheck size={16} /></span><span>{t('co.email.adminOk', { email: company.adminEmail })}</span></p>}
 
       {adminDone && !individual && (
-        companyDone ? <p className="cs-ok small" data-testid="co-company-ok"><span className="cs-ok-ic" aria-hidden="true">✓</span><span>{t('co.email.companyOk', { email: company.companyEmail })}</span></p> : (
+        companyDone ? <p className="cs-ok small" data-testid="co-company-ok"><span className="cs-ok-ic" aria-hidden="true"><IcCheck size={16} /></span><span>{t('co.email.companyOk', { email: company.companyEmail })}</span></p> : (
           <form className="cs-sub stack g12" onSubmit={cSent ? confirmCompany : sendCompany} aria-label={t('co.email.company')}>
             <h2 className="co-h2 cs-sub-h"><span className="cs-sub-n" aria-hidden="true">2</span>{t('co.email.company')}</h2>
             <p className="small muted" style={{ margin: 0 }}>{t('co.email.companyHint', { domain: company.details.website.replace(/^https:\/\//, '') })}</p>
@@ -366,7 +367,7 @@ function ReviewStep({ t, company, setCompany, run, busy, go, onDone }) {
   if (state === 'pending' || state === 'approved') {
     return (
       <section className={`mcard ${state === 'approved' ? 'mcard-ok' : 'mcard-accent'} cs-done`} data-testid="co-submitted">
-        <span className="cs-done-ic" aria-hidden="true">{state === 'approved' ? '✓' : '⧗'}</span>
+        <span className="cs-done-ic" aria-hidden="true">{state === 'approved' ? <IcCheck size={24} /> : <IcClock size={24} />}</span>
         <h2 className="co-h2 cs-done-h">{state === 'approved' ? t('co.done.verified') : t('co.done.title')}</h2>
         <Chip tone={state === 'approved' ? 'ok' : 'info'}>{t(`co.trustName.${company.trust}`)}</Chip>
         <p style={{ margin: 0 }}>{t('co.done.sub')}</p>

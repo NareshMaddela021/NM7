@@ -20,6 +20,7 @@ import { CriteriaEditor } from './CriteriaBits'; // Vetting Trust T7
 import { FairnessNotes } from './FairnessBits'; // Vetting Trust T12: discriminatory filters (direct refused, proxies warned)
 
 const BLANK = { title: '', cities: '', workType: 'onsite', jobType: 'full_time', experience: 'fresher', education: '', salaryMin: '', salaryMax: '', period: 'yearly', skills: '', description: '', applyMethod: 'nm7', applyUrl: '', applyEmail: '', closesAt: '', questions: [] };
+import { IcBriefcase, IcPin } from '../../components/icons';
 const NEW_Q = { text: '', kind: 'yesno', options: '', want: '', min: '', accept: '', template: '' };
 const MAX_Q = 5;
 const csv = (s) => String(s || '').split(',').map((x) => x.trim()).filter(Boolean);
@@ -136,7 +137,7 @@ function JobRow({ t, c, j, auto, trust, can, onEdit, onChanged }) {
   return (
     <li className={`mcard cj-job cj-job-${j.status}`} data-testid="co-job">
       <div className="cj-job-head">
-        <span className="cj-job-ic" aria-hidden="true">▤</span>
+        <span className="cj-job-ic" aria-hidden="true"><IcBriefcase /></span>
         <strong className="cj-job-title">{j.title}</strong>
         <Chip tone={TONE[j.status]} testid="co-job-status">{t(`co.jobs.status.${j.status}`)}</Chip>
       </div>
@@ -203,7 +204,7 @@ function JobForm({ t, c, auto, ko, init, onDone, onCancel }) {
         {!init.id && <Templates t={t} onPick={(x) => setF({ ...f, title: x.title, jobType: x.jobType, experience: x.experience, education: x.education, skills: x.skills.join(', '), description: x.description })} />}
         <div className="field"><label className="label" htmlFor="cj-title">{t('co.jobs.f.title')}</label><input id="cj-title" className="input" required minLength={2} maxLength={120} value={f.title} onChange={set('title')} /></div>
         <details className="cj-writer" open={writer.open} onToggle={(e) => setWriter({ ...writer, open: e.currentTarget.open })}>
-          <summary className="small"><span aria-hidden="true">✦ </span><strong>{t('co.jobs.writer')}</strong></summary>
+          <summary className="small"><strong>{t('co.jobs.writer')}</strong></summary>
           <div className="stack g8" style={{ marginTop: 10 }}>
             <span className="xs muted">{t('co.jobs.writerHint')}</span>
             {!f.title.trim() && <div className="field"><label className="label" htmlFor="cw-role">{t('co.jobs.w.role')}</label><input id="cw-role" className="input" maxLength={120} value={writer.role} onChange={(e) => setWriter({ ...writer, role: e.target.value })} /></div>}
@@ -280,7 +281,7 @@ function OfficePin({ geo, onChange }) {
       <span className="label">Office location (optional)</span>
       <span className="xs muted">For “distance from the job” in Hire now. Rounded to about 1 km. Without it, the city’s centre is used.</span>
       <div className="row g8" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
-        {geo ? <span className="mchip mchip-ok" data-testid="cj-pin-set">📍 Office pin set</span> : null}
+        {geo ? <span className="mchip mchip-ok" data-testid="cj-pin-set"><IcPin size={14} /> Office pin set</span> : null}
         <button type="button" className="btn btn-outline btn-sm" onClick={pin} data-testid="cj-pin-use">{geo ? 'Use this device’s location again' : 'I’m at the office: use this device’s location'}</button>
         {geo && <button type="button" className="link-btn small" onClick={() => onChange(null)}>Remove</button>}
       </div>

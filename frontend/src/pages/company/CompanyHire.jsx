@@ -44,6 +44,7 @@ import { useLang } from '../../lib/i18n';
 import LevelBadge from '../../components/LevelBadge';
 import { BANDS, NOTICE, PART_MAX, lt } from '../../components/levelStrings';
 import '../../styles/company-hire.css';
+import { IcBolt, IcCalendar, IcCheck, IcMail } from '../../components/icons';
 
 const rupees = (n) => (n == null ? '' : `₹${Math.round(n).toLocaleString('en-IN')}`);
 const day = (s) => (s ? new Date(`${s}T00:00:00`).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '');
@@ -195,7 +196,7 @@ export default function CompanyHire({ t, c }) {
     <section className="stack g16 hn" aria-label={t('co.hire.title')} data-testid="co-hire">
       <div className="mcard hn-control">
         <div className="hn-control-top">
-          <span className="mcard-ic blue" aria-hidden="true">⚡</span>
+          <span className="mcard-ic blue" aria-hidden="true"><IcBolt /></span>
           <span className="stack g4" style={{ minWidth: 0 }}>
             <strong className="mcard-title">{t('co.hire.title')}</strong>
             <span className="mcard-sub">{t('co.hire.intro')}</span>
@@ -311,9 +312,9 @@ export default function CompanyHire({ t, c }) {
                 <Readiness x={x} lv={lv} />
                 <ul className="hn-chips">{reasons(x.match, t).map((r) => <li key={r} className="mchip mchip-neutral">{r}</li>)}</ul>
                 <dl className="hn-facts">
-                  <div><dt aria-hidden="true">📅</dt><dd data-testid="co-hire-when">{whenLine(x.availability, t)}</dd></div>
+                  <div><dt aria-hidden="true"><IcCalendar size={16} /></dt><dd data-testid="co-hire-when">{whenLine(x.availability, t)}</dd></div>
                   <div><dt aria-hidden="true">₹</dt><dd data-testid="co-hire-salary">{salaryLine(x.salary, t)}</dd></div>
-                  {x.verified?.length > 0 && <div><dt aria-hidden="true">✓</dt><dd data-testid="co-hire-verified">{x.verified.map((v) => t('co.hire.verified', { skill: v.skill, date: new Date(v.at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) })).join(' · ')}</dd></div>}
+                  {x.verified?.length > 0 && <div><dt aria-hidden="true"><IcCheck size={16} /></dt><dd data-testid="co-hire-verified">{x.verified.map((v) => t('co.hire.verified', { skill: v.skill, date: new Date(v.at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) })).join(' · ')}</dd></div>}
                 </dl>
                 <SkillBadge sv={x.skillVerified} t={t} />
                 <span className="hn-trust" data-testid="co-hire-trust">{x.skillCheck ? t('co.hire.check', { score: x.skillCheck.score }) : t('co.hire.noCheck')} · {x.reliability.score == null ? x.reliability.label : `${x.reliability.label} (${x.reliability.score}%)`}{x.reliability.lines?.length ? `: ${x.reliability.lines.join('; ')}` : ''}</span>
@@ -341,7 +342,7 @@ export default function CompanyHire({ t, c }) {
       {job && <TrustBookings key={`tb-${job}`} c={c} job={job} canEdit={canInvite} />}
       {invites.length > 0 && (
         <section className="mcard" aria-labelledby="co-hire-inv-h" data-testid="co-hire-invites">
-          <header className="mcard-h"><span className="mcard-ic blue" aria-hidden="true">✉</span><span className="mcard-ht"><strong id="co-hire-inv-h" className="mcard-title">{t('co.hire.invites')}</strong><span className="mcard-sub">{t('co.hire.privacy')}</span></span></header>
+          <header className="mcard-h"><span className="mcard-ic blue" aria-hidden="true"><IcMail /></span><span className="mcard-ht"><strong id="co-hire-inv-h" className="mcard-title">{t('co.hire.invites')}</strong><span className="mcard-sub">{t('co.hire.privacy')}</span></span></header>
           <ul className="mlist">
             {invites.map((x) => (
               <li key={x.id} className="mitem" data-testid="co-hire-inv">

@@ -11,6 +11,7 @@ import { usePageMeta } from '../../lib/meta';
 import { PageArt } from '../../components/PageHero';
 import '../../styles/me-kit.css';
 import '../../styles/company-signup.css';
+import { IcCheck, IcEye, IcMail } from '../../components/icons';
 
 export default function Grievance() {
   const [t, lang] = useLang();
@@ -32,7 +33,7 @@ export default function Grievance() {
         <div className="cs-layout">
           <div className="cs-col stack g16">
             <section className="mcard gr-card" aria-labelledby="gr-sees">
-              <div className="cs-step-head"><span className="cs-step-badge" aria-hidden="true">◉</span><h2 id="gr-sees" className="job-h2 cs-step-title">{t('gr.sees.h')}</h2></div>
+              <div className="cs-step-head"><span className="cs-step-badge" aria-hidden="true"><IcEye /></span><h2 id="gr-sees" className="job-h2 cs-step-title">{t('gr.sees.h')}</h2></div>
               <ul className="gr-list">
                 <li>{t('gr.sees.1')}</li><li>{t('gr.sees.2')}</li><li>{t('gr.sees.3')}</li><li>{t('gr.sees.4')}</li>
               </ul>
@@ -42,7 +43,7 @@ export default function Grievance() {
               <p style={{ margin: 0 }}>{t('gr.long.1')}</p>
             </section>
             <section className="mcard gr-card" aria-labelledby="gr-rights">
-              <div className="cs-step-head"><span className="cs-step-badge" aria-hidden="true">✓</span><h2 id="gr-rights" className="job-h2 cs-step-title">{t('gr.rights.h')}</h2></div>
+              <div className="cs-step-head"><span className="cs-step-badge" aria-hidden="true"><IcCheck /></span><h2 id="gr-rights" className="job-h2 cs-step-title">{t('gr.rights.h')}</h2></div>
               <ul className="gr-list gr-ticks">
                 <li>{t('gr.rights.withdraw')} <Link to="/me/jobs">{t('gr.rights.withdrawLink')}</Link></li>
                 <li>{t('gr.rights.download')}</li>
@@ -53,7 +54,7 @@ export default function Grievance() {
             </section>
           </div>
           <section className="mcard mcard-accent cs-side gr-contact" aria-labelledby="gr-complain" data-testid="grievance-contact">
-            <div className="cs-step-head"><span className="cs-step-badge" aria-hidden="true">✉</span><h2 id="gr-complain" className="job-h2 cs-step-title">{t('gr.complain.h')}</h2></div>
+            <div className="cs-step-head"><span className="cs-step-badge" aria-hidden="true"><IcMail /></span><h2 id="gr-complain" className="job-h2 cs-step-title">{t('gr.complain.h')}</h2></div>
             <p style={{ margin: 0 }}>{t('gr.complain.1')}</p>
             {g.name ? <p className="gr-mail" style={{ margin: 0 }}><strong>{t('gr.officer')}</strong>: {[g.name, g.phone].filter(Boolean).join(' · ')}{mail ? <> · <a href={`mailto:${mail}`}>{mail}</a></> : null}</p>
               : <p className="gr-mail" style={{ margin: 0 }}><a href={`mailto:${mail}`}>{mail}</a></p>}
