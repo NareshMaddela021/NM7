@@ -27,6 +27,7 @@ Accepting creates (or moves) the company application to Shortlisted, so the comp
 their contact details and the usual tools (interview, offer, talent pool).
 """
 
+import asyncio
 from datetime import datetime, timedelta
 from html import escape
 from typing import Any, Literal
@@ -286,7 +287,7 @@ async def candidates(
     ):  # Vetting V2: "Skill verified" (L2)
         vetted.setdefault(v["user_id"], []).append(v)
     wanted = fitmod.job_skills(job)
-    rows = []
+    fits: list[tuple[dict[str, Any], dict[str, Any], str]] = []
     for p in profiles:
         u = users.get(p["_id"])
         if not u or bool(u.get("demo")) != want_demo:
@@ -296,7 +297,21 @@ async def candidates(
             continue
         if p.get("job_types") and job.get("job_type") in JOB_TYPES and job["job_type"] not in p["job_types"]:
             continue
-        person = await fitmod.person_for(db, p["_id"])
+        fits.append((p, u, where))
+    # item 32 (Hire now took ~13 s): every resume in one query, not one (or two) per person
+    people = await fitmod.people_for(db, [p["_id"] for p, _, _ in fits])
+    if vetting:  # levels never worked out yet (the hourly pass hasn't reached them): a few at a time, not one by one
+        todo = [p["_id"] for p, u, _ in fits if p["_id"] in people and not u.get("vetting")]
+        sem = asyncio.Semaphore(16)
+
+        async def level(uid: str) -> None:
+            async with sem:
+                users[uid]["vetting"] = await ladder.refresh(db, uid, "shortlist") or {}
+
+        await asyncio.gather(*(level(x) for x in todo))
+    rows = []
+    for p, u, where in fits:
+        person = people.get(p["_id"])
         if not person:
             continue  # nothing to judge the match on
         if where != "remote":
@@ -305,9 +320,7 @@ async def candidates(
         if not fitmod.level_fits(m):
             continue  # round J2: never a fresher for a 10-year job, nor someone with 10 years for a fresher job
         inv = invites.get(p["_id"])
-        vt = u.get("vetting") or ({} if not vetting else None)
-        if vt is None:  # never worked out yet (the hourly pass hasn't reached them): work it out now
-            vt = await ladder.refresh(db, p["_id"], "shortlist") or {}
+        vt = u.get("vetting") or {}
         lvl = int(vt.get("level") or 0)
         ready = available(p, site, t)
         badge = vetted_for(vetted.get(p["_id"], []), wanted, t)
