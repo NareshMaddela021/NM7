@@ -26,7 +26,7 @@ jobs:
     env:
       TEST_MONGODB_URI: mongodb://localhost:27017/?directConnection=true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Start MongoDB (replica set; 8.0 like Atlas, newer when the runner kernel refuses 8.0)
         run: bash "$GITHUB_WORKSPACE/.github/scripts/start-mongo.sh"
       # uv is the project's pip: its download cache is kept between runs, keyed on the lockfile
@@ -47,7 +47,7 @@ jobs:
       run:
         working-directory: frontend
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v4
         with:
           node-version-file: frontend/.nvmrc

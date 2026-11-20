@@ -32,7 +32,7 @@ jobs:
       SMOKE_ADMIN_PASSWORD: ${{ secrets.SMOKE_ADMIN_PASSWORD }}
       SMOKE_ADMIN_TOTP: ${{ secrets.SMOKE_ADMIN_TOTP }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v4
         with:
           node-version-file: frontend/.nvmrc
