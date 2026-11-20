@@ -3,10 +3,12 @@
 //                and experience, widened step by step when nothing matches; freshers also get the practice papers;
 //   student    -> Internships and projects for you: open internships, guided projects and courses, the role finder;
 //   expert     -> Your expert application: its status (paid work only after Nm7 approves it) and the next step.
+// Each job has View / Apply / Save like every other job card (Batch C item 17).
 // Then: the next role to set up (people with several roles do each one once), the dashboard, "Change my answers".
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Spinner } from '../../components/ui';
+import JobActions from '../../components/JobActions';
 import { homeFor } from '../../lib/auth';
 import { pageQuery, placeText, searchJobs } from '../../lib/jobBoard';
 import { ROLE_NAMES } from '../../lib/roles';
@@ -21,9 +23,10 @@ function JobList({ items, testid }) {
     <ul className="qs-jobs" data-testid={testid}>
       {items.map((j) => (
         <li key={j.id} className="qs-job" data-testid="qs-job">
-          <Link to={`/jobs/${j.slug}`} className="qs-job-title">{j.title}</Link>
+          <Link to={`/jobs/${j.slug}`} className="qs-job-title" id={`qs-jt-${j.id}`}>{j.title}</Link>
           <span className="small">{j.company?.name}</span>
           <span className="xs muted">{[placeText(j, words), j.match?.score != null ? `Match ${j.match.score}%` : ''].filter(Boolean).join(' · ')}</span>
+          <JobActions job={j} titleId={`qs-jt-${j.id}`} />
         </li>
       ))}
     </ul>

@@ -9,7 +9,7 @@ import { trustOn, useTrustOn } from '../../lib/trustAccess';
 import { useToast } from '../../components/ui';
 import { API_BASE, http } from '../../services/http';
 import { MeHead } from './MeLayout';
-import { Bar, Empty, FieldGroup, MeCard, Skel, StickyBar } from './kit';
+import { Bar, Empty, FieldGroup, MeCard, Skel, StickyBar, useHashScroll } from './kit';
 import '../../styles/me-jobs.css';
 import { fmtDay } from '../../lib/format';
 import { IcBolt, IcCheck, IcCheckCircle, IcClock, IcLock, IcMail, IcMinus, IcPause, IcStar } from '../../components/icons';
@@ -62,6 +62,7 @@ export default function MeHire() {
   const [err, setErr] = useState('');
   const load = (x) => { setS(x); setF(toForm(x)); };
   useEffect(() => { http('/api/me/hire').then(load, (e) => setErr(e.message)); }, []);
+  useHashScroll(!!s); // the setup step "Add your job preferences" opens at #hire-prefs (Batch C item 21)
   const run = async (fn, said) => { setBusy(true); setErr(''); try { const x = await fn(); setS(x); if (said) toast(said); return x; } catch (e) { setErr(e.message); } finally { setBusy(false); } };
   const set = (k) => (e) => setF({ ...f, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value });
   // Batch C item 14: "Save" keeps the details without showing you to companies; "Turn on" is its own button
@@ -116,6 +117,7 @@ export default function MeHire() {
       <TrustReliability />
       <div className="mgrid-2">
         <form className="mcard" onSubmit={(e) => { e.preventDefault(); save(true); }} aria-label="Ready to join details" data-testid="hire-form">
+          <h2 id="hire-prefs" className="mcard-title" tabIndex={-1}>Your job preferences</h2>
           <FieldGroup title="When you can start">
             <div className="field"><label className="label" htmlFor="hj-date">Earliest join date</label><input id="hj-date" type="date" className="input" value={f.joinDate} onChange={set('joinDate')} /></div>
             <div className="field"><label className="label" htmlFor="hj-notice">Notice period (days)</label><input id="hj-notice" className="input" inputMode="numeric" value={f.noticeDays} onChange={(e) => setF({ ...f, noticeDays: e.target.value.replace(/\D/g, '').slice(0, 3) })} /></div>

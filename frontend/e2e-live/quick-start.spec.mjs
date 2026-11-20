@@ -95,11 +95,19 @@ for (const [label, opts] of SIZES) {
       await page.waitForURL('**/start/jobseeker/results');
       await expect(page.getByRole('heading', { level: 1, name: 'Jobs matched for you' })).toBeVisible();
       await expect(page.getByTestId('qs-jobs').getByRole('link', { name: title })).toBeVisible();
+      // Batch C item 17: View / Apply / Save on each result, like every job card
+      const card = page.getByTestId('qs-job').filter({ hasText: title }).first();
+      await expect(card.getByTestId('card-view')).toBeVisible();
+      await card.getByTestId('card-save').click();
+      await expect(card.getByTestId('card-save')).toHaveAttribute('aria-pressed', 'true');
       expect(await noSideScroll(page)).toBe(true);
       expect(Date.now() - t0).toBeLessThan(5 * 60_000);
       const s = (await call(page, '/api/me/setup')).body.setup;
       expect(s.jobseeker).toMatchObject({ done: true, skipped: ['faster'] });
       expect(s.jobseeker.answers).toMatchObject({ job: title, cities: ['Visakhapatnam'], experience: '1_3' });
+      // Batch C item 15: the answers also fill the Job Profile and Ready to join
+      expect((await call(page, '/api/me/job-profile')).body.data.personal).toMatchObject({ headline: title, location: 'Visakhapatnam', level: 'Junior (1–3 yrs)' });
+      expect((await call(page, '/api/me/hire')).body).toMatchObject({ cities: ['Visakhapatnam'], on: false });
       const me = (await call(page, '/api/me/profile')).body;
       expect(me).toMatchObject({ targetRole: title, cities: 'Visakhapatnam', level: '1–3 years' });
 

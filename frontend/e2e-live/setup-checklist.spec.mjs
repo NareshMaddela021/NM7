@@ -48,7 +48,7 @@ for (const [label, opts] of SIZES) {
       await page.goto('/me');
       await expect(card(page)).toBeVisible();
       await expect(page.getByTestId('sc-ring')).toHaveAttribute('aria-label', /^0 of \d steps done$/);
-      await expect(page.getByTestId('sc-next-title')).toHaveText('Add your job preferences');
+      await expect(page.getByTestId('sc-next-title')).toHaveText('Add your job preferences in Ready to join');
       await expect(page.getByTestId('sc-next')).toHaveText('Next step');
       if (label === 'phone') {
         await expect(page.getByTestId('sc-skip')).toBeHidden(); // compact: the ring and one button
@@ -59,7 +59,8 @@ for (const [label, opts] of SIZES) {
 
       // Next step -> Ready to join -> save salary, notice and city -> back on the dashboard it is ticked
       await page.getByTestId('sc-next').click();
-      await page.waitForURL('**/me/hire');
+      await page.waitForURL('**/me/hire#hire-prefs');
+      await expect(page.getByRole('heading', { name: 'Your job preferences' })).toBeInViewport(); // Batch C item 21
       await page.getByLabel('Notice period (days)').fill('30');
       await page.getByLabel('Cities you can work in (comma between)').fill('Nellore');
       await page.getByLabel('Expected salary').fill('22000');
