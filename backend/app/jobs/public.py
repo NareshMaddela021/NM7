@@ -22,6 +22,7 @@ from app.core.errors import ApiError
 from app.core.time import now
 from app.jobs import fit as fitmod
 from app.jobs.model import EXPERIENCE, JOB_TYPES, WORK_TYPES, with_older
+from app.jobs.titles import display_title, level_filter
 from app.me.service import ms
 
 router = APIRouter(prefix="/api/jobs", tags=["job board"])
@@ -67,7 +68,8 @@ def public_out(j: dict[str, Any], full: bool = False) -> dict[str, Any]:
     out = {
         "id": j["_id"],
         "slug": j["slug"],
-        "title": j["title"],
+        "title": display_title(j),  # Batch B: the human part of a careers-site title (search uses the full one)
+        **({"fullTitle": j["title"]} if display_title(j) != j["title"] else {}),
         # round J: a collector job never shows a company logo (and is never called a partner)
         "company": {**j["company"], "logo": ""} if j.get("source") == "collector" else j["company"],
         "fromCareersPage": j.get("source") == "collector",  # "Source: company careers page" + Request removal
@@ -105,6 +107,34 @@ def _yearly_at_least(rupees: int) -> dict[str, Any]:
     return {"$or": parts}
 
 
+PER_COMPANY = 2  # Batch B: at most this many jobs of one company on a page while other companies have jobs left
+
+
+def spread(rows: list[dict[str, Any]], per: int = PER_COMPANY, size: int = PAGE) -> list[dict[str, Any]]:
+    """The same jobs in nearly the same order, but a page holds at most `per` jobs of one company while other
+    companies have jobs left; the rest move to the next pages (nothing is hidden). One company alone fills pages."""
+    left = list(rows)
+    out: list[dict[str, Any]] = []
+    while left:
+        count: dict[str, int] = {}
+        page_rows: list[dict[str, Any]] = []
+        later: list[dict[str, Any]] = []
+        for j in left:
+            key = str((j.get("company") or {}).get("name") or "").strip().lower()
+            if len(page_rows) < size and count.get(key, 0) < per:
+                page_rows.append(j)
+                count[key] = count.get(key, 0) + 1
+            else:
+                later.append(j)
+        if len(page_rows) < size:  # too few other companies: fill the page in order
+            fill = later[: size - len(page_rows)]
+            page_rows += fill
+            later = later[len(fill) :]
+        out += page_rows
+        left = later
+    return out
+
+
 def _csv(v: str | None, allowed: set[str] | frozenset[str] | tuple[str, ...]) -> list[str]:
     return [x for x in (v or "").split(",") if x in allowed]
 
@@ -132,6 +162,7 @@ async def search(
     posted: str = Query("", max_length=4),
     page: int = Query(1, ge=1, le=500),
     support: str = Query("", max_length=60),  # Phase 6 S9: returners,immediate,inclusive,accessible
+    level: str = Query("", max_length=10),  # Batch B: the person's own level (quick start): hides jobs far above it
 ) -> dict[str, Any]:
     and_: list[dict[str, Any]] = [live_filter()]
     if support:
@@ -159,17 +190,24 @@ async def search(
         and_.append(_yearly_at_least(salary))
     if posted in POSTED:
         and_.append({"posted_at": {"$gte": now() - POSTED[posted]}})
+    and_ += level_filter(level)  # the quick start's results: no Lead / Senior / 8+ year jobs for a 1-3 year person
     query = {"$and": and_}
     state, person = await _person(db, auth)
     newest = [("posted_at", -1), ("_id", 1)]
     fits: dict[str, dict] = {}
-    if person and sort == "match":  # rank the newest jobs that pass the filters by their score
+    if person and sort != "new":  # Batch B: best match first by default; rank the newest jobs that pass the filters
         pool = await db[JOBS].find(query, {"description": 0}).sort(newest).limit(fitmod.MAX_RANKED).to_list(None)
         scored = await fitmod.fits(db, auth.user.id, person, pool, save=False)
         pool.sort(key=lambda j: -scored[j["_id"]]["score"])  # stable: newest first within a score
+        pool = spread(pool)
         total = len(pool)
         rows = pool[(page - 1) * PAGE : page * PAGE]
-    else:
+    elif page * PAGE <= fitmod.MAX_RANKED:  # the first pages: newest first, companies spread out
+        found = db[JOBS].find(query, {"description": 0}).sort(newest).limit(fitmod.MAX_RANKED)
+        pool = spread(await found.to_list(None))
+        total = len(pool) if len(pool) < fitmod.MAX_RANKED else await db[JOBS].count_documents(query)
+        rows = pool[(page - 1) * PAGE : page * PAGE]
+    else:  # past the spread pages, plain newest first (the first MAX_RANKED are the same jobs, only in another order)
         total = await db[JOBS].count_documents(query)
         rows = await (
             db[JOBS].find(query, {"description": 0}).sort(newest).skip((page - 1) * PAGE).limit(PAGE)

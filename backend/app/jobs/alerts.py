@@ -37,6 +37,7 @@ from app.core.time import IST, now
 from app.jobs import fit as fitmod
 from app.jobs.model import EXPERIENCE, with_older
 from app.jobs.public import live_filter
+from app.jobs.titles import display_title
 
 log = logging.getLogger("nm7.jobs")
 
@@ -231,13 +232,14 @@ def alert_email(u: dict[str, Any], a: dict[str, Any], jobs: list[dict[str, Any]]
     lines, rows = [], []
     for j in jobs:
         link = f"{site}/jobs/{j['slug']}"
+        name = display_title(j)
         place = ", ".join(j.get("locations") or []) or ("Remote" if j.get("remote") else "")
-        wa = "https://wa.me/?text=" + quote(tx["wa"].format(title=j["title"], company=j["company"]["name"], link=link))
+        wa = "https://wa.me/?text=" + quote(tx["wa"].format(title=name, company=j["company"]["name"], link=link))
         score = f" · {tx['match'].format(n=j['_score'])}" if j.get("_score") is not None else ""
-        head = f"{j['title']} – {j['company']['name']}{f' ({place})' if place else ''}{score}"
+        head = f"{name} – {j['company']['name']}{f' ({place})' if place else ''}{score}"
         lines += [f"- {head}", f"  {link}", f"  {tx['share']}: {wa}"]
         rows.append(
-            f'<li style="margin-bottom:10px"><a href="{escape(link)}"><b>{escape(j["title"])}</b></a> – '
+            f'<li style="margin-bottom:10px"><a href="{escape(link)}"><b>{escape(name)}</b></a> – '
             f"{escape(j['company']['name'])}{escape(f' ({place})' if place else '')}{escape(score)}<br>"
             f'<a href="{escape(wa)}" style="font-size:13px">{escape(tx["share"])}</a></li>'
         )

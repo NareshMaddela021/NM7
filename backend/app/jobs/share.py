@@ -27,6 +27,7 @@ from app.core.db import DB, JOBS, SHARE_EVENTS
 from app.core.schemas import CamelModel
 from app.core.time import ist_day, now
 from app.jobs.model import EXPERIENCE, JOB_TYPES
+from app.jobs.titles import display_title
 
 public = APIRouter(prefix="/api/public", tags=["share"])
 preview_router = APIRouter(prefix="/api/jobs", tags=["share"])
@@ -138,7 +139,7 @@ async def preview(slug: str, db: DB) -> Response:
         return _page(title="This job isn’t on Nm7 any more · Nm7", desc="See the newest real jobs on Nm7.",
                      url=f"{site}/jobs", image=image, status=404,
                      body="<h1>This job isn’t on Nm7 any more</h1>")  # fmt: skip
-    title, company = _clip(j["title"], 90), _clip((j.get("company") or {}).get("name"), 60)
+    title, company = _clip(display_title(j), 90), _clip((j.get("company") or {}).get("name"), 60)
     places = [_clip(x, 30) for x in (j.get("locations") or [])[:3]]
     where = (
         ", ".join(places) + (" or remote" if j.get("remote") and places else "")

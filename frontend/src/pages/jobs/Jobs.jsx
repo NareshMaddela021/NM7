@@ -221,8 +221,8 @@ export function JobsList() {
               <Select id="f-support" label={t('jobs.f.support')} value={filters.support || ''} onChange={(v) => set({ support: v })}
                 options={[['', t('jobs.f.any')], ...SUPPORT.map((x) => [x, t(`jobs.support.${x}`)])]} />
               {data?.match === 'on' && (
-                <Select id="f-sort" label={t('jobs.f.sort')} value={filters.sort} onChange={(v) => set({ sort: v })}
-                  options={[['', t('jobs.f.newest')], ['match', t('jobs.f.best')]]} />
+                <Select id="f-sort" label={t('jobs.f.sort')} value={filters.sort || 'match'} onChange={(v) => set({ sort: v === 'match' ? '' : v })}
+                  options={[['match', t('jobs.f.best')], ['new', t('jobs.f.newest')]]} />
               )}
             </div>
             <div className="row g8" style={{ flexWrap: 'wrap' }} role="group" aria-label={t('jobs.quick')} data-testid="exp-chips">
