@@ -2,7 +2,7 @@
 // (dashboard), …/activity. Plus the invite link (/org/invite/:token) and the reminder opt-out link (/groups/stop).
 // Coordinators sign in with their own Nm7 account; the admin console is never shown here. Everything they can see
 // is scoped by the server to their organization (and groups) — these screens only arrange it.
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { Link, NavLink, Navigate, Outlet, useLocation, useNavigate, useOutletContext, useParams, useSearchParams } from 'react-router-dom';
 import Header from '../../components/Header';
 import { Spinner, useToast } from '../../components/ui';
@@ -25,6 +25,8 @@ import Alumni from './Alumni';
 import Reviewers from './Reviewers';
 import { planBanners } from '../../lib/orgBilling';
 import RecruiterFeedback from './RecruiterFeedback';
+// Profile setup P3: the college's setup checklist on My groups and Dashboard (its own small chunk)
+const TeamChecklist = lazy(() => import('../me/TeamChecklist'));
 
 import { Still } from '../newhome/ParticleStage';
 import { TINTS, SHAPE_COLORS } from '../newhome/shapes';
@@ -128,6 +130,7 @@ export function PortalLayout() {
             </div>
             {st.data.demo && <DemoBanner />}
             <PlanBanners home={st.data} orgId={orgId} />
+            {LIVE && st.data.type === 'college' && (sub === '' || sub === '/dashboard') && <Suspense fallback={null}><TeamChecklist kind="college" id={orgId} /></Suspense>}
             <Outlet context={{ ctx, home: st.data, reload: st.reload }} />
           </div>
         </div>
@@ -200,10 +203,10 @@ export function PortalGroups() {
         </div>
       )}
       {home.groupList.length === 0 && <Empty shape="college" tint="college" title="No groups yet.">{home.canCreateGroups ? 'A group is one batch, event or drive with its own join code.' : 'Your organization hasn’t made a group yet.'}</Empty>}
-      <div className="og-group-list">
+      <div className="og-group-list" id="og-groups">
         {home.groupList.map((g) => <GroupCard key={g.id} g={g} ctx={ctx} busy={busy} run={run} reload={reload} toast={toast} />)}
       </div>
-      {home.canCreateGroups && <NewGroup ctx={ctx} url={`${ctx.base}/groups`} busy={busy} run={run} reload={reload} />}
+      {home.canCreateGroups && <div id="og-new"><NewGroup ctx={ctx} url={`${ctx.base}/groups`} busy={busy} run={run} reload={reload} /></div>}
       <SimpleDefault orgId={ctx.orgId} canManage={home.canManage} toast={toast} />
     </>
   );
