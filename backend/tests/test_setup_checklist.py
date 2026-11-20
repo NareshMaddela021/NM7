@@ -334,7 +334,7 @@ NOON = datetime(2026, 11, 19, 6, 30, tzinfo=UTC)  # 12:00 IST
 
 
 async def _old(db, uid, days=3):
-    await db[USERS].update_one({"_id": uid}, {"$set": {"created_at": now() - timedelta(days=days)}})
+    await db[USERS].update_one({"_id": uid}, {"$set": {"created_at": NOON - timedelta(days=days)}})
 
 
 async def test_reminder_rules(client, outbox, db):
