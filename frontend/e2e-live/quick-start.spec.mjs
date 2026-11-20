@@ -56,6 +56,8 @@ for (const [label, opts] of SIZES) {
       const tag = `${label}${Date.now().toString(36)}`;
       const title = `Quickstart Analyst ${tag}`;
       seed('job', JSON.stringify({ title, description: DESC, experience: '1_3', applyMethod: 'link', applyUrl: 'https://qsco.example/jobs', company: { name: `Qsco ${tag}` }, locations: ['Visakhapatnam'], skills: ['SQL'] }));
+      // Batch B: a Lead job at the same level is not shown to a 1-3 year person
+      seed('job', JSON.stringify({ title: `Lead ${title}`, description: DESC, experience: '1_3', applyMethod: 'link', applyUrl: 'https://qsco.example/lead', company: { name: `Qsco ${tag}` }, locations: ['Visakhapatnam'], skills: ['SQL'] }));
       const t0 = Date.now();
       const mail = email(`qs-new-${label}`);
       await signUp(page, mail, 'Asha Quick');
@@ -94,7 +96,8 @@ for (const [label, opts] of SIZES) {
 
       await page.waitForURL('**/start/jobseeker/results');
       await expect(page.getByRole('heading', { level: 1, name: 'Jobs matched for you' })).toBeVisible();
-      await expect(page.getByTestId('qs-jobs').getByRole('link', { name: title })).toBeVisible();
+      await expect(page.getByTestId('qs-jobs').getByRole('link', { name: title, exact: true })).toBeVisible();
+      await expect(page.getByTestId('qs-jobs').getByRole('link', { name: `Lead ${title}` })).toHaveCount(0);
       expect(await noSideScroll(page)).toBe(true);
       expect(Date.now() - t0).toBeLessThan(5 * 60_000);
       const s = (await call(page, '/api/me/setup')).body.setup;
