@@ -30,7 +30,7 @@ jobs:
       - name: Start MongoDB (replica set; 8.0 like Atlas, newer when the runner kernel refuses 8.0)
         run: bash "$GITHUB_WORKSPACE/.github/scripts/start-mongo.sh"
       # uv is the project's pip: its download cache is kept between runs, keyed on the lockfile
-      - uses: astral-sh/setup-uv@v5
+      - uses: astral-sh/setup-uv@v7
         with:
           python-version: "3.12"
           enable-cache: true
