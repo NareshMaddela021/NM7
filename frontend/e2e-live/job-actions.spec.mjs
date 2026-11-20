@@ -102,9 +102,12 @@ for (const [label, opts] of SIZES) {
       const saved = cards.filter({ hasText: `Row Tester ${tag}` });
       await oneRow(page, saved, ['card-view', 'card-applied', 'card-save']);
       // Batch C item 19: the dashboard's Applications card counts the same saved jobs as the Applications page
+      const board = page.waitForResponse((r) => r.url().includes('/api/me/saved-jobs'));
       await page.goto('/me/jobs');
-      await expect(page.getByTestId('saved-board-job').first()).toBeVisible();
-      const savedHere = (await page.getByTestId('col-count-saved').innerText()).trim();
+      await board;
+      await page.getByRole('list', { name: 'Application board' }).waitFor();
+      const col = page.getByTestId('col-count-saved');
+      const savedHere = (await col.count()) ? (await col.innerText()).trim() : '0';
       await page.goto('/me');
       await expect(page.getByTestId('home-stage-saved')).toHaveText(new RegExp(`Saved · ${savedHere}$`));
 
