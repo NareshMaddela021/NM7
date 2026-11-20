@@ -2,7 +2,7 @@
 mapped onto the fields the site already has without ever overwriting them, only name + contact + role required,
 pre-filled (and skipped) from existing data, the under-18 parent step for students, hidden switches."""
 
-from app.core.db import EXPERT_PROFILES, JOB_PROFILES, MEMBERSHIPS, ORGANIZATIONS, USERS
+from app.core.db import EXPERT_PROFILES, HIRE_PROFILES, JOB_PROFILES, MEMBERSHIPS, ORGANIZATIONS, USERS
 from app.core.time import now
 from app.setup import steps as S
 from tests.conftest import signup
@@ -174,7 +174,28 @@ async def test_never_overwrites_existing_data(client, outbox, db):
         and u["job_alert"]["on"] is True
     )
     jp = await db[JOB_PROFILES].find_one({"_id": uid})
-    assert jp["data"]["edu"] == edu and jp["version"] == 4
+    assert jp["data"]["edu"] == edu
+    # Batch C item 15: the empty Job Profile basics follow the account's own values, never the newer answers
+    p = jp["data"]["personal"]
+    assert (p["headline"], p["location"]) == ("Nurse", "Chennai") and "level" not in p
+
+
+async def test_answers_fill_the_job_profile_and_ready_to_join(client, outbox, db):
+    """Batch C item 15: role, cities and experience land in the Job Profile and in Ready to join (switched off)."""
+    me = await person(client, outbox)
+    uid = me["id"]
+    await put(client, "jobseeker", answers={"job": "Data analyst", "cities": ["Pune", "Hyderabad"], "remote": False})
+    await put(client, "jobseeker", answers={"experience": "1_3"})
+    p = (await db[JOB_PROFILES].find_one({"_id": uid}))["data"]["personal"]
+    assert (p["headline"], p["location"], p["level"]) == ("Data analyst", "Pune", "Junior (1–3 yrs)")
+    h = (await client.get("/api/me/hire")).json()
+    assert h["cities"] == ["Pune", "Hyderabad"] and h["on"] is False and h["available"] is False
+    # their own edits win: nothing is overwritten later
+    await db[JOB_PROFILES].update_one({"_id": uid}, {"$set": {"data.personal.headline": "BI developer"}})
+    await db[HIRE_PROFILES].update_one({"_id": uid}, {"$set": {"cities": ["Chennai"]}})
+    await put(client, "jobseeker", answers={"job": "Analyst", "cities": ["Delhi"]})
+    assert (await db[JOB_PROFILES].find_one({"_id": uid}))["data"]["personal"]["headline"] == "BI developer"
+    assert (await db[HIRE_PROFILES].find_one({"_id": uid}))["cities"] == ["Chennai"]
 
 
 async def test_fresher_education_goes_to_the_job_profile(client, outbox, db):
@@ -183,12 +204,13 @@ async def test_fresher_education_goes_to_the_job_profile(client, outbox, db):
     assert s["steps"] == ["job", "city", "experience", "college", "course", "faster"] and s["step"] == "college"
     await put(client, "jobseeker", answers={"college": "Lakeview Institute"}, step="course")
     jp = await db[JOB_PROFILES].find_one({"_id": me["id"]})
-    assert jp["version"] == 1 and jp["data"]["edu"][0]["institution"] == "Lakeview Institute"
+    # version 1 is the experience level the first answer filled in (Batch C item 15)
+    assert jp["version"] == 2 and jp["data"]["edu"][0]["institution"] == "Lakeview Institute"
     await put(client, "jobseeker", answers={"course": "B.Tech CSE", "year": 2026}, step="faster")
     jp = await db[JOB_PROFILES].find_one({"_id": me["id"]})
     e = jp["data"]["edu"][0]
     assert (e["institution"], e["degree"], e["to"]) == ("Lakeview Institute", "B.Tech CSE", "2026-05")
-    assert jp["version"] == 2 and len(jp["data"]["edu"]) == 1
+    assert jp["version"] == 3 and len(jp["data"]["edu"]) == 1
     # the Job Profile API reads it like any other entry
     data = (await client.get("/api/me/job-profile")).json()["data"]
     assert data["edu"][0]["degree"] == "B.Tech CSE"
