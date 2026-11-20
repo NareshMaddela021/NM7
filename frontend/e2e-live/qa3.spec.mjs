@@ -101,7 +101,7 @@ test('thumbnails: one label, no page-break text; job links are web links only; f
   await expect(page.getByLabel('Email', { exact: true })).toHaveCSS('cursor', 'not-allowed');
 
   // titles
-  for (const [path, title] of [['/me/messages', 'Messages · Nm7'], ['/me/launch', 'Career Launch · Nm7'], ['/me/upgrade', 'Upgrade & add-ons · Nm7'], ['/me/learn', 'Learning paths · Nm7'], ['/me/practice', 'Practice tests · Nm7']]) {
+  for (const [path, title] of [['/me/messages', 'Messages · Nm7'], ['/me/launch', 'Career Launch · Nm7'], ['/me/learn', 'Learning paths · Nm7'], ['/me/practice', 'Practice tests · Nm7'], ['/me/upgrade', 'Upgrade & add-ons · Nm7']]) {
     await page.goto(path);
     await expect(page).toHaveTitle(title);
   }
