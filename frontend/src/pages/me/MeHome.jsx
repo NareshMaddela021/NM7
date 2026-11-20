@@ -14,7 +14,6 @@ import HealthCard from './HealthCard';
 import LinkedInCard from './LinkedInCard';
 import JobsForYouCard from './JobsForYouCard';
 import AutoSummaryCard from './AutoSummaryCard';
-import ReadinessCard from './ReadinessCard';
 import { HireCard } from './MeHire';
 import LevelCard from './LevelCard';
 import { http } from '../../services/http';
@@ -74,37 +73,60 @@ function SkillVerifyCard({ sk }) {
  * Round P: the person's own numbers as glass widgets (applications, interviews, resume score, skill checks). Each
  * number comes from their account; while one is loading its widget shows a skeleton, never a made-up value.
  */
-function MyNumbers({ score, apps, interviews, tracked, sk }) {
+function MyNumbers({ apps, interviews, tracked, sk }) {
   const tiles = [
     ['Applications', apps, `${tracked} tracked`, '/me/jobs', IcBriefcase],
     ['Interviews', interviews, interviews ? 'Prepare with practice questions' : 'None yet', '/me/practice', IcMessage],
-    ['Resume ATS score', score, score >= 80 ? 'Good — recruiters’ systems read it well' : 'Below 80 — see the tips', '/me/ats', IcTarget],
+    'readiness',
     sk?.v2
       ? ['Skill checks', sk.taken, sk.verified?.length ? `${sk.verified.length} skill${sk.verified.length > 1 ? 's' : ''} verified` : sk.best != null ? `Best score ${sk.best}/100` : 'Get a skill verified', '/me/skill-checks', IcCheckCircle]
       : ['Skill checks', sk && !sk.failed ? sk.taken : null, sk?.failed ? 'Take a 10-minute check' : sk ? (sk.best != null ? `Best score ${sk.best}%` : 'Take a 10-minute check') : '', '/me/skill-checks', IcCheckCircle],
   ];
   return (
     <div className="me-widgets" data-testid="me-widgets">
-      {tiles.map(([label, value, sub, to, Ic]) => (
+      {tiles.map((tile) => (tile === 'readiness' ? <Readiness key="readiness" /> : <Widget key={tile[0]} tile={tile} />))}
+    </div>
+  );
+}
+
+/** One number as a glass widget that opens its page. */
+function Widget({ tile: [label, value, sub, to, Ic] }) {
+  return (
         <Link key={label} to={to} className="glass me-widget" data-testid={`me-widget-${label.toLowerCase().replace(/[^a-z]+/g, '-')}`}>
           <span className="me-widget-top"><span className="me-widget-ic" aria-hidden="true"><Ic /></span><span className="me-widget-label">{label}</span></span>
           {value == null ? <span className="skeleton" style={{ width: 64, height: 40 }} aria-label="Loading" /> : <strong className="me-widget-num">{value}</strong>}
           <span className="me-widget-sub">{sub}</span>
         </Link>
-      ))}
+  );
+}
+
+/** Batch C item 20: job readiness is the ONE main score on the dashboard (it already counts the resume score, a role
+ * chosen, practice and applications), with its next thing to do (item 25). The other numbers are explained below. */
+function Readiness() {
+  const [t] = useLang();
+  const [r, setR] = useState(null);
+  useEffect(() => { http('/api/me/simple/readiness').then(setR, () => setR({ failed: true })); }, []);
+  const next = r?.left?.[0];
+  return (
+    <div className="glass me-widget" data-testid="readiness-card">
+      <span className="me-widget-top"><span className="me-widget-ic" aria-hidden="true"><IcTarget /></span><span className="me-widget-label">{t('simple.ready.card')}</span></span>
+      {!r ? <span className="skeleton" style={{ width: 64, height: 40 }} aria-label="Loading" /> : <strong className="me-widget-num" data-testid="readiness-score">{r.failed ? '—' : `${r.score}%`}</strong>}
+      {next ? <Link to={next.path} className="me-widget-sub" data-testid="readiness-next">{t('simple.ready.next', { thing: t(`simple.ready.item.${next.key}`) })}</Link>
+        : <span className="me-widget-sub">{r && !r.failed ? t('simple.ready.done') : ''}</span>}
     </div>
   );
 }
 
-/** Three numbers measure three different things (fix round item 17): said once, in plain words, where they show. */
-export function ScoresExplained() {
+/** One main score (job readiness) on the dashboard; the others are explained here, with their numbers (Batch C item
+ * 20). The Job Profile's "Profile complete" is the only profile number: the builder calls its meter "Sections filled". */
+export function ScoresExplained({ score, profilePct }) {
   return (
     <details className="card-sm" data-testid="scores-explained">
-      <summary className="small"><strong>What do the three scores mean?</strong></summary>
+      <summary className="small"><strong>What do the scores mean?</strong></summary>
       <ul className="small stack g4" style={{ margin: '8px 0 0', paddingLeft: 18 }}>
-        <li><strong>Resume score (ATS)</strong>: how well hiring systems can read this resume. 60 and up is ready to send; 80 and up is strong.</li>
-        <li><strong>Job readiness</strong>: your whole job search, not only the resume: the resume score, a job role chosen, practice and applications.</li>
-        <li><strong>Profile strength</strong> (in the builder): how many sections of this resume have something in them. A full resume can still score low if hiring systems can’t read it well.</li>
+        <li><strong>Job readiness</strong> (the main score above): your whole job search, not only the resume: the resume score, a job role chosen, practice and applications.</li>
+        <li><strong>Resume score (ATS){score != null && <>: {score}/100</>}</strong>: how well hiring systems can read your current resume. 60 and up is ready to send; 80 and up is strong. <Link to="/me/ats">See the tips</Link></li>
+        <li><strong>Profile complete{profilePct != null && <>: {profilePct}%</>}</strong>: how much of your Job Profile is filled in. The builder’s “Sections filled” is the same idea for one resume. A full resume can still score low if hiring systems can’t read it well.</li>
       </ul>
     </details>
   );
@@ -129,6 +151,8 @@ export default function MeHome() {
   const jp = useJobProfile();
   const setUp = jp.available && jp.data && profileCompleteness(jp.data).pct < 40; // new users: the Job Profile first
   const sk = useSkillChecks();
+  const [setupOpen, setSetupOpen] = useState(false); // the setup card is the next step (Batch C item 25)
+  const ink = setupOpen ? 'card' : 'card-ink'; // then the banners below are plain cards, not a second "do this next"
   const boardSaved = useBoardSaved(); // Saved counts the job board's saved jobs too, like the Applications page (item 19)
   const dl = async (f) => { if (await downloadResume(r.data, f)) toast(f === 'pdf' ? 'PDF ready' : 'Word file ready'); };
 
@@ -136,8 +160,9 @@ export default function MeHome() {
     <>
       <div className="stack g4"><span className="kicker">My dashboard</span><h1 className="display me-h1">Hi {first}</h1></div>
       {LIVE && user && <ResumeCard user={user} role="jobseeker" />}
-      {LIVE && user && <Suspense fallback={null}><SetupChecklist /></Suspense>}
-      <MyNumbers score={score} apps={apps.length} interviews={me.apps.filter((a) => a.status === 'interview').length} tracked={me.apps.length} sk={sk} />
+      {LIVE && user && <Suspense fallback={null}><SetupChecklist onShown={setSetupOpen} /></Suspense>}
+      <MyNumbers apps={apps.length} interviews={me.apps.filter((a) => a.status === 'interview').length} tracked={me.apps.length} sk={sk} />
+      <ScoresExplained score={score} profilePct={jp.data ? profileCompleteness(jp.data).pct : null} />
       <PassActive />
       {typeof window !== 'undefined' && /[?&]pass=1/.test(window.location.search) && <PassOffer />}
 
@@ -151,23 +176,23 @@ export default function MeHome() {
           <Link to={next.action.to} className="btn btn-signal btn-lg">{next.action.cta}</Link>
         </div>
       ) : me.orders.length === 0 && score < 60 && setUp ? (
-        <div className="card-ink row between g16">
+        <div className={`${ink} row between g16`}>
           <div className="stack g4"><span className="mono" style={{ opacity: 0.75, fontSize: 12 }}>GET STARTED</span><strong style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 600 }}>Set up your Job Profile (3 min)</strong><span className="small" style={{ opacity: 0.8 }}>Fill it once — every resume and cover letter starts from it.</span></div>
           <span className="row g8"><Link to="/me/profile" className="btn btn-signal btn-lg">Set up my Job Profile</Link><button type="button" className="btn btn-outline btn-lg" style={{ background: 'transparent', color: 'inherit' }} onClick={edit}>Open the builder</button></span>
         </div>
       ) : me.orders.length === 0 && score < 60 ? (
-        <div className="card-ink row between g16">
+        <div className={`${ink} row between g16`}>
           <div className="stack g4"><span className="mono" style={{ opacity: 0.75, fontSize: 12 }}>GET STARTED</span><strong style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 600 }}>Build your resume — or upload your old one and we’ll rebuild it</strong></div>
           <span className="row g8"><button type="button" className="btn btn-signal btn-lg" onClick={edit}>Open the builder</button><Link to="/" className="btn btn-outline btn-lg" style={{ background: 'transparent', color: 'inherit' }}>Free scan</Link></span>
         </div>
       ) : score < 60 ? (
         // "ready" only from a score of 60 (fix round item 16): below it, the next thing is the fixes
-        <div className="card-ink row between g16" data-testid="me-banner" data-state="fix">
+        <div className={`${ink} row between g16`} data-testid="me-banner" data-state="fix">
           <div className="stack g4"><span className="mono" style={{ opacity: 0.75, fontSize: 12 }}>DO THIS NEXT</span><strong style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 600 }}>Your resume scores {score}/100. Fix a few things to reach 60, then apply.</strong></div>
           <button type="button" className="btn btn-signal btn-lg" onClick={edit}>Fix my resume</button>
         </div>
       ) : (
-        <div className="card-ink row between g16" data-testid="me-banner" data-state="ready">
+        <div className={`${ink} row between g16`} data-testid="me-banner" data-state="ready">
           <strong style={{ fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 600 }}>Your resume is ready. Time to apply.</strong>
           <Link to="/me/jobs" className="btn btn-signal btn-lg">Track applications</Link>
         </div>
@@ -177,11 +202,9 @@ export default function MeHome() {
 
       <HealthCard />
 
-      <div className="row g16" style={{ alignItems: 'stretch' }}><ReadinessCard /><JobsForYouCard /></div>
+      <div className="row g16" style={{ alignItems: 'stretch' }}><JobsForYouCard /></div>
 
       <div className="row g16" style={{ alignItems: 'stretch' }}><HireCard /><RolesCard />{sk?.v2 && <SkillVerifyCard sk={sk} />}</div>
-
-      <ScoresExplained />
 
       <div className="kpis">
         <Kpi label="Active order" value={live[0] ? live[0].id : '—'} sub={live[0] ? `${live[0].label} · ${countdown(live[0].deadline).text}` : 'No order in progress'} />

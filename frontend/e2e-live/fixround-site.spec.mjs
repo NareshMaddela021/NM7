@@ -64,10 +64,12 @@ for (const [label, opts] of SIZES) {
       await expect(banner).toContainText('Fix a few things to reach 60');
       await expect(page.getByText('Your resume is ready. Time to apply.')).toHaveCount(0);
       const why = page.getByTestId('scores-explained'); // 17
-      await why.getByText('What do the three scores mean?').click();
+      await why.getByText('What do the scores mean?').click();
       await expect(why).toContainText('Resume score (ATS)');
       await expect(why).toContainText('Job readiness');
-      await expect(why).toContainText('Profile strength');
+      await expect(why).toContainText('Profile complete'); // Batch C item 20: one profile number
+      await expect(page.getByTestId('readiness-card')).toContainText('Job readiness'); // the one main score
+      await expect(page.getByTestId('me-widget-resume-ats-score')).toHaveCount(0);
       expect(await noSideScroll(page)).toBe(true);
     });
   });
