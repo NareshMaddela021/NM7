@@ -1,6 +1,6 @@
 // Application tracker: Saved -> Applied -> Viewed (Nm7 jobs) -> Shortlisted -> Interview -> Offer / Rejected, with
 // follow-up reminders and simple stats. Applications sent on Nm7 move when the company moves them; the rest you move.
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLang } from '../../lib/i18n';
 import { Dialog, useToast } from '../../components/ui';
@@ -13,6 +13,7 @@ import { MeHead } from './MeLayout';
 import { fmtShort, fmtDay } from './shared';
 import { webLink } from '../../lib/links';
 import { IcArrowLeft, IcArrowRight, IcBriefcase, IcCalendar, IcClip, IcClock, IcExternal } from '../../components/icons';
+import { savedOnBoard as onBoard, stageCount, useBoardSaved } from './savedJobs';
 
 const DAY = 864e5;
 const CHANNEL = { nm7: 'Applied on Nm7', link: 'Applied (outside Nm7)', email: 'Applied by email' };
@@ -70,13 +71,11 @@ export default function MeJobs() {
   const cols = APP_STAGES.filter(([k]) => k !== 'no_reply' || apps.some((a) => a.status === k)); // Closed (no reply) only when there are some
   const resumeName = (id) => me.resumes.find((r) => r.id === id)?.name || '—';
   // item 37: jobs saved on the job board show in the Saved column too (they live in Saved jobs, not here)
-  const [boardSaved, setBoardSaved] = useState([]);
-  useEffect(() => { http('/api/me/saved-jobs').then((r) => setBoardSaved(r.items || []), () => {}); }, []);
-  const appliedJobs = new Set(apps.map((a) => a.jobId).filter(Boolean));
-  const savedOnBoard = boardSaved.filter((j) => !appliedJobs.has(j.id));
+  const boardSaved = useBoardSaved();
+  const savedOnBoard = onBoard(apps, boardSaved);
 
   const TONE = { saved: 'neutral', applied: 'info', viewed: 'info', shortlisted: 'accent', interview: 'warn', offer: 'ok', rejected: 'bad', no_reply: 'neutral' };
-  const countOf = (k) => apps.filter((a) => a.status === k).length + (k === 'saved' ? savedOnBoard.length : 0);
+  const countOf = (k) => stageCount(apps, boardSaved, k); // the same number as the dashboard's card (Batch C item 19)
   const shown = cols.filter(([k]) => (filter ? filter === k : countOf(k) > 0));
   const nothing = apps.length === 0 && savedOnBoard.length === 0;
 

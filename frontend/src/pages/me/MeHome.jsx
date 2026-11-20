@@ -37,7 +37,8 @@ import PassOffer, { PassActive } from '../../components/PassOffer';
 import { useLang } from '../../lib/i18n';
 import { IcBriefcase, IcCheckCircle, IcClock, IcMessage, IcTarget } from '../../components/icons';
 import { LIVE, useAuth } from '../../lib/auth';
-import ResumeCard from '../start/ResumeCard'; // profile setup P1: "Pick up where you left off"
+import ResumeCard from '../start/ResumeCard';
+import { stageCount, useBoardSaved } from './savedJobs'; // profile setup P1: "Pick up where you left off"
 
 const SetupChecklist = lazy(() => import('./SetupChecklist')); // profile setup P2: the checklist, its own chunk
 
@@ -128,6 +129,7 @@ export default function MeHome() {
   const jp = useJobProfile();
   const setUp = jp.available && jp.data && profileCompleteness(jp.data).pct < 40; // new users: the Job Profile first
   const sk = useSkillChecks();
+  const boardSaved = useBoardSaved(); // Saved counts the job board's saved jobs too, like the Applications page (item 19)
   const dl = async (f) => { if (await downloadResume(r.data, f)) toast(f === 'pdf' ? 'PDF ready' : 'Word file ready'); };
 
   return (
@@ -219,7 +221,7 @@ export default function MeHome() {
       <div className="row g16" style={{ alignItems: 'stretch' }}>
         <section className="card stack g12" style={{ flex: '1 1 300px' }} aria-label="Applications">
           <div className="row between"><strong>Applications</strong><span className="row g12"><Link to="/me/auto-apply" className="small" data-testid="home-auto-apply">{t('aa.link')}</Link><Link to="/me/jobs" className="small">Board</Link></span></div>
-          <div className="row g8">{APP_STAGES.map(([k, l]) => <span key={k} className="badge b-neutral">{l} · {me.apps.filter((a) => a.status === k).length}</span>)}</div>
+          <div className="row g8">{APP_STAGES.map(([k, l]) => <span key={k} className="badge b-neutral" data-testid={`home-stage-${k}`}>{l} · {stageCount(me.apps, boardSaved, k)}</span>)}</div>
           {followUps.length > 0 && <div className="well small"><IcClock size={14} /> {followUps.length} application{followUps.length > 1 ? 's' : ''} sent over a week ago — time to follow up. <Link to="/me/jobs">See which</Link></div>}
         </section>
         <AutoSummaryCard />

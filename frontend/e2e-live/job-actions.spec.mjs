@@ -101,6 +101,12 @@ for (const [label, opts] of SIZES) {
       await page.goto('/jobs?saved=1');
       const saved = cards.filter({ hasText: `Row Tester ${tag}` });
       await oneRow(page, saved, ['card-view', 'card-applied', 'card-save']);
+      // Batch C item 19: the dashboard's Applications card counts the same saved jobs as the Applications page
+      await page.goto('/me/jobs');
+      await expect(page.getByTestId('saved-board-job').first()).toBeVisible();
+      const savedHere = (await page.getByTestId('col-count-saved').innerText()).trim();
+      await page.goto('/me');
+      await expect(page.getByTestId('home-stage-saved')).toHaveText(new RegExp(`Saved · ${savedHere}$`));
 
       // the Easy dashboard: View · Apply · Save on its big cards
       expect((await call(page, '/api/me/simple/prefs', json('PUT', { lang: 'en', mode: 'simple' }))).status).toBe(200);
