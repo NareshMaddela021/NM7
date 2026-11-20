@@ -114,7 +114,7 @@
   .sx-main:has(> .sx-tiles), .sx-main:has(.sx-job), .sx-main:has(.sx-list) { max-width: 1200px; padding: 28px 24px 72px; }
   /* home, balanced (Batch E item 45): greeting across the top; the next step and the setup card side by side; the four
      tiles in one row across; the two big buttons side by side under them. No long left column with an empty right. */
-  .sx-main:has(> .sx-tiles) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: stretch; gap: 24px 28px; }
+  .sx-main:has(> .sx-tiles) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; gap: 24px 28px; }
   .sx-main:has(> .sx-tiles) > :is(.sx-h1, .sx-offline, .sx-tiles) { grid-column: 1 / -1; }
   .sx-main:has(> .sx-tiles):not(:has(> [data-testid="sx-setup"])) > .sx-next { grid-column: 1 / -1; }
   .sx-main:has(> .sx-tiles) > .sx-tiles { grid-template-columns: repeat(4, minmax(0, 1fr)); }
