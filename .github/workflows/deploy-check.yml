@@ -1,11 +1,11 @@
 name: deploy-check
 
-# After each push to the deployed branch: ask Render to deploy (if a deploy hook is set) and wait until the
+# After each push to main (the branch Render and Vercel deploy from): ask Render to deploy (if a deploy hook is set) and wait until the
 # live API reports this exact commit at /version. Red = Render did not deploy this commit.
 # Optional repo secret RENDER_DEPLOY_HOOK_URL: Render → nm7-api → Settings → Deploy Hook.
 on:
   push:
-    branches: ["claude/fervent-albattani-wqmaoq"]
+    branches: ["main"]
     paths: ["backend/**", ".github/workflows/deploy-check.yml"]
   workflow_dispatch:
 

@@ -142,7 +142,7 @@ external monitor instead: cron-job.org or UptimeRobot, `GET https://nm7-api.onre
 - `deps.yml` (pip-audit, npm audit, Docker build) runs when dependency files or the Dockerfile change, and weekly.
 - `deploy-check.yml` runs after a merge that changes `backend/` (~3–5 min while Render deploys).
 - Scheduled workflows (nightly e2e, backup, Hygraph check, weekly deps) run from the repository's **default
-  branch**: set it to `claude/fervent-albattani-wqmaoq` (Settings → General → Default branch), or they never run.
+  branch**: `main`, which is also the branch Render and Vercel deploy from.
 
 **Staging** (`render.yaml`, second service `nm7-api-staging`, database `nm7_staging` on the same cluster). Vercel
 preview deployments talk to it instead of production, so a branch under review can never touch live data:
