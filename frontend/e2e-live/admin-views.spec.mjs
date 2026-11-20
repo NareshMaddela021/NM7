@@ -63,6 +63,16 @@ for (const [label, opts] of SIZES) {
         await page.goto('/jobs');
         await expect(page.getByTestId('view-banner')).toContainText(name);
         if (role !== 'company') expect((await call(page, '/api/admin/stats')).status).toBe(403); // not the admin now
+        if (role === 'jobseeker') { // item 39: /admin during a view offers Back to Admin, never the sign-in form
+          await page.goto('/admin');
+          await expect(page.getByTestId('view-back-admin')).toBeVisible();
+          await expect(page.getByRole('heading', { name: 'Admin sign in' })).toHaveCount(0);
+          await page.getByTestId('view-back-admin').click();
+          await page.waitForURL(/\/admin$/);
+          await expect(page.getByTestId('view-banner')).toHaveCount(0);
+          expect((await call(page, '/api/auth/me')).body.role).toBe('admin');
+          continue;
+        }
         await backToAdmin(page);
       }
       // the older demo buttons no longer sign the admin out: the Easy dashboard student
