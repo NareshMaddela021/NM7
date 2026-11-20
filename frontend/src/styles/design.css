@@ -302,3 +302,7 @@ select.input { appearance: none; -webkit-appearance: none; padding-right: 40px; 
 @media (max-width: 560px) {
   main .btn { white-space: normal; max-width: 100%; height: auto; min-height: 44px; padding-block: 8px; text-align: center; overflow-wrap: anywhere; }
 }
+/* the side menu's folded "More" (Batch C items 23, 24) */
+.me-more > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+.me-more > summary::-webkit-details-marker { display: none; }
+.me-more[open] > summary { color: var(--text); }
