@@ -128,9 +128,10 @@ async def test_save_read_and_delete(client, outbox, db):
     assert r.status_code == 200, r.text
     d = r.json()
     assert d["url"] == "https://www.linkedin.com/in/sai-varsha" and d["targetRole"] == "Data Analyst"
-    assert "2345" not in json.dumps(d) and d["result"]["score"] == 41
+    # Look for the ID number itself, not "2345" anywhere: a millisecond timestamp can contain those digits.
+    assert "2345 6789" not in json.dumps(d) and "6789 0123" not in json.dumps(d) and d["result"]["score"] == 41
     stored = await db[LINKEDIN].find_one({})
-    assert "2345" not in json.dumps(stored, default=str)
+    assert "2345 6789" not in json.dumps(stored, default=str) and "6789 0123" not in json.dumps(stored, default=str)
     assert (await client.get("/api/me/linkedin")).json()["sections"]["headline"] == "Student"
     assert (await client.delete("/api/me/linkedin")).status_code == 204
     assert await db[LINKEDIN].count_documents({}) == 0
