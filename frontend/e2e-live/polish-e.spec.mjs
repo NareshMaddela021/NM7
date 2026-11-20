@@ -3,7 +3,8 @@
 //      tiles in one row (a phone keeps one column);
 //   46 the browser tab shows the page's own name (Messages, Learning paths), not "My dashboard";
 //   47 on the company dashboard the top menu sits on a solid band and never covers the side menu or the content;
-//   48 the company Activity list is in plain words, never codes such as "hire.invite" or "drive_create".
+//   48 the company Activity list is in plain words, never codes such as "hire.invite" or "drive_create";
+//   49 Admin > Auto Apply: the Auto Apply 2.0 panels use their full width (no big empty column beside the title).
 import { expect, test } from '@playwright/test';
 import { adminLogin, seed } from './helpers.mjs';
 import { SIZES, call, json, noSideScroll } from './college.mjs';
@@ -69,6 +70,19 @@ for (const [size, opts] of SIZES) {
       const words = await act.locator('strong').allTextContents();
       expect(words.length).toBeGreaterThan(0);
       for (const w of words) expect(w.split(':')[0]).not.toMatch(/[a-z]+[._][a-z]+/);
+    });
+
+    test('admin Auto Apply panels use their full width', async ({ page }) => {
+      const owner = `pe-aa-${size}-${Date.now().toString(36)}@nm7.si`;
+      const { secret } = seed('admin', owner, 'owner', 'Strong-pass-123');
+      await adminLogin(page, owner, secret);
+      await page.waitForTimeout(1500);
+      await page.goto('/admin/auto-apply');
+      const panel = page.getByRole('complementary', { name: 'Auto Apply 2.0: email channel' });
+      await expect(panel).toBeVisible();
+      const [p, title] = [await panel.boundingBox(), await panel.locator('> div').first().boundingBox()];
+      expect(title.width).toBeGreaterThan(p.width * 0.8); // the title row runs across, content below it
+      expect(title.height).toBeLessThan(80);
     });
   });
 }
