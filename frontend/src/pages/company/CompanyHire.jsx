@@ -18,7 +18,8 @@
 // only when the answer carries `nonTech`, i.e. the Trust switch lets the company in).
 // Vetting Trust T7: the job's requirements (CriteriaEditor) and each person's Met / Not met / Unknown with the quoted
 // evidence (CriteriaStrip); after an edit the people shown are checked again (cached answers re-used) and re-sorted at
-// once here: must-haves met, then nice-to-haves met, then the match score (only when the answer carries `criteria`).
+// once here: by the match score that counts must-haves (half skills, half must-haves met), then must-haves met (only
+// when the answer carries `criteria`). The must-haves line shows first on each card.
 // Vetting Trust T15: work-test filters (typing / SJT / aptitude) and each person's badges + reliability record
 // (HireWorkTests.jsx; only when the answer carries `workTests`). No filter on the reliability record.
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -37,7 +38,7 @@ import DocBadges from './DocBadges';
 import { NT_NONE, NonTechChips, NonTechFilters, nonTechQuery } from './HireNonTech'; // Vetting Trust T6
 import { WT_NONE, WorkChips, WorkFilters, workQuery } from './HireWorkTests'; // Vetting Trust T15
 import { FairnessNotes } from './FairnessBits'; // Vetting Trust T12: a language / city filter that works as a proxy
-import { CriteriaEditor, CriteriaStrip, criteriaSort, useEvaluating } from './CriteriaBits'; // Vetting Trust T7
+import { CriteriaEditor, CriteriaStrip, blendScore, hireSort, useEvaluating } from './CriteriaBits'; // Vetting Trust T7
 import { TEST_NAMES } from '../../lib/vettingRoles';
 import { Empty } from '../me/kit';
 import { useLang } from '../../lib/i18n';
@@ -175,7 +176,7 @@ export default function CompanyHire({ t, c }) {
       setD((old) => {
         if (!old) return old;
         const top = old.items.slice(0, 100).map((x) => ({ ...x, criteria: r.items[x.key] || x.criteria }));
-        return { ...old, criteria: crit || r.criteria, items: [...criteriaSort(top, (x) => x.criteria, (x) => x.match.score), ...old.items.slice(100)] };
+        return { ...old, criteria: crit || r.criteria, items: [...hireSort(top, (x) => x.criteria, (x) => x.match.score), ...old.items.slice(100)] };
       });
     } catch (x) { setErr(x.message); }
   }, [c.id, job, d]);
@@ -304,10 +305,12 @@ export default function CompanyHire({ t, c }) {
                   <span className="hn-avatar" aria-hidden="true">{initial(x.name)}</span>
                   <strong className="hn-name"><span className="sr-only">{i + 1}. </span>{x.name}</strong>
                   <span className="hn-score">
-                    <span className="hn-ring" aria-hidden="true" style={{ '--p': Math.max(0, Math.min(100, x.match.score)) }}><span>{x.match.score}</span></span>
-                    <span className="mchip mchip-accent" data-testid="co-hire-score">{t('co.hire.score', { score: x.match.score })}</span>
+                    <span className="hn-ring" aria-hidden="true" style={{ '--p': blendScore(x.match.score, x.criteria) }}><span>{blendScore(x.match.score, x.criteria)}</span></span>
+                    <span className="mchip mchip-accent" data-testid="co-hire-score">{t('co.hire.score', { score: blendScore(x.match.score, x.criteria) })}</span>
                   </span>
                 </div>
+                {x.criteria?.mustTotal > 0 && <span className="xs muted" data-testid="co-hire-skills">Skills {x.match.score}% · must-haves count for half the match</span>}
+                <CriteriaStrip cr={x.criteria} />
                 {x.level && <LevelBadge level={x.level.level} label={x.level.label} readyNow={x.readyNow} lang={lang} />}
                 <Readiness x={x} lv={lv} />
                 <ul className="hn-chips">{reasons(x.match, t).map((r) => <li key={r} className="mchip mchip-neutral">{r}</li>)}</ul>
@@ -321,7 +324,6 @@ export default function CompanyHire({ t, c }) {
                 <DocBadges docs={x.docs} face={x.face} integrity={x.integrity} />
                 <NonTechChips nt={x.nonTech} />
                 <WorkChips w={x.workTests} rec={x.reliabilityRecord} />
-                <CriteriaStrip cr={x.criteria} />
                 <NmCheck c={c} uid={x.key} name={x.name} level={x.level?.level} row={x} canRequest={canInvite} />
                 <div className="hn-person-foot">
                   <ScreeningInterview c={c} uid={x.key} name={x.name} level={x.level?.level} job={job} canInvite={canInvite && !x.applied} invited={!!x.invite} onInvited={load} />

@@ -11,8 +11,8 @@ Company (only where the Trust switch lets the company in; else 404 and the pages
                                                            (its applicants, Hire now candidates): cached answers re-used,
                                                            new / reworded criteria answered now (rules) or queued (AI)
   POST /api/company/{cid}/trust/criteria/{jid}/run         answer a few queued ones with the AI now ("evaluating…")
-Applicants (one job picked) and Hire now carry `criteria` per person and are sorted by must-haves met, then
-nice-to-haves met, then the match score (attach_applicants / attach_hire). Not met never rejects or hides anyone.
+Applicants (one job picked) carry `criteria` per person and are sorted by must-haves met, then nice-to-haves met,
+then the match score (attach_applicants); Hire now by the match score that counts must-haves (blend, attach_hire). Not met never rejects or hides anyone.
 
 Candidate (Vetting Trust on for them):
   GET    /api/me/trust/criteria                            the consent, and per application the criteria I was
@@ -223,6 +223,17 @@ async def run_now(cid: str, jid: str, db: DB, x_recruiter_account: str | None = 
     return {**done, "pending": left}
 
 
+def blend(score: int, strip: dict[str, Any] | None) -> int:
+    """Hire now's shown score (item 29): with must-haves on the job, half the skills match and half the must-haves met,
+    so a person missing must-haves never shows 100%. The same sum as blendScore in CriteriaBits.jsx. Order only."""
+    s = max(0, min(100, int(score or 0)))
+    total = int((strip or {}).get("mustTotal") or 0)
+    if not total:
+        return s
+    met = min(int((strip or {}).get("mustMet") or 0), total)
+    return int(s / 2 + 50 * met / total + 0.5)
+
+
 async def attach_applicants(db, rows: list[dict[str, Any]], j: dict[str, Any], c: dict[str, Any], acc: dict[str, Any] | None,
                             resumes: dict[str, Any]) -> dict[str, Any] | None:  # fmt: skip
     """Applicants for one job: `criteria` on each row, sorted by must-haves met, nice-to-haves met, then as before.
@@ -242,7 +253,8 @@ async def attach_applicants(db, rows: list[dict[str, Any]], j: dict[str, Any], c
 async def attach_hire(
     db, rows: list[dict[str, Any]], j: dict[str, Any], c: dict[str, Any], acc: dict[str, Any] | None
 ) -> dict[str, Any] | None:
-    """Hire now: `criteria` on the top people, who are re-sorted by must-haves met, nice-to-haves met, then score."""
+    """Hire now: `criteria` on the top people, who are re-sorted by the match score that counts must-haves (`blend`),
+    then must-haves met, then nice-to-haves met."""
     if not await access.for_company(db, c, acc):
         return None
     crit = await X.for_job(db, j, who(c["_id"]))
@@ -250,7 +262,7 @@ async def attach_hire(
     got = await EV.strips(db, crit, [r["key"] for r in top], who=who(c["_id"]), show_test=show_test(c))
     for r in top:
         r["criteria"] = got.get(r["key"])
-    top.sort(key=lambda r: (*EV.sort_key(r["criteria"]), -int((r.get("match") or {}).get("score") or 0)))
+    top.sort(key=lambda r: (-blend(int((r.get("match") or {}).get("score") or 0), r["criteria"]), *EV.sort_key(r["criteria"])))
     rows[:HIRE_TOP] = top
     return X.out(crit, j)
 
