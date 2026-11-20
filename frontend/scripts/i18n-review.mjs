@@ -8,7 +8,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
-export const FILES = ['home.json', 'pages.json'].map((f) => join(here, '..', 'src', 'i18n', f));
+export const FILES = ['home.json', 'pages.json', 'setup.json'].map((f) => join(here, '..', 'src', 'i18n', f));
 export const CSV_PATH = join(here, '..', '..', 'docs', 'translations-review.csv');
 export const STATUS = 'needs native review';
 
@@ -32,6 +32,7 @@ export function pageOf(key, file) {
   if (key.startsWith('gr.')) return '/grievance';
   if (key.startsWith('aa.')) return '/me/auto-apply (Auto Apply)';
   if (key.startsWith('simple.')) return '/me/simple (Easy dashboard)';
+  if (key.startsWith('setup.')) return '/me/simple, /me/simple/setup (Easy dashboard: profile setup steps)';
   return '';
 }
 
