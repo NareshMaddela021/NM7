@@ -28,6 +28,33 @@ async def test_resets_in_any_order_never_break_each_other(client, db, admin_clie
     assert await db[USERS].count_documents({"_id": {"$regex": "^hire-demo-"}}) == 30
 
 
+async def test_college_reset_leaves_the_student_demos_alone(client, db, admin_client):
+    """Full site test (19 Nov): "Reset and open as coordinator" deleted Meera / Arjun (Phase 6), the Auto Apply demo
+    student and the Easy dashboard student, because their addresses end in demo.nm7.invalid too: their open demo
+    tabs were signed out and their resumes gone until reopened."""
+    from app.autoapply import demo as aa
+    from app.seek import demo as seek
+    from app.simple import demo as simple
+
+    owner = await admin_client()
+    for p, body in [("/api/admin/seek/demo", {"who": "meera"}), ("/api/admin/seek/demo", {"who": "arjun"}),
+                    ("/api/admin/auto-apply/demo", {}), ("/api/admin/simple/demo", {})]:  # fmt: skip
+        r = await owner.post(p, json=body)
+        assert r.status_code == 200, (p, r.text)
+    students = [seek.STUDENTS["meera"][0], seek.STUDENTS["arjun"][0], aa.STUDENT_ID, simple.STUDENT_ID]
+    resumes = await db[RESUMES].count_documents({"user_id": {"$in": students}})
+    assert (await owner.post("/api/admin/demo-org/coordinator")).status_code == 200
+    assert await db[USERS].count_documents({"_id": {"$in": students}}) == 4
+    assert await db[RESUMES].count_documents({"user_id": {"$in": students}}) == resumes
+    # the college's own people are still reset (same count every time)
+    college = await db[USERS].count_documents({"email": {"$regex": r"@demo\.nm7\.invalid$"}, "_id": {"$nin": students}})
+    assert (await owner.post("/api/admin/demo-org/coordinator")).status_code == 200
+    assert (
+        await db[USERS].count_documents({"email": {"$regex": r"@demo\.nm7\.invalid$"}, "_id": {"$nin": students}})
+        == college
+    )
+
+
 async def test_one_heavy_job_at_a_time(client, db, admin_client):
     from app.hire.vetting.ladder import hourly_if_due
 
