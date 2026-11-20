@@ -262,7 +262,12 @@ async def attach_hire(
     got = await EV.strips(db, crit, [r["key"] for r in top], who=who(c["_id"]), show_test=show_test(c))
     for r in top:
         r["criteria"] = got.get(r["key"])
-    top.sort(key=lambda r: (-blend(int((r.get("match") or {}).get("score") or 0), r["criteria"]), *EV.sort_key(r["criteria"])))
+    top.sort(
+        key=lambda r: (
+            -blend(int((r.get("match") or {}).get("score") or 0), r["criteria"]),
+            *EV.sort_key(r["criteria"]),
+        )
+    )
     rows[:HIRE_TOP] = top
     return X.out(crit, j)
 
