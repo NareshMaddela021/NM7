@@ -14,6 +14,8 @@ export default defineConfig({
   use: { baseURL: process.env.SMOKE_URL || 'https://nm7.si', reducedMotion: 'reduce', launchOptions: process.env.PW_CHROMIUM ? { executablePath: process.env.PW_CHROMIUM } : {} },
   projects: [
     { name: 'setup', testMatch: /setup\.smoke\.mjs/ },
-    ...Object.entries(SIZES).map(([name, use]) => ({ name, use, testMatch: /pages\.smoke\.mjs/, dependencies: ['setup'] })),
+    ...Object.entries(SIZES).map(([name, use]) => ({ name, use, testMatch: /(^|\/)pages\.smoke\.mjs/, dependencies: ['setup'] })),
+    // the deep journeys (journeys-*.smoke.mjs): each role's main tasks, read-only, with sideways-scroll and emoji checks
+    ...Object.entries(SIZES).map(([name, use]) => ({ name: `j-${name}`, use, testMatch: /journeys-.*\.smoke\.mjs/, dependencies: ['setup'] })),
   ],
 });

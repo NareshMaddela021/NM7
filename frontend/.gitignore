@@ -10,3 +10,5 @@ playwright-report
 shots
 e2e-smoke/.state/
 smoke-results.json
+test-results-journeys-local
+journeys-local-results.json

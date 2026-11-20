@@ -24,7 +24,8 @@ export function totp(secret, at = Date.now()) {
 // noise that is not the site's fault (browser extensions don't exist here; these come from third parties)
 // "Failed to load resource" is the browser's own copy of a request's status: each request is judged once, by the
 // response and requestfailed handlers below (which know the signed-out 401 of "who am I" is expected)
-const IGNORE = [/favicon/i, /google-analytics|googletagmanager|gtag/i, /^Failed to load resource:/i];
+// Google's own sign-in frame logs a report-only frame-ancestors line on the sign-in pages (Google's header, not ours)
+const IGNORE = [/favicon/i, /google-analytics|googletagmanager|gtag/i, /^Failed to load resource:/i, /^\[Report Only\] Refused to frame 'https:\/\/accounts\.google\.com\//];
 
 /**
  * Opens `path` and checks it: the document loads, the page isn't blank or "Page not found", and there were no page
