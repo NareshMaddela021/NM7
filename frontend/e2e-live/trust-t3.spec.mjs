@@ -1,8 +1,8 @@
 // Vetting Trust T3 (ID + live selfie; the test provider here) on a desktop and a 390 px phone, against the real API, with
 // Chromium's fake camera (--use-fake-device-for-media-stream, --use-fake-ui-for-media-stream):
-//   - before a skill check: the consent text, the card photo (an Aadhaar card is refused), the live selfie with the
-//     prompt, "ID + selfie verified", and the test starts;
-//   - before the AI interview: liveness fails three times → a person checks (told plainly, nobody turned away); the
+//   - a skill check in test mode starts at once (face check pending, Batch A); then from settings: the consent text,
+//     the card photo (an Aadhaar card is refused), the live selfie with the prompt, "ID + selfie verified";
+//   - the ID + selfie from settings: liveness fails three times → a person checks (told plainly, nobody turned away); the
 //     owner sees the ID + selfie card (test provider, keys "not set", counts) and verifies after a video call; the
 //     interview then starts;
 //   - the camera blocked: plain help and a manual check instead (Profile & settings);
@@ -61,7 +61,7 @@ for (const [label, opts] of SIZES) {
   test.describe(label, () => {
     test.use(opts);
 
-    test('skill check: ID card + live selfie first (Aadhaar refused), then the test starts', async ({ page }) => {
+    test('skill check: test mode never blocks (face check pending); the ID card + live selfie from settings (Aadhaar refused)', async ({ page }) => {
       page.on('dialog', () => { throw new Error('no browser dialogs'); });
       await person(page, `tt3sk-${label}`, `Asha Face ${label}`, { vetting: true });
       await page.goto('/me/skill-checks');
@@ -72,7 +72,13 @@ for (const [label, opts] of SIZES) {
       await page.getByTestId('sk-list').getByTestId('sk-start-SQL').click();
       await page.getByTestId('vt-start').getByTestId('pledge-tick').check(); // T9: the honesty pledge
       await page.getByTestId('vt-start').getByTestId('vt-go').click();
+      // Batch A: only the test provider (no vendor keys): the test starts at once, the face check is marked pending
+      await expect(page.getByTestId('vt-q')).toBeVisible({ timeout: 20_000 });
+      await expect(page.getByRole('dialog', { name: 'Quick check: is it really you?' })).toHaveCount(0);
 
+      await page.goto('/me/settings');
+      const card = page.getByTestId('fc-card');
+      await card.getByTestId('fc-open').click();
       const dlg = page.getByRole('dialog', { name: 'Quick check: is it really you?' });
       await expect(dlg.getByTestId('fc-consent-text')).toContainText('never Aadhaar');
       await expect(dlg.getByTestId('fc-consent-text')).toContainText('Amazon Web Services');
@@ -90,8 +96,6 @@ for (const [label, opts] of SIZES) {
       await cardAndSelfie(dlg);
       await expect(dlg.getByTestId('fc-done')).toContainText('ID + selfie verified', { timeout: 20_000 });
       expect(await noSideScroll(page)).toBe(true);
-      await dlg.getByTestId('fc-continue').click();
-      await expect(page.getByTestId('vt-q')).toBeVisible({ timeout: 20_000 });
     });
 
     test('interview: liveness fails 3 times, a person checks, the owner verifies, then it starts', async ({ page, browser }) => {
@@ -100,16 +104,10 @@ for (const [label, opts] of SIZES) {
       const name = `Nolive Bala ${label} ${Date.now().toString(36)}`; // the test provider fails liveness for "nolive"
       const mail = await person(page, `tt3iv-${label}`, name, { vetting: true });
       seed('skill-verified', mail, 'SQL', '1-3', '84', '86');
-      await page.goto('/me/interviews');
-      await page.getByTestId('iv-role').filter({ hasText: 'Data analyst' }).getByTestId('iv-start-SQL').click();
-      await page.getByTestId('iv-mode-text').check();
-      await page.getByTestId('iv-agree').check();
-      await page.getByTestId('pledge-interview').getByTestId('pledge-tick').check(); // T9: the honesty pledge
-      await page.getByTestId('iv-go').click();
-
+      await page.goto('/me/settings'); // test mode never blocks the interview (Batch A): the check from settings
+      await page.getByTestId('fc-card').getByTestId('fc-open').click();
       const dlg = page.getByRole('dialog', { name: 'Quick check: is it really you?' });
       await dlg.getByTestId('fc-agree').click();
-      await expect(dlg.getByTestId('fc-id')).toContainText('Before your AI interview');
       await cardAndSelfie(dlg);
       await expect(dlg.getByTestId('fc-retry')).toContainText('You can try 2 more times', { timeout: 20_000 });
       await expect(dlg.getByTestId('fc-retry')).toContainText('movement');
@@ -147,7 +145,12 @@ for (const [label, opts] of SIZES) {
       expect(await noSideScroll(admin)).toBe(true);
       await actx.close();
 
-      await page.getByTestId('iv-go').click(); // the Setup screen is still there: now it starts
+      await page.goto('/me/interviews');
+      await page.getByTestId('iv-role').filter({ hasText: 'Data analyst' }).getByTestId('iv-start-SQL').click();
+      await page.getByTestId('iv-mode-text').check();
+      await page.getByTestId('iv-agree').check();
+      await page.getByTestId('pledge-interview').getByTestId('pledge-tick').check(); // T9: the honesty pledge
+      await page.getByTestId('iv-go').click();
       await expect(page.getByTestId('iv-text')).toBeVisible({ timeout: 20_000 });
     });
 

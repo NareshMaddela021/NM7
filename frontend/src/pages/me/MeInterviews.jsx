@@ -176,7 +176,7 @@ function MeInterviewsPage() {
   };
   const faceEl = face && (
     <Suspense fallback={null}>
-      <FaceCheck mode="identity" step="interview" onClose={() => setFace(null)} onDone={() => { const b = face; setFace(null); begin(b).catch((e) => setErr(e.message)); }} />
+      <FaceCheck mode="identity" step="interview" onClose={() => setFace(null)} onDone={() => { const b = face; setFace(null); begin(b).catch((e) => setErr(e.message)); }} onLater={() => { const b = face; setFace(null); begin({ ...b, noCamera: true }).catch((e) => setErr(e.message)); }} />
     </Suspense>
   );
   const resume = (r) => { setErr(''); begin({ test: r.test, lang: r.last.lang, mode: r.last.mode, consent: true }).catch((e) => setErr(e.message)); };

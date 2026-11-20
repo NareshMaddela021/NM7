@@ -201,6 +201,9 @@ async def after_start(get_db) -> None:
         await startup_work(get_db())
     except Exception:  # noqa: BLE001  (the server keeps serving; the next start tries again)
         logging.getLogger("nm7").exception("start-up work failed")
+    from app.hire.vetting.store import banks_ready
+
+    await banks_ready(get_db(), wait=600)  # the skill check banks before the first visitor (Batch A; never raises)
     await automation.loop(get_db, first_delay=automation.START_DELAY)
 
 
