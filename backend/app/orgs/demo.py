@@ -11,6 +11,7 @@ can't sign in (no usable password), are never emailed (reminders skip them) and 
 """
 
 import random
+import re
 import secrets
 from datetime import datetime, timedelta
 from datetime import time as dtime
@@ -146,7 +147,14 @@ async def remove_demo(db: AsyncDatabase) -> int:
     # only this demo's own people (the college's students, coordinator, reviewer, alumni: ...@demo.nm7.invalid); the
     # other demos' made-up people (Hire in 60 minutes, the student demos) are theirs to reset. Ids are read in small
     # batches and deleted chunk by chunk, so a reset never holds a big list in memory (the server has 512 MB).
-    mine = {"demo": True, "$or": [{"email": {"$regex": r"@demo\.nm7\.invalid$"}}, {"_id": COORDINATOR_ID}]}
+    # The student demos (Meera / Arjun, the Auto Apply student, the Easy dashboard student) share the address domain
+    # but are named <first>.student@...; the college's own people never are (full site test, 19 Nov: a college reset
+    # signed those demos out and deleted their resumes).
+    mine = {
+        "demo": True,
+        "$or": [{"email": {"$regex": r"@demo\.nm7\.invalid$"}}, {"_id": COORDINATOR_ID}],
+        "email": {"$not": re.compile(r"\.student@demo\.nm7\.invalid$")},
+    }
     n = 0
     batch: list = []
     async for u in db[USERS].find(mine, {"_id": 1}, batch_size=CHUNK):

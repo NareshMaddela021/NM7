@@ -71,9 +71,12 @@ function ConsentCard({ onDone }) {
   );
 }
 
-function RoleCard({ r, cat, onStart, onRenew }) {
+export function RoleCard({ r, cat, onStart, onRenew }) {
   const last = r.last;
-  const running = last && !last.done;
+  // an older skill check (before Vetting V2, v 1) has no result page or test runner here: its score is shown only
+  // (full site test, 19 Nov: "See result" opened "That test isn't here.")
+  const v2 = last?.v === 2;
+  const running = v2 && !last.done;
   const renew = renewState(r.verified);
   const nQ = Math.min(cat.questions, r.questions);
   return (
@@ -100,7 +103,7 @@ function RoleCard({ r, cat, onStart, onRenew }) {
         {running ? <button type="button" className="btn btn-signal" onClick={() => onStart(r, { resume: true })} data-testid={`sk-start-${r.test}`}>Carry on with the test</button>
           : r.canStart ? <button type="button" className={`btn ${renew.open ? 'btn-outline' : 'btn-signal'}`} onClick={() => onStart(r)} aria-label={`Start: ${r.role}`} data-testid={`sk-start-${r.test}`}>{last?.freeRetest ? 'Start free retest' : 'Start'}</button>
             : !renew.open && <span className="xs muted" data-testid="vt-wait">Next try from {day(last?.againAt)}</span>}
-        {last?.done && <Link className="btn btn-outline" to={`/me/skill-checks/${last.id}`} aria-label={`See result: ${r.role}`}>See result</Link>}
+        {v2 && last.done && <Link className="btn btn-outline" to={`/me/skill-checks/${last.id}`} aria-label={`See result: ${r.role}`}>See result</Link>}
       </div>
     </li>
   );

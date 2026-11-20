@@ -127,11 +127,15 @@ const TAB_META = {
 };
 // Auto Apply 2.0 (A4): the hiring-system page, only for companies the 2.0 switch lets in (English only while tested)
 const ConnectHiring = lazy(() => import('./ConnectHiring'));
+// Profile setup P3: the company's setup checklist at the top of the Overview (its own small chunk)
+const TeamChecklist = lazy(() => import('../me/TeamChecklist'));
 const TAB_LABEL = { connect: 'Connect your hiring system' };
 const TRUST_TONE = { verified: 'ok', basic: 'accent', unverified: 'warn', blocked: 'bad' };
 
 function Dashboard({ t, c, onChanged, onSignedOut }) {
-  const [tab, setTab] = useState(() => (typeof window !== 'undefined' && window.location.hash === '#hire' ? 'hire' : 'overview'));
+  // a link like /company#jobs (the setup checklist's reminder email) opens that tab
+  const [tab, setTab] = useState(() => { const k = typeof window !== 'undefined' ? window.location.hash.slice(1) : ''; return TAB_META[k] ? k : 'overview'; });
+  const openTab = (k) => { setTab(k); try { window.scrollTo({ top: 0 }); } catch { /* jsdom */ } };
   const manage = ['main', 'full'].includes(c.myRole);
   const [icon, shape] = TAB_META[tab];
   const auto = useAutoInfo(c.id);
@@ -163,6 +167,7 @@ function Dashboard({ t, c, onChanged, onSignedOut }) {
           <h2 className="co-head-title">{label(tab)}</h2>
           <span className="co-head-art" aria-hidden="true"><Still shape={shape} tint="company" className="co-head-still" /></span>
         </div>
+        {tab === 'overview' && <Suspense fallback={null}><TeamChecklist kind="company" id={c.id} onTab={openTab} /></Suspense>}
         {tab === 'overview' && <Overview t={t} c={c} manage={manage} />}
         {tab === 'jobs' && <CompanyJobs t={t} c={c} />}
         {tab === 'applicants' && <CompanyApplicants t={t} c={c} />}

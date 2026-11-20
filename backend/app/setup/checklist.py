@@ -230,9 +230,9 @@ def visible_steps(role: str, f: dict[str, Any], sw: dict[str, dict[str, bool]]) 
             continue
         if s.adult_only and f.get("minor"):
             continue
-        if s.only == "fresher" and not f.get("fresher"):
+        if s.only and not f.get(s.only):  # fresher / reviewer / registered (a company with a registration number)
             continue
-        if s.only == "reviewer" and not f.get("reviewer"):
+        if s.feature and not (f.get("features") or {}).get(s.feature):  # a college's plan without that feature
             continue
         out.append((s, bool(s.switch) and not sw[s.switch].get("public")))
     return out
@@ -283,8 +283,17 @@ def renewals(role: str, f: dict[str, Any], sw: dict[str, dict[str, bool]], t: da
     return out
 
 
+def _link(s: R.Step, f: dict[str, Any]) -> str:
+    """The step's page: a team's own link for this state (f["links"]), with the college's id filled in."""
+    return ((f.get("links") or {}).get(s.id) or s.link).replace("{id}", str(f.get("id") or ""))
+
+
 def build(
-    role: str, f: dict[str, Any], sw: dict[str, dict[str, bool]], saved: dict[str, Any], t: datetime | None = None
+    role: str,
+    f: dict[str, Any],
+    sw: dict[str, dict[str, bool]],
+    saved: dict[str, Any],
+    t: datetime | None = None,
 ) -> dict[str, Any]:
     """The checklist from the facts, the switches and what the person saved (skips, when it was first complete)."""
     t = t or now()
@@ -292,7 +301,7 @@ def build(
     rows = []
     for s, testers in visible_steps(role, f, sw):
         state = s.detect(f)
-        rows.append({"id": s.id, "title": s.title, "reward": s.reward, "minutes": s.minutes, "link": s.link, "required": s.required,
+        rows.append({"id": s.id, "title": s.title, "reward": s.reward, "minutes": s.minutes, "link": _link(s, f), "required": s.required,
                      "state": state, "skipped": state == "todo" and s.id in skipped, "testersOnly": testers})  # fmt: skip
     req_left = any(r["required"] and r["state"] != "done" for r in rows)
     nxt = pick_next(rows) if req_left or not rows else None  # complete: no "next step" (optional ones stay listed)
@@ -453,6 +462,12 @@ async def stop_reminders(body: TokenIn, request: Request, db: DB) -> dict[str, A
     await rate_limit.check(db, key, [(20, timedelta(hours=1))])
     await rate_limit.record(db, key)
     uid = unsub_user(body.token)
+    if uid and uid.startswith(("co:", "org:")):  # P3: a company's or a college's weekly reminder (setup.reminders_off)
+        from app.setup import teams
+
+        if not await teams.stop(db, uid):
+            raise ApiError(404, "invalid_link", "This link doesn't work.")
+        return {"ok": True}
     if not uid or not await db[USERS].find_one({"_id": uid}, {"_id": 1}):
         raise ApiError(404, "invalid_link", "This link doesn't work.")
     await db[USERS].update_one({"_id": uid}, {"$set": {"setup_reminders_off": True}})

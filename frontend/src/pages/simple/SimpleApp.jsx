@@ -9,6 +9,8 @@
 //   /me/simple/jobs …     jobs made simple: top 3, Apply, Let Nm7 apply for me, answers, apply on their website
 //   /me/simple/ready      the job readiness score: a big ring, "You are 65% ready", up to 3 things left
 //   /me/simple/hire       Ready to join (Phase 5): visible until …, Still ready, Pause; details in the full page
+//   /me/simple/setup      profile setup P4: every setup step in simple words (SimpleChecklist.jsx, lazy); its card
+//                         "Set up your profile" sits under "Your next step" on /me/simple (lazy too)
 //   /me/simple/more       everything else: links to the full dashboard's pages, "Read screens aloud automatically"
 // The speaker button at the top reads each screen's main words (voice.jsx); each card has its own speaker button.
 // Icons: the line icons of components/ui.jsx's Icon (already in the first download, so they cost no extra bytes here).
@@ -34,6 +36,7 @@ const Practice = lazy(() => more().then((m) => ({ default: m.Practice })));
 const Fixes = lazy(() => more().then((m) => ({ default: m.Fixes })));
 const Hire = lazy(() => more().then((m) => ({ default: m.Hire })));
 const Roles = lazy(() => import('./SimpleRoles')); // Phase 6 S1: the role finder
+const Setup = lazy(() => import('./SimpleChecklist')); // profile setup P4: the setup card and steps, one lazy chunk
 import '../../styles/simple.css';
 
 /** "Loading…", or while a sleeping server wakes up, a plain note that it can take up to a minute (re-test N6). */
@@ -150,6 +153,7 @@ function Home({ t, lang, d, setSay }) {
         <p className="sx-p">{t(`simple.next.${n.key}.text`, vars)}</p>
         <Big to={n.path} icon="arrow" after label={t(`simple.next.${n.key}.cta`, vars)} ink testid="sx-next-go" />
       </section>
+      <Suspense fallback={null}><Setup card t={t} lang={lang} /></Suspense>
       {d.readiness && <Big to="/me/simple/ready" label={t('simple.ready.big', { score: d.readiness.score })} testid="sx-ready-link" />}
       <nav className="sx-tiles" aria-label={t('simple.title')}>
         {TILES.map(([k, icon, to]) => <Link key={k} to={to} className="sx-tile" data-testid={`sx-tile-${k}`}><span className="sx-ic"><Icon name={icon} size={30} /></span><span>{t(`simple.tile.${k}`)}</span></Link>)}
@@ -244,6 +248,7 @@ export default function SimpleApp() {
         <Route path="fixes" element={wait(<Fixes {...screen} />)} />
         <Route path="hire" element={wait(<Hire {...screen} />)} />
         <Route path="roles" element={wait(<Roles {...screen} />)} />
+        <Route path="setup" element={wait(<Setup {...screen} />)} />
         <Route path="jobs" element={wait(<Jobs {...screen} />)} />
         <Route path="jobs/:id" element={wait(<Apply {...screen} />)} />
         <Route path="auto" element={wait(<AutoOn {...screen} />)} />

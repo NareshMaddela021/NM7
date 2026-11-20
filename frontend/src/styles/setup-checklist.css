@@ -20,6 +20,10 @@
 .sc-row[data-status="done"] .sc-row-title { color: var(--text2); }
 .sc-row-act { display: flex; flex-wrap: wrap; gap: 6px; flex: none; justify-content: flex-end; }
 .sc-row-act .btn { min-height: 44px; }
+.sc-who { overflow-wrap: anywhere; }
+.sc-row > .sc-who { flex: 0 1 200px; text-align: right; }
+.sc-remind { display: flex; align-items: center; gap: 10px; min-height: 44px; }
+.sc-remind input { width: 20px; height: 20px; flex: none; }
 .sc-done { flex-direction: column; padding-top: 14px; padding-bottom: 14px; }
 .sc-done-line { display: flex; align-items: center; gap: 10px; }
 .sc-tick { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #e7f6ec; color: #166534; font-weight: 800; flex: none; }
@@ -28,4 +32,5 @@
   .sc-actions .sc-btn { flex: 1 1 140px; }
   .sc-row { flex-direction: column; align-items: stretch; }
   .sc-row-act { justify-content: flex-start; }
+  .sc-row > .sc-who { flex: none; text-align: left; }
 }

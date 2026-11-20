@@ -6,10 +6,11 @@ detects (a pure function of the facts loaded in checklist.py), a one-line reward
 takes, the page that does it, whether it is required for "Profile complete", the switch it sits behind (hidden from
 normal people while that switch is off; testers, demo people and an admin's personas see it) and who it is for.
 
-P3 (company / college checklists) adds its roles here with their own facts loader; P4 (Daily report funnel, Easy
+P3 adds the company and college checklists here too (facts loaded in teams.py); P4 (Daily report funnel, Easy
 dashboard) reads the same registry, so a step is defined once.
 
-Steps for features that don't exist yet are left out (listed in the PR): phone / WhatsApp verification.
+Steps for features that don't exist yet are left out (listed in the PRs): phone / WhatsApp verification; a college
+coordinator's verification; picking from Nm7's list of verified companies (colleges invite recruiters by email).
 """
 
 from collections.abc import Callable
@@ -30,7 +31,9 @@ class Step:
     required: bool = True
     switch: str | None = None  # vetting | trust | hire | payments: hidden while this switch is off for the person
     adult_only: bool = False  # under-18s never get it (ID + selfie)
-    only: str | None = None  # fresher | experienced | reviewer: shown only to them
+    only: str | None = None  # fresher | reviewer | registered: shown only when that fact is true
+    feature: str | None = None  # colleges: hidden while the college's plan doesn't include this feature
+    who: str | None = None  # teams: the permission it needs (company manage / post; college manage / groups / …)
 
 
 def _yes(v: Any) -> Status:
@@ -132,6 +135,67 @@ def submitted(f: dict[str, Any]) -> Status:
     if st == "approved":
         return "done"
     return "waiting" if st in ("review", "testReview") else "todo"
+
+
+# ---------- company and college detectors (facts from teams.py) ----------
+
+
+def company_basics(f: dict[str, Any]) -> Status:
+    """Both emails proven (sign-up finished) and a short "about" for the jobs and the company page."""
+    return _yes(f.get("emails_ok") and f.get("about"))
+
+
+def business_check(f: dict[str, Any]) -> Status:
+    """Verified by Nm7's team (sign-up's GSTIN / CIN / LLPIN) or by the registry check (GSTIN / Udyam / CIN)."""
+    if f.get("verified"):
+        return "done"
+    return "waiting" if f.get("in_review") else "todo"
+
+
+def first_job(f: dict[str, Any]) -> Status:
+    if f.get("jobs_live"):
+        return "done"
+    return "waiting" if f.get("jobs_review") else "todo"
+
+
+def interview_times(f: dict[str, Any]) -> Status:
+    return _yes(f.get("slots"))
+
+
+def screening(f: dict[str, Any]) -> Status:
+    return _yes(f.get("questions"))
+
+
+def team_invited(f: dict[str, Any]) -> Status:
+    return _yes(f.get("team", 0) > 1)
+
+
+def hiring_system(f: dict[str, Any]) -> Status:
+    return _yes(f.get("ats"))
+
+
+def college_basics(f: dict[str, Any]) -> Status:
+    return _yes(f.get("named") and (f.get("city") or f.get("billing")))
+
+
+def student_groups(f: dict[str, Any]) -> Status:
+    return _yes(f.get("groups", 0) > 0)
+
+
+def students_joined(f: dict[str, Any]) -> Status:
+    return _yes(f.get("members", 0) > 0)
+
+
+def first_drive(f: dict[str, Any]) -> Status:
+    return _yes(f.get("drives", 0) > 0)
+
+
+def companies_invited(f: dict[str, Any]) -> Status:
+    return _yes(f.get("recruiters", 0) > 0)
+
+
+def first_report(f: dict[str, Any]) -> Status:
+    return _yes(f.get("reports"))
 
 
 # ---------- the registry ----------
@@ -331,7 +395,29 @@ STEPS: dict[str, tuple[Step, ...]] = {
     ),
 }
 
-ROLES = tuple(STEPS)
+# P3: the company's and the college's own checklists (not a person's role). Links with {id} get the college's id.
+# fmt: off
+STEPS["company"] = (
+    Step("basics", "Finish your company details", "A short “about” and both emails confirmed. People see it on your jobs and company page.", 3, "/company#page", company_basics, who="manage"),
+    Step("business", "Get your business checked (GST, Udyam or CIN)", "Verified companies get the “Verified” badge and can post more jobs.", 5, "/company#settings", business_check, only="registered", who="manage"),
+    Step("job", "Post your first job", "Applicants start coming in. Not sure what to write? The writer drafts it from the role and skills.", 10, "/company#jobs", first_job, who="post"),
+    Step("slots", "Add interview times", "People you invite pick a time with one tap, and both sides get reminders.", 5, "/company#hire", interview_times, who="post"),
+    Step("screening", "Add screening questions to a job", "Yes / no, number or choice questions. An answer that doesn’t fit only gets a “Not a fit” label: nobody is rejected automatically.", 5, "/company#jobs", screening, who="post"),
+    Step("team", "Invite your team", "Colleagues who post jobs or only look at applicants. You choose what each one can do.", 2, "/company#team", team_invited, who="manage"),
+    Step("connect", "Connect your hiring system", "Applications to your linked jobs also reach Zoho Recruit, Greenhouse, Lever or Darwinbox.", 10, "/company#connect", hiring_system, required=False, switch="autoapply2", who="manage"),
+)
+STEPS["college"] = (
+    Step("basics", "Check your college details", "Your college’s name and city show to students when they join a group.", 2, "/org/{id}/billing", college_basics, who="billing"),
+    Step("groups", "Make your first student group", "One batch or drive, with its own join link and QR code.", 3, "/org/{id}#og-new", student_groups, who="groups"),
+    Step("students", "Invite your students", "Share the group’s join link or QR. Students share their resume with you, with their consent.", 5, "/org/{id}#og-groups", students_joined, who="manage"),
+    Step("drive", "Plan your first placement drive", "Companies, rooms and times in one place. Students check in with a QR code.", 10, "/org/{id}/drives", first_drive, feature="drives", who="manage"),
+    Step("companies", "Invite companies to see your students", "A recruiter gets a safe link to the students who allowed it, until the date you choose.", 5, "/org/{id}/recruiters", companies_invited, feature="recruiter_links", who="manage"),
+    Step("reports", "Download your first placement report", "Numbers by branch and company for management, NAAC and NIRF work. No student contact details.", 2, "/org/{id}/dashboard", first_report, who="export"),
+)
+# fmt: on
+
+ROLES = ("jobseeker", "student", "expert")  # a person's roles (the team checklists are TEAMS)
+TEAMS = ("company", "college")
 
 
 def step_ids(role: str) -> tuple[str, ...]:
