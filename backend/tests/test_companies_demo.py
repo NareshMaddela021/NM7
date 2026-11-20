@@ -2,8 +2,10 @@
 sign-ups in Admin → Companies (clean, duplicate GSTIN, same-address burst); never public; "Reset and open as
 company" signs the browser in as the demo main admin; Remove takes it all away."""
 
+from bson import ObjectId
+
 from app.companies import demo
-from app.core.db import APPLICATIONS, COMPANIES, JOBS
+from app.core.db import APPLICATIONS, COMPANIES, JOBS, PROGRAM_APPS, PROGRAMS
 from tests.test_companies_signup import H, no_network  # noqa: F401
 
 
@@ -38,12 +40,22 @@ async def test_demo_company(client, db, admin_client):
     assert flags[demo.SAMPLES[0]] == []
     assert flags[demo.SAMPLES[1]] == ["duplicate_registration"]
     assert "ip_burst" in flags[demo.SAMPLES[2]]
+    # item 35: an internship posted while trying the demo ("TEST ...") is gone after a reset; a real one stays
+    prog = {"kind": "internship", "title": "TEST internship", "weeks": 4, "stipend": 8000, "remote": True, "seats": 2,
+            "brief": "Help the team test the new billing screens and write short notes."}  # fmt: skip
+    made = await client.post(f"/api/company/{cid}/programs", headers=H(session), json=prog)
+    assert made.status_code == 201, made.text
+    await db[PROGRAMS].insert_one({"_id": "real-prog", "company_id": "real-co", "title": "TEST real", "demo": False})
+    await db[PROGRAM_APPS].insert_one({"program_id": ObjectId(made.json()["id"]), "company_id": cid, "user_id": "u1"})
     # reset is repeatable; remove takes it all away
     again = (await owner.post("/api/admin/demo-company/open")).json()
     assert (
         again["jobs"] == 5
         and await db[COMPANIES].count_documents({"demo": True, "_id": {"$in": [cid, *demo.SAMPLES]}}) == 4
     )
+    assert await db[PROGRAMS].count_documents({"company_id": cid}) == 0
+    assert await db[PROGRAM_APPS].count_documents({"company_id": cid}) == 0
+    assert await db[PROGRAMS].count_documents({"_id": "real-prog"}) == 1
     assert (await owner.delete("/api/admin/demo-company")).json() == {"removed": 4}
     assert await db[JOBS].count_documents({"company_id": cid}) == 0
     assert await db[APPLICATIONS].count_documents({"company_id": cid}) == 0

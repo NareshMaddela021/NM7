@@ -33,6 +33,8 @@ from app.core.db import (
     DB,
     JOB_REPORTS,
     JOBS,
+    PROGRAM_APPS,
+    PROGRAMS,
     RECRUITERS,
     RESUMES,
     TALENT_POOL,
@@ -104,6 +106,12 @@ async def remove(db) -> int:
     await db[ATS_CONNECTIONS].delete_many({"_id": COMPANY_ID, "demo": True})
     await db[ATS_DELIVERIES].delete_many({"company_id": COMPANY_ID, "demo": True})
     await db[RECRUITERS].delete_many({"email_lc": {"$regex": r"@demo\.nm7\.invalid$"}})
+    # item 35: internships and live projects someone posted while trying the demo ("TEST ..."): the demo company's
+    # own (marked demo) only; real companies' programs are never touched
+    pids = [p["_id"] async for p in db[PROGRAMS].find({"company_id": COMPANY_ID, "demo": True}, {"_id": 1})]
+    if pids:
+        await db[PROGRAM_APPS].delete_many({"program_id": {"$in": pids}, "company_id": COMPANY_ID})
+        await db[PROGRAMS].delete_many({"_id": {"$in": pids}})
     return n
 
 
