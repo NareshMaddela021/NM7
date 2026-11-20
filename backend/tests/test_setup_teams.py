@@ -282,7 +282,7 @@ async def test_college_skip_viewers_and_other_colleges(owner, make_client, outbo
 
 
 async def _old(db, coll, oid):
-    await db[coll].update_one({"_id": oid}, {"$set": {"created_at": now() - timedelta(days=3)}})
+    await db[coll].update_one({"_id": oid}, {"$set": {"created_at": NOON - timedelta(days=3)}})
 
 
 async def test_company_reminder_rules(client, outbox, db):
