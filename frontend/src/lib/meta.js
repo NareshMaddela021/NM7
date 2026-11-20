@@ -47,6 +47,7 @@ export const ROUTE_META = [
   [/^\/admin\/partners/, 'Partners · Admin', 'Nm7 admin console.'],
   [/^\/admin\/?$/, 'Dashboard · Admin', 'Nm7 admin console.'],
   [/^\/admin/, 'Admin console', 'Nm7 admin console.'],
+  [/^\/me\/simple/, 'Easy dashboard', 'Your next step in big, simple words.'],
   [/^\/me\/orders/, 'My orders', 'Your orders, their status and invoices.'],
   [/^\/me\/resumes/, 'My resumes', 'All your resumes and their versions.'],
   [/^\/me\/profile/, 'Job Profile', 'Your master career record: fill it once, reuse it in every resume.'],
@@ -123,5 +124,5 @@ export function usePageMeta(meta) {
     override = mine;
     applyMeta(mine.meta);
     return () => { if (override === mine) { override = null; applyMeta(metaFor(window.location.pathname)); } };
-  }, [meta.title, meta.description, meta.noindex, meta.follow]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [meta.title, meta.description, meta.noindex, meta.follow, meta.path]); // eslint-disable-line react-hooks/exhaustive-deps
 }

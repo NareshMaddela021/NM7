@@ -14,6 +14,8 @@ import AppShell from '../../components/AppShell';
 import { IcArrowUp, IcBolt, IcBook, IcBriefcase, IcCap, IcChart, IcCheckCircle, IcClock, IcEdit, IcFile, IcFlag, IcGrid, IcHelp, IcHome, IcInfo, IcMenu, IcLink, IcMail, IcMessage, IcRefresh, IcScale, IcSettings, IcTarget, IcThumb, IcTrend, IcUser, IcUsers, IcWallet } from '../../components/icons';
 import { useSiteFlags } from '../../lib/siteFlags';
 import { phoneTabs, TAB_LABELS } from '../../lib/meTabs';
+import { usePageMeta } from '../../lib/meta';
+import { navMeta } from '../../lib/navTitle';
 import '../../styles/me-kit.css';
 
 export const ME_NAV = [
@@ -91,6 +93,7 @@ export default function MeLayout() {
   const [t] = useLang();
   const go = useNavigate();
   const [simple, setSimple] = useState(null);
+  usePageMeta(navMeta(pathname, ME_NAV, { home: '/me', generic: 'My dashboard' })); // the tab title: this page's name (Batch E item 46)
   useEffect(() => { loadSimple().then(setSimple, () => {}); }, []);
   if (simple?.on && simple.mode === 'simple' && pathname === '/me') return <Navigate to="/me/simple" replace />;
   const toSimple = async () => { try { await savePrefs({ mode: 'simple' }); } catch { /* open it anyway */ } go('/me/simple'); };
