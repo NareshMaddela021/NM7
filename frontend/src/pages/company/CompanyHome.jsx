@@ -22,6 +22,7 @@ import '../../styles/me-kit.css';
 import '../../styles/company.css';
 import '../../styles/company-home.css';
 import { IcBolt, IcBriefcase, IcBuilding, IcCap, IcCheck, IcClock, IcExternal, IcFile, IcGlobe, IcGrid, IcHome, IcLock, IcMail, IcPhone, IcSettings, IcShield, IcStar, IcSwap, IcUser, IcUsers } from '../../components/icons';
+import { actionWords } from '../../lib/activityWords';
 
 export default function CompanyHome() {
   const [t, lang] = useLang();
@@ -420,7 +421,7 @@ function Settings({ t, c, manage, onChanged }) {
   );
 }
 
-const actLabel = (t, action) => { const k = `co.act.${action.replace(/^company\./, '')}`; const v = t(k); return v === k ? action.replace(/^company\./, '').replace(/_/g, ' ') : v; };
+const actLabel = (t, action) => { const k = `co.act.${action.replace(/^company\./, '')}`; const v = t(k); return v === k ? actionWords(action) : v; };
 
 function Activity({ t, c }) {
   const [rows, setRows] = useState(null);

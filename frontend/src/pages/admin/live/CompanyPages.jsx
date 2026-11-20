@@ -13,6 +13,7 @@ import { plainWords } from '../../../lib/company';
 import '../../../styles/me-kit.css';
 import '../../../styles/admin-jobs.css';
 import { IcAlert, IcExternal } from '../../../components/icons';
+import { actionWords } from '../../../lib/activityWords';
 
 const STATES = [['pending', 'Waiting for review'], ['approved', 'Verified'], ['rejected', 'Rejected'], ['blocked', 'Blocked'], ['draft', 'Not finished'], ['all', 'All']];
 const TRUST = { verified: ['Verified', 'b-success'], basic: ['Basic', 'b-signal'], unverified: ['Unverified', 'b-warning'], blocked: ['Blocked', 'b-danger'] };
@@ -160,7 +161,7 @@ function CompanyReview({ id, onClose, onChanged }) {
             <details>
               <summary className="small">Activity ({c.log.length})</summary>
               <ul className="stack g4" style={{ margin: '8px 0 0', paddingLeft: 18 }}>
-                {c.log.map((a, i) => <li key={i} className="xs">{day(a.at)} · {a.action.replace('company.', '')}{a.data?.reason ? `: ${a.data.reason}` : ''}</li>)}
+                {c.log.map((a, i) => <li key={i} className="xs">{day(a.at)} · {actionWords(a.action)}{a.data?.reason ? `: ${a.data.reason}` : ''}</li>)}
               </ul>
             </details>
           </div>

@@ -98,5 +98,5 @@ test('search failures, audit log filter and details, settings validation', async
   expect(calls).toBeLessThanOrEqual(2); // not one request per key
   await page.getByRole('button', { name: 'Clear' }).click();
   await expect(page.getByLabel('Action')).toHaveValue('');
-  await expect(page.getByRole('cell', { name: 'settings.changed', exact: true })).toBeVisible();
+  await expect(page.getByRole('cell', { name: 'Settings changed', exact: true })).toBeVisible();
 });

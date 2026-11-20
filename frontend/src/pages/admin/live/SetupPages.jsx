@@ -10,6 +10,7 @@ import { auditText } from './auditText';
 import { PaymentSettings } from './PaymentsSettings';
 import { TestUsers } from './TestUsers';
 import { IcBolt, IcBuilding, IcClock, IcFile, IcHeart, IcHome, IcLock, IcMail, IcSettings, IcShield, IcTrash, IcUser } from '../../../components/icons';
+import { actionWords } from '../../../lib/activityWords';
 
 /* ---------- settings & prices ---------- */
 // same limits as the server (app/admin/console.py), which checks them again
@@ -346,7 +347,7 @@ export function LiveTeam() {
           </div>
         ) : <Loading st={log} empty={emptyIf((d) => !d.length, 'Nothing logged yet.')}>{(rows) => (
           <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table"><thead><tr><th>#</th><th>When</th><th>Who</th><th>Action</th><th>Target</th><th>Details</th></tr></thead>
-            <tbody>{rows.map((a) => <tr key={a.id}><td className="xs mono">{a.id}</td><td className="small">{when(a.at)}</td><td className="small">{a.actorName || 'System / customer'}</td><td className="small mono">{a.action}</td><td className="small mono">{a.target || '—'}</td><td className="xs" style={{ maxWidth: 320, overflowWrap: 'anywhere' }}>{auditText(a.data)}</td></tr>)}</tbody></table></div>
+            <tbody>{rows.map((a) => <tr key={a.id}><td className="xs mono">{a.id}</td><td className="small">{when(a.at)}</td><td className="small">{a.actorName || 'System / customer'}</td><td className="small" title={a.action}>{actionWords(a.action)}</td><td className="small mono">{a.target || '—'}</td><td className="xs" style={{ maxWidth: 320, overflowWrap: 'anywhere' }}>{auditText(a.data)}</td></tr>)}</tbody></table></div>
         )}</Loading>}
       </section>
     </>

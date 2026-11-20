@@ -56,3 +56,14 @@
 /* company-blue accents for the shared kit inside the company pages */
 .co-page .mcard-ic { background: #e7efff; color: #1d4ed8; }
 .co-page .mbar > span { background: linear-gradient(90deg, #3b82f6, #1d4ed8); }
+
+/* Batch E item 47: the floating top menu never covers the dashboard. On the company pages the header sits on a solid
+   band (content no longer shows through around the pill while scrolling), above the side menu; the side menu sticks
+   just below the band, with a solid background; a heading scrolled to stops below both. */
+body:has(.co-page) .site-header { background: var(--bg); padding-bottom: 8px; z-index: 25; }
+.co-page :is(h1, h2, h3, [id]) { scroll-margin-top: 96px; }
+@media (min-width: 960px) { .co-side { top: 96px; max-height: calc(100dvh - 112px); } }
+@media (max-width: 959px) {
+  .co-side { top: 74px; background: var(--surface); }
+  .co-page :is(h1, h2, h3, [id]) { scroll-margin-top: 200px; }
+}

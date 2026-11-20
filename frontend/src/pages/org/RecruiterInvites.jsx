@@ -13,6 +13,7 @@ import { SHAPE_COLORS, TINTS } from '../newhome/shapes';
 import '../../styles/me-kit.css';
 import '../../styles/org-team.css';
 import { IcMail } from '../../components/icons';
+import { actionWords } from '../../lib/activityWords';
 
 TINTS.college = SHAPE_COLORS.college;
 const tone = { active: 'ok', expired: 'neutral', revoked: 'warn' };
@@ -160,7 +161,7 @@ export default function RecruiterInvites({ orgId, groups = [], canManage }) {
           {activity.rows.length === 0 ? <p className="small muted">Nothing yet.</p> : (
             <ul className="ot-timeline" data-testid="invite-activity">
               {activity.rows.map((a, n) => (
-                <li key={n} className="small"><span className="faint xs">{when(a.at)}</span> · {ACTION[a.action] || a.action}{a.stage ? `: ${STAGE_LABEL[a.stage] || a.stage}` : ''}{a.count != null && a.action !== 'recruiter_view' ? ` (${a.count})` : ''}</li>
+                <li key={n} className="small"><span className="faint xs">{when(a.at)}</span> · {ACTION[a.action] || actionWords(a.action)}{a.stage ? `: ${STAGE_LABEL[a.stage] || a.stage}` : ''}{a.count != null && a.action !== 'recruiter_view' ? ` (${a.count})` : ''}</li>
               ))}
             </ul>
           )}
