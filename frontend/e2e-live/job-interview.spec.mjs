@@ -49,7 +49,7 @@ for (const [label, opts] of SIZES) {
       await expect(page.getByTestId('iv-q').first()).toContainText('Tell me about yourself.');
       await expect(page.getByTestId('iv-q').first()).toContainText('Make it yours');
       await expect(page.getByTestId('iv-locked')).toContainText('7 more questions in the Interview pack');
-      await expect(page.getByTestId('iv-locked').getByTestId('pack-interview-soon')).toHaveText('Coming soon');
+      await expect(page.getByTestId('iv-locked').getByTestId('pack-interview-soon')).toHaveText('Payments coming soon');
       await expect(page.getByTestId('iv-intro-text')).toContainText('Sai Varsha');
       await expect(page.getByRole('tab', { name: '2 minutes' })).toBeDisabled();
       await expect(page.getByTestId('iv-weak')).toHaveCount(0);

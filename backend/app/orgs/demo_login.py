@@ -4,8 +4,9 @@ college group can be shown in sales demos and tested.
 
 The admin gets a one-time link (5 minutes; only a hash is stored; the token travels after # so it never reaches a
 server log). Opening it starts a 3-hour session that reaches only the demo college's portal and its demo college
-group (app/auth/deps.py demo_allowed): not real organizations, resumes, orders or payments. It replaces the admin
-session in that browser, so use a private window to keep both.
+group (app/auth/deps.py demo_allowed): not real organizations, resumes, orders or payments. Opened in a browser where
+an admin is signed in, it is a view on top of the admin session (app/auth/views.py): the admin stays signed in and
+"Back to Admin" returns with one click.
 
   POST /api/admin/demo-org/coordinator     admin: reset + one-time link {path}
   POST /api/public/demo-coordinator {token}  sign in as the demo coordinator → {orgId}
@@ -44,7 +45,10 @@ class TokenIn(CamelModel):
 async def coordinator_link(request: Request, db: DB, scope: AdminScope) -> dict[str, Any]:
     await rate_limit.check(db, f"demo-org:{scope.actor_id}", [(10, timedelta(hours=1))])
     await rate_limit.record(db, f"demo-org:{scope.actor_id}")
-    await create_demo(db, scope.actor_id)
+    from app.core.heavy import heavy_or_busy
+
+    async with heavy_or_busy(db):  # one heavy job at a time (app/core/heavy.py)
+        await create_demo(db, scope.actor_id)
     token = secrets.token_urlsafe(32)
     await db[ORG_STAFF].update_one(
         {"_id": STAFF_ID}, {"$set": {"demo_login_hash": hash_token(token), "demo_login_exp": now() + LINK_TTL}}
@@ -66,6 +70,9 @@ async def coordinator_sign_in(body: TokenIn, request: Request, response: Respons
     doc = await db[USERS].find_one({"_id": COORDINATOR_ID, "demo": True})
     if not doc:
         raise bad
-    user = User.model_validate(doc)
-    await start_session(db, request, response, user, demo_org_id=ORG_ID)
+    from app.admin.views import demo_as_view
+
+    # opened from an admin's browser: a view on top of the admin session (Back to Admin, no new sign-in)
+    if not await demo_as_view(db, request, response, doc, "college", f"/org/{ORG_ID}", org_id=ORG_ID):
+        await start_session(db, request, response, User.model_validate(doc), demo_org_id=ORG_ID)
     return {"orgId": ORG_ID}

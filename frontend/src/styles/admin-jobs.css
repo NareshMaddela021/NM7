@@ -1,4 +1,4 @@
-/* Admin → Jobs, Companies, Auto Apply, Skill tests, Internships & projects, Joining reports (round P, Phase 5).
+/* Admin -> Jobs, Companies, Auto Apply, Skill tests, Internships & projects, Joining reports (round P, Phase 5).
    Neutral Nm7 purple, dense but clean. Rows are white cards with a coloured status edge; tabs are a pill bar that
    scrolls sideways on a phone; filters sit in the .ad-toolbar card (admin.css); KPIs are a tidy grid. */
 .adx { min-width: 0; }
@@ -71,7 +71,6 @@
 
 /* the demo boxes and folding extras */
 .adx-demo { background: linear-gradient(140deg, #f7f4ff, #fff) !important; border: 1px solid #ddd3ff !important; }
-.adx-demo > strong::before { content: "✦ "; color: #5b52f0; }
 .adx-fold > summary { cursor: pointer; font-weight: 700; min-height: 40px; display: flex; align-items: center; }
 
 /* Auto Apply off switch: green edge when on, red card when off */
@@ -93,3 +92,28 @@
 .adx-aa > .stack { display: grid !important; grid-template-columns: minmax(0, 1fr); gap: 16px; }
 @media (min-width: 1100px) { .adx-aa > .stack { grid-template-columns: repeat(2, minmax(0, 1fr)); } .adx-aa > .stack > .adx-switch, .adx-aa > .stack > .adx-kpis, .adx-aa > .stack > .adx-demo { grid-column: 1 / -1; } }
 .adx-aa aside.card { position: static !important; max-width: none !important; max-height: none !important; flex: none !important; overflow: visible !important; }
+
+/* round W: lists as tables on a wide screen (sortable headers), cards on a phone (.mtable); the status stripe moves to
+   the first cell */
+.adx-table tr.adx-row { --row-c: #cfc8ec; }
+.adx-table tr.adx-row[data-status="active"], .adx-table tr.adx-row[data-status="verified"], .adx-table tr.adx-row[data-status="approved"] { --row-c: #16a34a; }
+.adx-table tr.adx-row[data-status="paused"], .adx-table tr.adx-row[data-status="closed"] { --row-c: #a8a3bd; }
+.adx-table tr.adx-row[data-status="review"], .adx-table tr.adx-row[data-status="blocked"] { --row-c: #dc2626; }
+.adx-table tr.adx-row[data-status="unverified"] { --row-c: #ea7a1f; }
+.adx-table tr.adx-row[data-status="basic"] { --row-c: #5b52f0; }
+.adx-table td { vertical-align: top; }
+.adx-table .adx-actions { border-top: 0; padding-top: 0; }
+.adx-table .adx-review { margin-top: 8px; }
+@media (min-width: 641px) {
+  .adx-table tr.adx-row { padding-left: 0 !important; }
+  .adx-table tr.adx-row::before { display: none; }
+  .adx-table tr.adx-row > td:first-child { box-shadow: inset 4px 0 0 var(--row-c); padding-left: 16px; }
+  .adx-cell-job { min-width: 300px; }
+  .adx-cell-actions { min-width: 230px; }
+}
+@media (max-width: 640px) {
+  .adx-table tr.adx-row { position: relative; padding-left: 18px !important; }
+  .adx-table tr.adx-row::before { background: var(--row-c); }
+  .adx-table td.adx-cell-job, .adx-table td.adx-cell-actions { display: block; }
+}
+@media (min-width: 641px) { .adx-table td[data-label="Posted"], .adx-table td[data-label="Signed up"] { white-space: nowrap; } }

@@ -55,7 +55,7 @@ for (const [label, opts] of SIZES) {
       await expect(dlg).toHaveCount(0);
       const row = rows.filter({ hasText: tag });
       await expect(row).toHaveCount(1);
-      await expect(row).toContainText('✔');
+      await expect(row).toContainText('Answer:');
       await expect(row).toContainText('Edited');
 
       // the other tabs

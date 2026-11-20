@@ -4,31 +4,47 @@
 // all of them; the list shows each answer (Accept, or Not interested with the reason). Email and phone show only after
 // the person accepts, then they are also in Applicants (Shortlisted). Only Verified companies; Basic accounts see a
 // note. No pop-up dialogs. English, Telugu and Hindi (co.hire.*).
-// Round P, Phase 3: a control bar card, the Minute 0 → 60 card, the bulk board, then ranked people cards (rank badge,
+// Round P, Phase 3: a control bar card, the Minute 0 -> 60 card, the bulk board, then ranked people cards (rank badge,
 // match ring, facts as chips, Invite) with Invite all in a bar that sticks on a phone; interview times and offers.
 // Vetting V2: each card shows the "Skill verified" badge (test, band, score, task stars, month; muted when expired),
 // and the control bar filters by "Skill verified only", the test and a minimum test score.
-// Vetting V1: each card shows the level chip (L0–L4) and ⚡ Ready now, the readiness score (0–100) with its top 3
-// reasons and a "Why this score" fold with the parts; filters for the minimum level, ⚡ ready now only, notice period,
+// Vetting V1: each card shows the level chip (L0–L4) and Ready now, the readiness score (0–100) with its top 3
+// reasons and a "Why this score" fold with the parts; filters for the minimum level, ready now only, notice period,
 // salary, city and experience band. The order is the server's.
 // Vetting V3: people at L3+ get a "Screening interview" button: the summary in a drawer, with Invite to final interview.
+// Vetting Trust T2: "Verified via DigiLocker" document badges (DocBadges.jsx; only where the Trust switch allows).
 // Vetting V4: and "Request Nm7 check" (the human check, NmCheck.jsx) with its status; verified people can be rated.
-import { useCallback, useEffect, useState } from 'react';
+// Vetting Trust T6: the verified non-tech filters and each person's non-tech facts with their source (HireNonTech.jsx;
+// only when the answer carries `nonTech`, i.e. the Trust switch lets the company in).
+// Vetting Trust T7: the job's requirements (CriteriaEditor) and each person's Met / Not met / Unknown with the quoted
+// evidence (CriteriaStrip); after an edit the people shown are checked again (cached answers re-used) and re-sorted at
+// once here: must-haves met, then nice-to-haves met, then the match score (only when the answer carries `criteria`).
+// Vetting Trust T15: work-test filters (typing / SJT / aptitude) and each person's badges + reliability record
+// (HireWorkTests.jsx; only when the answer carries `workTests`). No filter on the reliability record.
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { rq } from '../../lib/company';
 import { reasons } from './CompanyApplicants';
 import HireSlots from './HireSlots';
 import HireOffers from './HireOffers';
+import TrustBookings from './TrustBookings'; // Vetting Trust T11 (renders nothing unless the Trust switch allows)
 import HireBulk from './HireBulk';
 import HireSpeed from './HireSpeed';
+import TimeToHire from './TimeToHire'; // Vetting Trust T13 (renders nothing unless the Trust switch allows)
 import SkillBadge from './SkillBadge';
 import ScreeningInterview from './ScreeningInterview';
 import NmCheck from './NmCheck';
+import DocBadges from './DocBadges';
+import { NT_NONE, NonTechChips, NonTechFilters, nonTechQuery } from './HireNonTech'; // Vetting Trust T6
+import { WT_NONE, WorkChips, WorkFilters, workQuery } from './HireWorkTests'; // Vetting Trust T15
+import { FairnessNotes } from './FairnessBits'; // Vetting Trust T12: a language / city filter that works as a proxy
+import { CriteriaEditor, CriteriaStrip, criteriaSort, useEvaluating } from './CriteriaBits'; // Vetting Trust T7
 import { TEST_NAMES } from '../../lib/vettingRoles';
 import { Empty } from '../me/kit';
 import { useLang } from '../../lib/i18n';
 import LevelBadge from '../../components/LevelBadge';
 import { BANDS, NOTICE, PART_MAX, lt } from '../../components/levelStrings';
 import '../../styles/company-hire.css';
+import { IcBolt, IcCalendar, IcCheck, IcMail } from '../../components/icons';
 
 const rupees = (n) => (n == null ? '' : `₹${Math.round(n).toLocaleString('en-IN')}`);
 const day = (s) => (s ? new Date(`${s}T00:00:00`).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '');
@@ -36,9 +52,9 @@ export const PAGE = 10;
 export const MIN_SCORES = [0, 60, 70, 80, 90];
 
 /** The shortlist's query: job, size, support, the Vetting V2 filters (verified only, test, minimum score) and the V1
- * ones (minimum level, ⚡ ready now only, notice period at most, salary at most, city, experience band). */
+ * ones (minimum level, ready now only, notice period at most, salary at most, city, experience band). */
 export function shortlistQuery(job, { support = '', verified = false, role = '', minScore = 0, minLevel = 0, readyNow = false,
-  noticeMax = -1, salaryMax = '', city = '', band = '' } = {}) {
+  noticeMax = -1, salaryMax = '', city = '', band = '' } = {}, nonTech = NT_NONE, work = WT_NONE) {
   const q = new URLSearchParams({ job, size: '100' });
   if (support) q.set('support', support);
   if (verified) q.set('verified', 'true');
@@ -51,6 +67,8 @@ export function shortlistQuery(job, { support = '', verified = false, role = '',
   if (sal > 0) q.set('salaryMax', String(sal));
   if (city.trim()) q.set('city', city.trim());
   if (BANDS.includes(band)) q.set('band', band);
+  nonTechQuery(q, nonTech);
+  workQuery(q, work);
   return q.toString();
 }
 export const NO_FILTERS = { verified: false, role: '', minScore: 0, minLevel: 0, readyNow: false, noticeMax: -1, salaryMax: '', city: '', band: '' };
@@ -112,6 +130,12 @@ export default function CompanyHire({ t, c }) {
   const [support, setSupport] = useState(''); // Phase 6 S9: immediate joiners / returning after a break
   const [shown, setShown] = useState(PAGE); // the top 10 first, then "Show more"
   const [vf, setVf] = useState(NO_FILTERS); // Vetting V2 and V1 filters (the ones the list is loaded with)
+  const [nt, setNt] = useState(NT_NONE); // Vetting Trust T6: non-tech filters
+  const [ntCounts, setNtCounts] = useState(null); // kept while the list reloads, so the filters don't jump
+  const [ntEnglish, setNtEnglish] = useState(false); // Vetting Trust T10: this job's role category offers "Spoken English"
+  const [fair, setFair] = useState([]); // Vetting Trust T12: filters that can stand in for community / region
+  const [wt, setWt] = useState(WT_NONE); // Vetting Trust T15: work-test filters
+  const [wtCounts, setWtCounts] = useState(null);
   const [typed, setTyped] = useState({ salaryMax: '', city: '' }); // V1 text filters, applied after a short pause
   const setV = (k) => (e) => setVf((x) => ({ ...x, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
   const setT = (k) => (e) => setTyped((x) => ({ ...x, [k]: e.target.value }));
@@ -131,15 +155,31 @@ export default function CompanyHire({ t, c }) {
       if (live[0]) setJob(live[0].id);
     }, () => setJobs([]));
   }, [c.id]);
+  const latest = useRef(0); // filters changed quickly: only the answer to the newest request is shown
   const load = useCallback(async () => {
     if (!job || !verified) return;
+    const mine = ++latest.current;
     setErr(''); setD(null); setShown(PAGE);
     try {
-      const [s, inv] = await Promise.all([rq(`/api/company/${c.id}/hire/shortlist?${shortlistQuery(job, { support, ...vf })}`), rq(`/api/company/${c.id}/hire/invites?job=${encodeURIComponent(job)}`)]);
-      setD(s); setInvites(inv);
-    } catch (x) { setErr(x.message); setD({ items: [] }); }
-  }, [c.id, job, verified, support, vf]);
+      const [s, inv] = await Promise.all([rq(`/api/company/${c.id}/hire/shortlist?${shortlistQuery(job, { support, ...vf }, nt, wt)}`), rq(`/api/company/${c.id}/hire/invites?job=${encodeURIComponent(job)}`)]);
+      if (mine !== latest.current) return;
+      setD(s); setInvites(inv); setNtCounts(s.nonTech ? { ...s.nonTech.counts, of: s.nonTech.filters } : null); setNtEnglish(!!s.nonTech?.englishFilter); setFair(s.nonTech?.fairness || []); setWtCounts(s.workTests ? s.workTests.counts : null);
+    } catch (x) { if (mine === latest.current) { setErr(x.message); setD({ items: [] }); } }
+  }, [c.id, job, verified, support, vf, nt, wt]);
   useEffect(() => { load(); }, [load]);
+  // T7: check the people shown against the (edited) requirements and re-sort them here (no new shortlist)
+  const recheck = useCallback(async (crit) => {
+    if (!d?.criteria || !d.items.length) return;
+    try {
+      const r = await rq(`/api/company/${c.id}/trust/criteria/${encodeURIComponent(job)}/evaluate`, { method: 'POST', body: { people: d.items.slice(0, 100).map((x) => x.key) } });
+      setD((old) => {
+        if (!old) return old;
+        const top = old.items.slice(0, 100).map((x) => ({ ...x, criteria: r.items[x.key] || x.criteria }));
+        return { ...old, criteria: crit || r.criteria, items: [...criteriaSort(top, (x) => x.criteria, (x) => x.match.score), ...old.items.slice(100)] };
+      });
+    } catch (x) { setErr(x.message); }
+  }, [c.id, job, d]);
+  useEvaluating(c, d?.criteria ? job : '', !!d?.items?.some((x) => x.criteria?.pending), recheck);
   const invite = async (people) => {
     setBusy(true); setMsg(''); setErr('');
     try {
@@ -156,7 +196,7 @@ export default function CompanyHire({ t, c }) {
     <section className="stack g16 hn" aria-label={t('co.hire.title')} data-testid="co-hire">
       <div className="mcard hn-control">
         <div className="hn-control-top">
-          <span className="mcard-ic blue" aria-hidden="true">⚡</span>
+          <span className="mcard-ic blue" aria-hidden="true"><IcBolt /></span>
           <span className="stack g4" style={{ minWidth: 0 }}>
             <strong className="mcard-title">{t('co.hire.title')}</strong>
             <span className="mcard-sub">{t('co.hire.intro')}</span>
@@ -223,10 +263,15 @@ export default function CompanyHire({ t, c }) {
             </select>
           </label>
         </fieldset>}
+        {ntCounts && <NonTechFilters f={nt} setF={setNt} counts={ntCounts} english={!!ntEnglish} />}
+        {wtCounts && <WorkFilters f={wt} setF={setWt} counts={wtCounts} />}
+        {fair.length > 0 && <FairnessNotes key={fair.map((x) => x.phrase).join("|")} items={fair} cid={c.id} where="hire_filter" testid="co-hire-fair"
+          onRemove={() => { setNt((x) => ({ ...x, lang: '' })); setTyped((x) => ({ ...x, city: '' })); }} />}
         {d?.vetting && filtered(vf) && <button type="button" className="btn btn-outline hn-clear" onClick={clear} data-testid="co-hire-lv-clear">{lv('lv.f.clear')}</button>}
         {d?.usage && <span className="mchip mchip-info hn-usage" data-testid="co-hire-usage">{t('co.hire.usage', { used: d.usage.used, free: d.usage.free })}</span>}
       </div>
       <HireSpeed t={t} c={c} />
+      <TimeToHire c={c} />
       {job && <HireBulk key={`b-${job}`} t={t} c={c} job={job} canEdit={canInvite} people={invites.filter((x) => x.status === 'accepted').map((x) => ({ key: x.key, name: x.name }))} onChange={load} />}
       {err && <p className="error" role="alert">{err}</p>}
       {!d && !err && (
@@ -246,6 +291,7 @@ export default function CompanyHire({ t, c }) {
             </div>
           )}
           {msg && <p className="small hn-msg" role="status" data-testid="co-hire-msg">{msg}</p>}
+          {d.criteria && <CriteriaEditor key={job} c={c} jobId={job} criteria={d.criteria} can={canInvite} onSaved={(x) => recheck(x)} />}
           {!d.items.length && <Empty shape="magnifier" tint="company" compact />}
           {!d.items.length && filtered(vf) && (
             <button type="button" className="btn btn-outline hn-more" onClick={clear} data-testid="co-hire-sv-clear">{t('co.hire.sv.clear')}</button>
@@ -266,12 +312,16 @@ export default function CompanyHire({ t, c }) {
                 <Readiness x={x} lv={lv} />
                 <ul className="hn-chips">{reasons(x.match, t).map((r) => <li key={r} className="mchip mchip-neutral">{r}</li>)}</ul>
                 <dl className="hn-facts">
-                  <div><dt aria-hidden="true">📅</dt><dd data-testid="co-hire-when">{whenLine(x.availability, t)}</dd></div>
+                  <div><dt aria-hidden="true"><IcCalendar size={16} /></dt><dd data-testid="co-hire-when">{whenLine(x.availability, t)}</dd></div>
                   <div><dt aria-hidden="true">₹</dt><dd data-testid="co-hire-salary">{salaryLine(x.salary, t)}</dd></div>
-                  {x.verified?.length > 0 && <div><dt aria-hidden="true">✓</dt><dd data-testid="co-hire-verified">{x.verified.map((v) => t('co.hire.verified', { skill: v.skill, date: new Date(v.at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) })).join(' · ')}</dd></div>}
+                  {x.verified?.length > 0 && <div><dt aria-hidden="true"><IcCheck size={16} /></dt><dd data-testid="co-hire-verified">{x.verified.map((v) => t('co.hire.verified', { skill: v.skill, date: new Date(v.at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) })).join(' · ')}</dd></div>}
                 </dl>
                 <SkillBadge sv={x.skillVerified} t={t} />
                 <span className="hn-trust" data-testid="co-hire-trust">{x.skillCheck ? t('co.hire.check', { score: x.skillCheck.score }) : t('co.hire.noCheck')} · {x.reliability.score == null ? x.reliability.label : `${x.reliability.label} (${x.reliability.score}%)`}{x.reliability.lines?.length ? `: ${x.reliability.lines.join('; ')}` : ''}</span>
+                <DocBadges docs={x.docs} face={x.face} integrity={x.integrity} />
+                <NonTechChips nt={x.nonTech} />
+                <WorkChips w={x.workTests} rec={x.reliabilityRecord} />
+                <CriteriaStrip cr={x.criteria} />
                 <NmCheck c={c} uid={x.key} name={x.name} level={x.level?.level} row={x} canRequest={canInvite} />
                 <div className="hn-person-foot">
                   <ScreeningInterview c={c} uid={x.key} name={x.name} level={x.level?.level} job={job} canInvite={canInvite && !x.applied} invited={!!x.invite} onInvited={load} />
@@ -289,9 +339,10 @@ export default function CompanyHire({ t, c }) {
       )}
       {job && <HireSlots key={job} t={t} c={c} job={job} canEdit={canInvite} />}
       {job && <HireOffers key={`o-${job}`} t={t} c={c} job={job} people={invites.filter((x) => x.status === 'accepted').map((x) => ({ key: x.key, name: x.name }))} canEdit={canInvite} />}
+      {job && <TrustBookings key={`tb-${job}`} c={c} job={job} canEdit={canInvite} />}
       {invites.length > 0 && (
         <section className="mcard" aria-labelledby="co-hire-inv-h" data-testid="co-hire-invites">
-          <header className="mcard-h"><span className="mcard-ic blue" aria-hidden="true">✉</span><span className="mcard-ht"><strong id="co-hire-inv-h" className="mcard-title">{t('co.hire.invites')}</strong><span className="mcard-sub">{t('co.hire.privacy')}</span></span></header>
+          <header className="mcard-h"><span className="mcard-ic blue" aria-hidden="true"><IcMail /></span><span className="mcard-ht"><strong id="co-hire-inv-h" className="mcard-title">{t('co.hire.invites')}</strong><span className="mcard-sub">{t('co.hire.privacy')}</span></span></header>
           <ul className="mlist">
             {invites.map((x) => (
               <li key={x.id} className="mitem" data-testid="co-hire-inv">

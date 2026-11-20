@@ -1,4 +1,4 @@
-// Error reporting in the browser, only when VITE_SENTRY_DSN is set at build time (Vercel → Environment
+// Error reporting in the browser, only when VITE_SENTRY_DSN is set at build time (Vercel -> Environment
 // Variables). The Sentry client is loaded as a separate file after the page is up, so nobody pays for it in the
 // main bundle, and nothing is sent without a DSN. No personal data: no cookies, no IPs, no form contents.
 export const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN || '';

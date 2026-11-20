@@ -4,14 +4,21 @@
 // browser turns speech into text (en-IN / te-IN / hi-IN); no audio leaves the phone. A browser without speech falls
 // back to typing. Time away from the page is sent with each answer. When the time runs out the answer goes by itself.
 // After the 7th answer the interview is finished (graded) and the result is handed back.
+// Vetting Trust T10 (only when the server says the interview measures spoken English: `iv.spoken`): each spoken answer
+// also sends the time actually spent speaking and its long pauses (from the speech events), and, when a provider is
+// set (`iv.spoken.audio`), a short WAV clip of it for pronunciation (recorder.js; sent, then dropped).
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { http } from '../../../services/http';
 import { appendSpeech, speechSupported, useSpeech } from '../../../lib/speechCore';
 import { Bar } from '../kit';
 import { SPEECH_LANG, clock, emptySignals, useSignals, words } from '../vetting/lib';
 import { API, answerAnnounce, signalDelta } from './lib';
+import { SnapNote, useSnapshots } from '../trust/Snapshots'; // Vetting Trust T8: optional webcam stills (consent only)
+import { speechTiming } from '../trust/spokenLib'; // Vetting Trust T10: timing of a spoken answer
+import { createRecorder } from './recorder'; // T10: the clip for pronunciation (only with a provider)
 import '../../../styles/me-vet.css';
 import '../../../styles/me-iv.css';
+import { IcLock, IcMic, IcStop } from '../../../components/icons';
 
 function Typed({ text, setText, onPasteTry, pasteNote, lang, label }) {
   const n = words(text);
@@ -27,12 +34,12 @@ function Typed({ text, setText, onPasteTry, pasteNote, lang, label }) {
   );
 }
 
-function Spoken({ lang, transcript, setTranscript, sp }) {
+function Spoken({ lang, transcript, setTranscript, sp, measured }) {
   return (
     <div className="stack g12">
       <div className="vet-mic">
         <button type="button" className={`btn btn-lg ${sp.listening ? 'btn-outline' : 'btn-signal'}`} onClick={sp.listening ? sp.stop : sp.start} data-testid="iv-mic">
-          {sp.listening ? '⏹ Stop' : transcript ? '🎤 Speak more' : '🎤 Start speaking'}
+          {sp.listening ? <><IcStop size={18} /> Stop</> : <><IcMic size={18} /> {transcript ? 'Speak more' : 'Start speaking'}</>}
         </button>
         {transcript && !sp.listening && <button type="button" className="btn btn-ghost" onClick={() => setTranscript('')}>Clear and start again</button>}
       </div>
@@ -42,7 +49,8 @@ function Spoken({ lang, transcript, setTranscript, sp }) {
         {transcript || <span className="muted">Your words will appear here as you speak.</span>}
         {sp.interim && <span className="muted"> {sp.interim}</span>}
       </div>
-      <span className="xs muted">Your speech is turned into text in this browser. The sound itself is never recorded or sent.</span>
+      <span className="xs muted" data-testid="iv-sound-note">{measured === 'audio' ? 'Your speech is turned into text in this browser. For your spoken-English score a short recording of each answer goes to our speech-assessment partner and is then deleted; it is not kept.'
+        : 'Your speech is turned into text in this browser. The sound itself is never recorded or sent.'}</span>
     </div>
   );
 }
@@ -59,6 +67,7 @@ export default function Runner({ start, onDone, onError }) {
   const sig = useRef(emptySignals());
   const sentSig = useRef({ blurs: 0, blurMs: 0 });
   useSignals(sig);
+  const snap = useSnapshots('interview', start.id);
 
   const a = iv.asking;
   const voice = iv.mode === 'voice' && speechSupported();
@@ -66,7 +75,20 @@ export default function Runner({ start, onDone, onError }) {
   const turnKey = a ? `${a.n}-${a.followUp ? 'f' : 'q'}` : 'end';
   const now = useRef(transcript);
   now.current = transcript;
-  const sp = useSpeech({ lang: SPEECH_LANG[iv.lang] || 'en-IN', onText: (w) => setTranscript(appendSpeech(now.current, w).slice(0, 2500)) });
+  // T10: when words were recognised (per listening session) and the clip, only while spoken English is measured
+  const measure = !!iv.spoken && voice;
+  const heard = useRef([]);
+  const session = useRef(0);
+  const mark = () => { if (measure) heard.current.push({ t: Date.now(), s: session.current }); };
+  const rec = useRef(null);
+  if (measure && iv.spoken.audio && !rec.current) rec.current = createRecorder();
+  useEffect(() => () => rec.current?.close(), []);
+  const sp = useSpeech({ lang: SPEECH_LANG[iv.lang] || 'en-IN', onText: (w) => { mark(); setTranscript(appendSpeech(now.current, w).slice(0, 2500)); } });
+  useEffect(() => { if (sp.interim) mark(); }, [sp.interim]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!measure) return;
+    if (sp.listening) { session.current += 1; rec.current?.start(); } else rec.current?.pause();
+  }, [sp.listening]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // this answer's clock
   const shownAt = useRef(Date.now());
@@ -97,8 +119,18 @@ export default function Runner({ start, onDone, onError }) {
     setBusy('send'); setErr('');
     const d = signalDelta(sig.current, sentSig.current);
     const body = { text: (voice ? `${now.current} ${sp.interim || ''}` : text).trim().slice(0, 2500), seconds: Math.round((Date.now() - shownAt.current) / 100) / 10, pasteAttempts: pastes.current, ...d };
+    let clip = null;
+    if (iv.spoken) { // T10: timing (and the clip, sent alongside; the result waits for it)
+      Object.assign(body, measure ? speechTiming(heard.current) : { typed: true });
+      heard.current = [];
+      const audio = rec.current?.take();
+      if (audio && body.text) {
+        clip = http(`/api/me/trust/spoken/${iv.id}/clip`, { method: 'POST', body: { turn: a.n - 1, part: a.followUp ? 'follow' : 'answer', audio, text: body.text }, timeout: 30_000 }).catch(() => null);
+      }
+    }
     try {
       const next = await http(`${API}/${iv.id}/answer`, { method: 'POST', body, timeout: 60_000 });
+      if (clip) await clip;
       sentSig.current = { blurs: sig.current.blurs, blurMs: sig.current.blurMs };
       pastes.current = 0;
       setText(''); setTranscript(''); setPasteNote(false);
@@ -111,7 +143,7 @@ export default function Runner({ start, onDone, onError }) {
       if (e.status === 404) { onError?.(e.message); return; }
       setErr(e.message); setBusy('');
     } finally { sending.current = false; }
-  }, [a, iv.id, sp, text, voice, finish, onDone, onError]);
+  }, [a, iv.id, iv.spoken, measure, sp, text, voice, finish, onDone, onError]);
 
   // time is up: the answer goes by itself
   useEffect(() => { if (a && left === 0 && !busy) send(); }, [left]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -149,7 +181,7 @@ export default function Runner({ start, onDone, onError }) {
         </h2>
         {a.followUp && <span className="xs muted">A short question about what you just said.</span>}
         {fellBack && <p className="vet-note" role="note">Your browser can’t turn speech into text, so please type your answers instead.</p>}
-        {voice ? <Spoken lang={iv.lang} transcript={transcript} setTranscript={setTranscript} sp={sp} />
+        {voice ? <Spoken lang={iv.lang} transcript={transcript} setTranscript={(v) => { setTranscript(v); if (!v) { heard.current = []; rec.current?.take(); } }} sp={sp} measured={iv.spoken?.audio ? 'audio' : iv.spoken ? 'timing' : ''} />
           : <Typed key={turnKey} text={text} setText={setText} lang={iv.lang} label={a.followUp ? 'Your answer to the follow-up' : 'Your answer'} pasteNote={pasteNote}
             onPasteTry={() => { pastes.current += 1; setPasteNote(true); }} />}
         {err && <p className="error" role="alert">{err}</p>}
@@ -160,7 +192,8 @@ export default function Runner({ start, onDone, onError }) {
           <span className="xs muted">When the time ends, what you have is sent by itself.</span>
         </div>
       </section>
-      <p className="xs muted" style={{ margin: 0 }}>🔒 No camera and no audio stored. Leaving this page is counted.</p>
+      {iv.spoken && <p className="xs muted" style={{ margin: 0 }} data-testid="iv-spoken-on">Your spoken English is being measured (English answers only). It never changes your interview score.</p>}
+      {snap ? <SnapNote st={snap} /> : <p className="xs muted" style={{ margin: 0 }}><IcLock size={14} /> No camera and no audio stored. Leaving this page is counted.</p>}
     </div>
   );
 }

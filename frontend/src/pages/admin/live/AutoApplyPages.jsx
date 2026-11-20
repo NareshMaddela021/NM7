@@ -1,9 +1,9 @@
-// Admin → Auto Apply (Phase 3, A7): applications per day (Auto vs Manual, by channel), emails sent / bounced /
+// Admin -> Auto Apply (Phase 3, A7): applications per day (Auto vs Manual, by channel), emails sent / bounced /
 // complaints, students on / paused, stuck items, company "Not relevant" marks, the run log with errors; the off switch
 // (off = nothing is applied or sent), every default, pause a student or a company, and the demo shortcut. All on the
 // page, no pop-up dialogs; everything is in the activity log.
-import { useEffect, useState } from 'react';
-import { useToast } from '../../../components/ui';
+import { Suspense, lazy, useEffect, useState } from 'react';
+import { Spinner, useToast } from '../../../components/ui';
 import { Kpi, PageHead, Panel } from '../AdminUI';
 import { langsShown, useLang } from '../../../lib/i18n';
 import { Loading, http, useAction, useApi, when } from './common';
@@ -25,7 +25,7 @@ const Count = ({ o }) => <td style={NUM}><strong>{total(o)}</strong>{total(o) > 
 
 export function LiveAutoApply() {
   const toast = useToast();
-  useLang(); // redraws when Admin → Settings "Show Telugu and Hindi" changes
+  useLang(); // redraws when Admin -> Settings "Show Telugu and Hindi" changes
   const raviLang = langsShown() ? 'Telugu' : 'English'; // Ravi follows that setting (re-test N5)
   const st = useApi('/api/admin/auto-apply');
   const [busy, run] = useAction(toast);
@@ -34,7 +34,12 @@ export function LiveAutoApply() {
   const demo = (url = '/api/admin/auto-apply/demo', body) => run(async () => { const r = await http(url, { method: 'POST', body }); window.location.assign(r.path); });
   return (
     <div className="adx adx-aa stack g16">
-      <PageHead title="Auto Apply" sub="Every morning Nm7 applies for students within their own rules. Nothing is ever submitted on other websites by a bot." />
+      <PageHead title="Auto Apply" sub="Every morning Nm7 applies for students within their own rules. Only Auto Apply 2.0 sends simple forms, and only on companies’ own sites (see “company form sites”); never a CAPTCHA, a login or a job board." />
+      <V2Admin toast={toast} />
+      <V2Stats />
+      <EmailHealth toast={toast} />
+      <PartnerHealth />
+      <FormSites toast={toast} />
       <Loading st={st}>{(d) => (
         <div className="stack g16">
           <section className="card stack g8 adx-switch" data-on={d.settings.on ? '1' : '0'} aria-label="Off switch" data-testid="aa-switch">
@@ -84,7 +89,7 @@ export function LiveAutoApply() {
           {/* long labels wrap on a phone instead of running off the screen (re-test N5 follow-up) */}
           <section className="card-sm stack g8 adx-demo" aria-label="Demo student" data-testid="aa-demo">
             <strong className="small">Demo student</strong>
-            <span className="xs muted">A made-up student with Auto Apply on and one of each: applied on Nm7, sent by email (recorded, not sent), needs your answer, ready to apply, against the demo company’s jobs. Never public. Opening it signs this browser in as the student (the admin console signs out here: use a private window to keep both).</span>
+            <span className="xs muted">A made-up student (Kavya) with Auto Apply on and one of each: applied on Nm7, sent by email (recorded, not sent), needs your answer, ready to apply, against the demo company’s jobs. Auto Apply 2.0 too: every tracker state, the approval list, waiting questions and suggested jobs (Open Auto Apply 2.0 on her page). Never public. Opening it shows the site as the student; you stay signed in as admin and Back to Admin at the top brings you back.</span>
             <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start', maxWidth: '100%', whiteSpace: 'normal', textAlign: 'left', height: 'auto', minHeight: 40 }} disabled={busy} onClick={() => demo()} data-testid="aa-demo-open">Reset and open as student (Auto Apply)</button>
             <span className="xs muted">Easy dashboard: Ravi Kumar (demo) uses the simple dashboard in {raviLang}, with a half-done resume (no project yet), a job readiness score near 60%, the demo company’s jobs and one question waiting. Never public.</span>
             <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start', maxWidth: '100%', whiteSpace: 'normal', textAlign: 'left', height: 'auto', minHeight: 40 }} disabled={busy} onClick={() => demo('/api/admin/simple/demo')} data-testid="aa-demo-simple">Reset and open as student (Easy dashboard, {raviLang})</button>
@@ -172,6 +177,240 @@ function Companies({ toast }) {
           ))}
         </ul>
       )}</Loading>
+    </Panel>
+  );
+}
+
+// Auto Apply 2.0 (A1 "Engine"): its own launch switch (OFF = only admins, demo accounts and the testers below), the
+// match thresholds, the daily limit and its maximum, pricing (free for now) and the numbers. Everything is logged.
+const V2_FIELDS = [
+  ['autoMin', 'Match score that may be applied to automatically', 50, 100], ['suggestMin', '“Suggested for you” from this score', 30, 100],
+  ['dailyLimit', 'New users’ applications a day', 1, 50], ['maxDailyLimit', 'Most a user may choose', 1, 50],
+];
+// A7: pricing. The weekly limits are enforced only while "Pricing on" is ticked (off by default). Payments are coming
+// soon: they can't be turned on here and nothing is ever charged.
+const PRICE_FIELDS = [
+  ['freePerWeek', 'Free applications a week (0 = no weekly limit)', 0, 500], ['paidLimit', 'Paid plan: applications a week (0 = no weekly limit)', 0, 1000],
+];
+const ALL_FIELDS = [...V2_FIELDS, ...PRICE_FIELDS];
+
+const AutoApplyNumbers = lazy(() => import('./AutoApplyNumbers'));
+
+// A7: the per-channel numbers and the success measures, counted now (the same as Admin -> Daily report's section).
+function V2Stats() {
+  const st = useApi('/api/admin/auto-apply/v2/stats');
+  return (
+    <Panel title="Auto Apply 2.0: channels and success measures">
+      <Loading st={st}>{(d) => (
+        <div className="stack g8" data-testid="aa2-admin-stats">
+          <span className="xs muted">Last 7 days by channel (rates over 30 days). Demo accounts are never counted. The same numbers are in Admin &gt; Daily report every morning.</span>
+          <Suspense fallback={<Spinner />}><AutoApplyNumbers aa={d} /></Suspense>
+        </div>
+      )}</Loading>
+    </Panel>
+  );
+}
+
+function V2Admin({ toast }) {
+  const st = useApi('/api/admin/auto-apply/v2');
+  const [busy, run] = useAction(toast);
+  const save = (s, msg) => run(async () => { await http('/api/admin/auto-apply/v2/settings', { method: 'PUT', body: s }); st.reload(); }, msg);
+  return (
+    <Loading st={st}>{(d) => <V2Form key={JSON.stringify(d.settings)} d={d} busy={busy} save={save} />}</Loading>
+  );
+}
+
+function V2Form({ d, busy, save }) {
+  const s = d.settings;
+  const [f, setF] = useState(() => ({ ...Object.fromEntries(ALL_FIELDS.map(([k]) => [k, String(s[k] ?? '')])), testers: (s.testers || []).join(', '), pricingOn: !!s.pricingOn, testInbox: s.testInbox || '' }));
+  const bad = ALL_FIELDS.some(([k, , lo, hi]) => !/^\d+$/.test(f[k]) || Number(f[k]) < lo || Number(f[k]) > hi);
+  const body = (over = {}) => ({ ...s, ...Object.fromEntries(ALL_FIELDS.map(([k]) => [k, Number(f[k])])), testers: f.testers.split(/[\s,]+/).filter(Boolean), pricingOn: f.pricingOn, paymentsOn: false, testInbox: f.testInbox.trim(), ...over });
+  const x = d.stats;
+  return (
+    <Panel title="Auto Apply 2.0">
+      <div className="stack g12" data-testid="aa2-admin">
+        <div className="row g8 adx-switch" data-on={s.public ? '1' : '0'} style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
+          <strong className="small" data-testid="aa2-admin-state">{s.public ? 'Public: every user gets Auto Apply 2.0' : 'Hidden: only admins, demo accounts and the testers below. Real users see nothing new and get no 2.0 email.'}</strong>
+          <button type="button" className={`btn ${s.public ? 'btn-outline' : 'btn-signal'}`} disabled={busy || bad} onClick={() => save(body({ public: !s.public }), s.public ? 'Hidden again' : 'Auto Apply 2.0 is public')} data-testid="aa2-admin-switch">{s.public ? 'Hide again' : 'Make public'}</button>
+        </div>
+        <div className="kpis adx-kpis">
+          <Kpi label="Opted in" value={x.optedIn} sub={`${x.paused} paused`} />
+          <Kpi label="Modes" value={x.modes.approve} sub={`approve each · ${x.modes.full_auto} full auto · ${x.modes.digest} weekly`} />
+          <Kpi label="Sent with 2.0" value={x.applied} sub={`${x.items.waiting_approval || 0} waiting for approval`} />
+          <Kpi label="Tailored versions" value={Object.values(x.versions).reduce((a, b) => a + b, 0)} sub={`${x.versions.ai || 0} AI · ${x.blocked} AI drafts blocked by the truth check`} />
+        </div>
+        <form className="stack g8" onSubmit={(e) => { e.preventDefault(); save(body(), 'Saved'); }} data-testid="aa2-admin-form">
+          {V2_FIELDS.map(([k, label, lo, hi]) => (
+            <label key={k} className="row g8 small" style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>{label}
+              <input className="input" type="number" inputMode="numeric" min={lo} max={hi} step={1} style={{ height: 38, width: 110 }} value={f[k]} onChange={(e) => setF({ ...f, [k]: e.target.value })} data-testid={`aa2-${k}`} /></label>
+          ))}
+          <label className="stack g4 small">Testers (emails, comma between)
+            <textarea className="input" rows={2} style={{ minHeight: 60, maxWidth: '100%' }} value={f.testers} onChange={(e) => setF({ ...f, testers: e.target.value })} data-testid="aa2-testers" /></label>
+          <label className="stack g4 small">Test inbox for Auto Apply emails while hidden (empty = each tester’s own inbox). A company is never emailed while hidden.
+            <input className="input" type="email" style={{ height: 38, maxWidth: 360 }} value={f.testInbox} onChange={(e) => setF({ ...f, testInbox: e.target.value })} placeholder="qa@yourmail.com" data-testid="aa2-test-inbox" /></label>
+          <fieldset className="stack g8 well" style={{ margin: 0, border: '1px solid var(--border2)' }} data-testid="aa2-pricing">
+            <legend className="small"><strong>Pricing</strong></legend>
+            <label className="row g8 small"><input type="checkbox" checked={f.pricingOn} onChange={(e) => setF({ ...f, pricingOn: e.target.checked })} data-testid="aa2-pricingOn" /> Pricing on: enforce the weekly limits below (off: no weekly limit for anyone)</label>
+            {PRICE_FIELDS.map(([k, label, lo, hi]) => (
+              <label key={k} className="row g8 small" style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>{label}
+                <input className="input" type="number" inputMode="numeric" min={lo} max={hi} step={1} style={{ height: 38, width: 110 }} value={f[k]} onChange={(e) => setF({ ...f, [k]: e.target.value })} data-testid={`aa2-${k}`} /></label>
+            ))}
+            <label className="row g8 small muted"><input type="checkbox" checked={false} disabled data-testid="aa2-paymentsOn" /> Payments: coming soon. Auto Apply is free for everyone; nothing is charged.</label>
+            <span className="xs muted" data-testid="aa2-pricing-state">{s.pricingOn ? `Pricing is on: ${s.freePerWeek ? `${s.freePerWeek} free applications a week` : 'no weekly limit on free applications'}${s.paidLimit ? `, ${s.paidLimit} a week on the paid plan` : ''}.` : 'Pricing is off: no weekly limit.'}</span>
+          </fieldset>
+          {bad && <span className="xs" style={{ color: 'var(--danger)' }}>Each value must be a whole number in its range.</span>}
+          <button type="submit" className="btn btn-signal" style={{ alignSelf: 'flex-start' }} disabled={busy || bad} data-testid="aa2-admin-save">Save Auto Apply 2.0</button>
+        </form>
+      </div>
+    </Panel>
+  );
+}
+
+// Auto Apply 2.0 email applications (A3): the channel's health (on / off and what the server is missing, sent today,
+// bounce and complaint rates over 30 days), blocked addresses and domains with the employers' opt-outs (undo any), and
+// candidates whose email channel was paused after a complaint (turn it back on after a look). The DNS steps for
+// apply.nm7.si are in docs/autoapply/apply-nm7-si-dns.md.
+const REASON = { bounce: 'Bounced', complaint: 'Complaint', opt_out: 'Opted out' };
+
+function EmailHealth({ toast }) {
+  const st = useApi('/api/admin/auto-apply/v2/email');
+  const [busy, run] = useAction(toast);
+  const [show, setShow] = useState(false);
+  const act = (url, method, msg) => run(async () => { await http(url, { method }); st.reload(); }, msg);
+  return (
+    <Panel title="Auto Apply 2.0: email channel">
+      <Loading st={st}>{(d) => (
+        <div className="stack g12" data-testid="aa2-email-admin">
+          <div className="row g8 adx-switch" data-on={d.channel.on ? '1' : '0'} style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
+            <strong className="small" data-testid="aa2-email-admin-state">{d.channel.on ? `On: candidates’ apply addresses on ${d.channel.domain}` : `Off: ${d.channel.reason} Email jobs fall back to Ready (one tap).`}</strong>
+            <span className="xs muted">{d.public ? 'Public: emails go to companies' : `Hidden: emails go to ${d.testInbox || 'each tester’s own inbox'}, never to a company`}</span>
+          </div>
+          {d.channel.missing.length > 0 && <p className="xs" style={{ margin: 0 }} data-testid="aa2-email-missing">Missing on the server (Render): {d.channel.missing.join(', ')}. See docs/autoapply/apply-nm7-si-dns.md.</p>}
+          <div className="kpis adx-kpis">
+            <Kpi label="Sent today" value={d.sentToday} sub={`${d.testToday} to the test inbox · limits ${d.limits.perCandidateDay}/candidate, ${d.limits.perDomainDay}/company domain a day`} />
+            <Kpi label="Bounces (30 days)" value={`${d.bounceRate}%`} sub={`${d.bounces30} of ${d.sent30} emails`} />
+            <Kpi label="Complaints (30 days)" value={`${d.complaintRate}%`} sub={`${d.complaints30} of ${d.sent30} emails`} />
+            <Kpi label="Blocked" value={d.blocks.length} sub={`${d.blockedDomains} domains · ${d.optOuts} employer opt-outs · ${d.replies30} replies in 30 days`} />
+          </div>
+          {d.paused.length > 0 && (
+            <section className="stack g8" aria-label="Paused after a complaint" data-testid="aa2-email-paused-list">
+              <strong className="small">Candidates paused after a complaint</strong>
+              {d.paused.map((u) => (
+                <div key={u.id} className="row g8 well" style={{ justifyContent: 'space-between', flexWrap: 'wrap', overflowWrap: 'anywhere' }}>
+                  <span className="small">{u.name || u.email} <span className="muted">· {u.email} · {when(u.at)}</span></span>
+                  <button type="button" className="btn btn-outline btn-sm" disabled={busy} onClick={() => act(`/api/admin/auto-apply/v2/email/paused/${u.id}/resume`, 'POST', 'Email channel back on')}>Turn back on</button>
+                </div>
+              ))}
+            </section>
+          )}
+          <button type="button" className="link-btn small" style={{ alignSelf: 'flex-start' }} aria-expanded={show} onClick={() => setShow(!show)} data-testid="aa2-email-blocks-toggle">{show ? 'Hide' : 'Show'} blocked addresses and opt-outs ({d.blocks.length})</button>
+          {show && (d.blocks.length === 0 ? <p className="small muted" style={{ margin: 0 }}>Nothing is blocked.</p> : (
+            <ul className="stack g4" style={{ listStyle: 'none', margin: 0, padding: 0 }} data-testid="aa2-email-blocks">
+              {d.blocks.map((b) => (
+                <li key={b.id} className="row g8" style={{ justifyContent: 'space-between', flexWrap: 'wrap', overflowWrap: 'anywhere', borderBottom: '1px solid var(--border2)', padding: '6px 0' }} data-testid="aa2-email-block">
+                  <span className="small"><strong>{b.id}</strong> <span className="muted">· {b.kind === 'domain' ? 'whole domain' : 'one address'} · {REASON[b.reason] || b.reason} · {when(b.at)}</span></span>
+                  <button type="button" className="link-btn small" disabled={busy} onClick={() => act(`/api/admin/auto-apply/v2/email/blocks/${encodeURIComponent(b.id)}`, 'DELETE', 'Removed from the list')} data-testid="aa2-email-unblock">Undo</button>
+                </li>
+              ))}
+            </ul>
+          ))}
+        </div>
+      )}</Loading>
+    </Panel>
+  );
+}
+
+// Auto Apply 2.0 (A4): each hiring-system partner's health. Companies connect with their own keys on their dashboard
+// ("Connect your hiring system"); this shows only counts, the last error's kind and dates, never a key or a company's
+// settings. Darwinbox is marked until Darwinbox confirms its API.
+const ERROR_KIND = { auth: 'Key refused', not_found: 'Account or job not found', rate_limited: 'Rate limited', server: 'Partner error', network: 'Unreachable', bad_request: 'Request refused', config: 'Settings missing', error: 'Other error' };
+
+function PartnerHealth() {
+  const st = useApi('/api/admin/auto-apply/v2/partners');
+  return (
+    <Panel title="Auto Apply 2.0: hiring systems">
+      <Loading st={st}>{(d) => (
+        <div className="stack g8" data-testid="aa2-partners-admin">
+          <span className="xs muted">{d.public ? 'Public: applications to linked jobs go to the companies’ own systems.' : 'Hidden: only testers’ applications reach companies with a tester on their team; demo stays with the demo company.'}</span>
+          <div className="table-wrap" tabIndex={0} role="region" aria-label="Hiring systems">
+            <table className="table" data-testid="aa2-partners"><thead><tr><th scope="col">System</th><th scope="col" style={NUM}>Companies</th><th scope="col" style={NUM}>Delivered today</th><th scope="col" style={NUM}>Retrying / failed</th><th scope="col">Last error</th><th scope="col">Last sync</th></tr></thead>
+              <tbody>{d.partners.map((p) => (
+                <tr key={p.key} data-testid="aa2-partner" data-key={p.key}>
+                  <th scope="row" className="small" style={{ fontWeight: 600 }}>{p.name}{!p.confirmed && <div className="xs muted">needs Darwinbox to confirm its API</div>}</th>
+                  <td style={NUM}>{p.connected}{p.demo > 0 && <div className="xs muted">+{p.demo} demo</div>}</td>
+                  <td style={NUM} data-testid="aa2-partner-today">{p.deliveredToday}</td>
+                  <td style={NUM}>{p.retrying} / {p.failures}</td>
+                  <td className="small">{p.lastErrorType ? <>{ERROR_KIND[p.lastErrorType] || p.lastErrorType}<div className="xs muted">{when(p.lastErrorAt)}</div></> : '—'}</td>
+                  <td className="small">{p.lastSyncAt ? when(p.lastSyncAt) : '—'}</td>
+                </tr>
+              ))}</tbody></table>
+          </div>
+        </div>
+      )}</Loading>
+    </Panel>
+  );
+}
+
+// Auto Apply 2.0 (A5): every company site seen for simple forms. Allowed (a plain form worked), one tap only (and why:
+// a CAPTCHA, a login, a block, an error …), blocked by robots.txt or by its terms, or a job board (never used). Admin
+// can move a site to one tap or reset it (robots.txt and the terms are checked again on the next try). The rules Nm7
+// follows on every site are shown at the top.
+const SITE_TONE = { allowed: 'success', new: 'neutral', one_tap: 'warning', robots: 'danger', terms: 'danger', job_board: 'danger' };
+const SITE_FILTERS = [['', 'All'], ['allowed', 'Allowed'], ['one_tap', 'One tap only'], ['robots', 'Robots.txt'], ['terms', 'Terms'], ['job_board', 'Job boards'], ['new', 'Not tried yet']];
+
+function FormSites({ toast }) {
+  const st = useApi('/api/admin/auto-apply/v2/forms');
+  const [busy, run] = useAction(toast);
+  const [pick, setPick] = useState('');
+  const [ask, setAsk] = useState('');
+  const act = (site, what, msg) => run(async () => { await http(`/api/admin/auto-apply/v2/forms/sites/${encodeURIComponent(site)}/${what}`, { method: 'POST' }); setAsk(''); st.reload(); }, msg);
+  return (
+    <Panel title="Auto Apply 2.0: company form sites">
+      <Loading st={st}>{(d) => {
+        const rows = pick ? d.sites.filter((x) => x.state === pick) : d.sites;
+        return (
+          <div className="stack g12" data-testid="aa5-sites-admin">
+            <span className="xs muted">{d.public ? 'Public: simple forms on companies’ own sites are filled for candidates.' : 'Hidden: only testers’ applications to companies with a tester on their team go through a form; demo never uses the network.'}</span>
+            <span className="xs muted aa2-wrap" data-testid="aa5-sites-rules">Every site: robots.txt first, the terms page when linked, user agent “{d.rules.userAgent}”, {d.rules.delay} s between requests, at most {d.rules.requestsPerDay} requests and {d.rules.submitsPerDay} applications a day. Never a CAPTCHA, a login, an account, a payment or a job board.</span>
+            <div className="kpis adx-kpis">
+              <Kpi label="Allowed" value={d.counts.allowed} sub={`${d.counts.appliedToday} sent today · ${d.counts.queued} waiting to send`} />
+              <Kpi label="One tap only" value={d.counts.one_tap} sub="blocked, CAPTCHA, login or an error" />
+              <Kpi label="Robots.txt / terms" value={`${d.counts.robots} / ${d.counts.terms}`} sub="the site asks bots not to" />
+              <Kpi label="Job boards" value={d.counts.job_board} sub="never used" />
+            </div>
+            <div className="field" style={{ maxWidth: 260 }}>
+              <label className="label" htmlFor="aa5-filter">Show</label>
+              <select id="aa5-filter" className="input" value={pick} onChange={(e) => setPick(e.target.value)} data-testid="aa5-sites-filter">{SITE_FILTERS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select>
+            </div>
+            {rows.length === 0 ? <p className="small muted" style={{ margin: 0 }}>No sites here yet.</p> : (
+              <ul className="stack g8" style={{ listStyle: 'none', margin: 0, padding: 0 }} data-testid="aa5-sites">
+                {rows.map((x) => (
+                  <li key={x.site} className="stack g4" style={{ borderBottom: '1px solid var(--border2)', padding: '8px 0', overflowWrap: 'anywhere' }} data-testid="aa5-site" data-site={x.site} data-state={x.state}>
+                    <div className="row g8" style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
+                      <strong className="small">{x.site}{x.demo ? ' (demo)' : ''}</strong>
+                      <span className={`badge b-${SITE_TONE[x.state] || 'neutral'}`} data-testid="aa5-site-state">{x.stateText}</span>
+                    </div>
+                    {(x.reasonText || x.reason) && x.state !== 'allowed' && x.state !== 'new' && <span className="xs muted" data-testid="aa5-site-reason">{x.reason === 'admin' ? 'Moved to one tap by Admin.' : x.reasonText || x.reason}{x.termsPhrase ? ` “${x.termsPhrase}”` : ''}</span>}
+                    <span className="xs muted" data-testid="aa5-site-counts">{x.successes} sent · {x.failures} failed · last tried {x.lastTried ? when(x.lastTried) : 'never'}{x.lastOk ? ` · last sent ${when(x.lastOk)}` : ''} · today {x.today.requests} requests, {x.today.submits} sent</span>
+                    {ask === x.site ? (
+                      <div className="row g8" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
+                        <span className="small">Reset {x.site}? Nm7 checks robots.txt and the terms again on the next try.</span>
+                        <button type="button" className="btn btn-sm btn-signal" disabled={busy} onClick={() => act(x.site, 'reset', 'Site reset')} data-testid="aa5-site-reset-yes">Reset</button>
+                        <button type="button" className="link-btn small" onClick={() => setAsk('')}>Cancel</button>
+                      </div>
+                    ) : (
+                      <div className="row g12" style={{ flexWrap: 'wrap' }}>
+                        {x.state !== 'one_tap' && x.state !== 'job_board' && <button type="button" className="link-btn small" disabled={busy} onClick={() => act(x.site, 'one-tap', 'Moved to one tap')} data-testid="aa5-site-onetap">Move to one tap</button>}
+                        {x.state !== 'new' && x.state !== 'job_board' && <button type="button" className="link-btn small" disabled={busy} onClick={() => setAsk(x.site)} data-testid="aa5-site-reset">Reset</button>}
+                      </div>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        );
+      }}</Loading>
     </Panel>
   );
 }

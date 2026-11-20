@@ -111,9 +111,11 @@ def place_ok(p: dict[str, Any], job: dict[str, Any]) -> str | None:
     """The place they share with the job ('remote' or a city), or None when it doesn't suit."""
     if job.get("remote") or job.get("work_type") == "remote":
         return "remote"
-    mine = {c.lower() for c in p.get("cities") or []}
+    from app.jobsearch.parse import canonical_city
+
+    mine = {canonical_city(c).lower() for c in p.get("cities") or []}  # "Bangalore" and "Bengaluru" are one city
     for c in job.get("locations") or []:
-        if c.lower() in mine:
+        if canonical_city(c).lower() in mine:
             return c
     return None
 
@@ -416,6 +418,17 @@ async def shortlist(
     band: str = Query("", max_length=10),  # V1: fresher, 1-3, 3-5, 5-8, 8+
     role: str = Query("", max_length=80),  # V2: ... for this test (e.g. "Java")
     min_score: int = Query(0, ge=0, le=100, alias="minScore"),  # V2: ... with at least this test score
+    licence: str = Query("", pattern="^(|any|two_wheeler|lmv)$"),  # Vetting Trust T6: verified driving licence
+    vehicle: str = Query("", pattern="^(|any|two_wheeler|car|bicycle)$"),  # T6: vehicle owned (self-declared)
+    night_shift: bool = Query(False, alias="nightShift"),  # T6
+    shift: str = Query("", pattern="^(|day|night|rotational)$"),  # T6
+    max_km: int = Query(0, ge=0, le=500, alias="maxKm"),  # T6: distance from the job at most (rounded km)
+    lang: str = Query("", max_length=20),  # T6: a language spoken
+    immediate: bool = False,  # T6: available now / no notice
+    english: str = Query("", pattern="^(|A1|A2|B1|B2|C1|C2)$"),  # T10: spoken English at least (tagged roles only)
+    typing: int = Query(0, ge=0, le=45),  # T15: typing speed at least (25 / 35 / 45 wpm, 90% accuracy)
+    sjt: str = Query("", pattern="^(|good|strong)$"),  # T15: situational judgement at least
+    aptitude: str = Query("", pattern="^(|top50|top30|top10)$"),  # T15: aptitude in the top X%
     x_recruiter_account: str | None = Header(None),
 ) -> dict[str, Any]:
     acc, c, _ = await company_for(db, cid, x_recruiter_account)
@@ -452,6 +465,38 @@ async def shortlist(
         rows = [r for r in rows if keep_vetted(r, role, min_score)]
     if vetting:
         rows = [r for r in rows if keep_v1(r, min_level, ready_now, notice_max, salary_max, city, band)]
+    from app.trust import access as trust_access
+
+    non_tech = None
+    work = None
+    if await trust_access.for_company(db, c, acc):  # Vetting Trust T6: verified non-tech filters (else as before)
+        from app.trust import screening
+        from app.trust.spoken.service import filter_on
+
+        await screening.attach(db, rows, j, c)
+        eng_on = filter_on(await get_site(db), j)  # T10: only for the role categories Admin tagged
+        nf = {"licence": licence, "vehicle": vehicle, "nightShift": night_shift, "shift": shift, "maxKm": max_km,
+              "lang": lang, "immediate": immediate, "english": english if eng_on else ""}  # fmt: skip
+        rows, counts = screening.apply_filters(rows, nf)
+        if not eng_on:
+            counts["english"] = None
+        non_tech = {"filters": nf, "counts": counts, "englishFilter": eng_on}
+        from app.trust.fairness import filters as fair_filters  # Vetting Trust T12: proxy filters warned (logged)
+
+        fair = fair_filters.hire_filters({"lang": lang, "city": city}, j)
+        await fair_filters.log(db, cid, "hire_filter", fair, "shown")
+        non_tech["fairness"] = fair_filters.out(fair)
+        from app.trust.worktests import hire as work_hire  # Vetting Trust T15: work-test badges, reliability record
+
+        await work_hire.attach(db, rows)
+        wf = {"typing": typing if typing in work_hire.TYPING_STEPS else 0, "sjt": sjt, "aptitude": aptitude}
+        rows, wcounts = work_hire.apply_filters(rows, wf)
+        work = {"filters": wf, "counts": wcounts}
+    from app.trust.criteria.router import attach_hire
+
+    criteria = await attach_hire(
+        db, rows, j, c, acc
+    )  # Vetting Trust T7: requirements met first (only where Trust is on)
     if rows:  # H9: when the first candidate was shown for this role
         await db[JOBS].update_one({"_id": j["_id"]}, {"$min": {"hire_speed.first_shown_at": started}})
     await db[HIRE_USAGE].update_one(
@@ -459,6 +504,10 @@ async def shortlist(
     )
     await audit(db, None, "hire.shortlist", target=cid, data={"by": acc["email_lc"], "job": job, "n": len(rows)})
     roles = sorted(set(roles) | {job})
+    shown = rows[: min(size, BULK_TOP if is_bulk(j) else TOP)]
+    from app.trust.digilocker.router import add_badges
+
+    await add_badges(db, shown, "key", c, acc)  # Vetting Trust T2: "Verified via DigiLocker" (only where Trust is on)
     return {
         "job": {
             "id": j["_id"],
@@ -466,9 +515,12 @@ async def shortlist(
             "locations": j.get("locations") or [],
             "remote": bool(j.get("remote")),
         },
-        "items": rows[: min(size, BULK_TOP if is_bulk(j) else TOP)],
+        "items": shown,
         "available": len(rows),
         "vetting": vetting,  # the Skill verified filters and badges are shown (Admin → Skill checks → Launch)
+        **({"nonTech": non_tech} if non_tech else {}),  # Vetting Trust T6
+        **({"workTests": work} if work else {}),  # Vetting Trust T15
+        **({"criteria": criteria} if criteria else {}),  # Vetting Trust T7
         "usage": {"used": len(roles), "free": free},
         "ms": int((now() - started).total_seconds() * 1000),
     }
@@ -560,6 +612,12 @@ async def invite(
             await send_safely(mailer, invite_email(u, c, j, body.note))
     if sent:  # H9: an invite means a candidate was shown for this role
         await db[JOBS].update_one({"_id": j["_id"]}, {"$min": {"hire_speed.first_shown_at": t}})
+        from app.trust.tth.service import (
+            mark as tth_mark,  # Vetting Trust T13 (an invite sent again overwrites its date)
+        )
+
+        for kind in ("shortlist", "contact"):  # the invite email reaches the person
+            await tth_mark(db, j["_id"], kind, company_id=cid, via="invite", at=t)
     await audit(db, None, "hire.invite", target=cid, data={"by": acc["email_lc"], "job": j["_id"], "n": len(sent)})
     return {"sent": len(sent), "skipped": skipped}
 
@@ -611,6 +669,7 @@ async def my_invites(auth: CustomerAuth, db: DB) -> list[dict[str, Any]]:
             {
                 **invite_state(i, t),
                 "company": (c.get("details") or {}).get("legal_name", ""),
+                "companyId": i["company_id"],  # Vetting Trust T4: the employer badge and "Report fraud" on the invite
                 "role": j.get("title", ""),
                 "where": "Remote" if j.get("remote") else ", ".join(j.get("locations") or []),
                 "salary": j.get("salary"),

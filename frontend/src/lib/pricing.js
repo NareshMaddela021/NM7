@@ -11,7 +11,7 @@ export const PLANS = {
   // job search, self-serve: the Rs 99 plan includes the Tailor pack; Career Launch includes the Interview pack
   tailor_pack: { id: 'tailor_pack', name: 'Tailor pack', price: 49, blurb: 'Unlimited job matches, tailored resume copies, AI rewrites and cover letters' },
   interview_pack: { id: 'interview_pack', name: 'Interview pack', price: 99, blurb: '10 questions with answers from your resume, and practice with feedback' },
-  // best value: 12 months of downloads + the Tailor, Interview and LinkedIn packs (the price is set in Admin → Settings)
+  // best value: 12 months of downloads + the Tailor, Interview and LinkedIn packs (the price is set in Admin -> Settings)
   annual_pass: { id: 'annual_pass', name: 'Annual student pass', price: 199, blurb: 'For 12 months: unlimited PDF and Word downloads, the Tailor pack, the Interview pack (with voice practice) and the LinkedIn pack' },
 };
 /** The resume plans (expert / DIY), without the LinkedIn pack. */
@@ -21,7 +21,7 @@ export const PROMISES = {
   delivery: '24–48 hours',
   deliveryHours: 48,
   refund: 'Full refund if we don’t fulfil the service',
-  refundDays: '3–5 business days',
+  refundDays: '5–7 working days', // Razorpay refunds to the original payment method
   retentionDays: 60,
   autoApproveDays: '1–2 days',
   withdrawalDays: '3–5 business days',

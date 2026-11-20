@@ -23,7 +23,7 @@ concurrency:
 
 jobs:
   audit:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # pinned: Playwright has no Chromium for ubuntu-26.04 yet (18 Nov)
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
@@ -46,7 +46,7 @@ jobs:
 
   docker:
     # The image Render builds, built here first: a broken Dockerfile is seen on the PR, not on deploy.
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # pinned: Playwright has no Chromium for ubuntu-26.04 yet (18 Nov)
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4

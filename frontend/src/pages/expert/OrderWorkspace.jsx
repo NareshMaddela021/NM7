@@ -21,6 +21,7 @@ import { applyImport } from '../../lib/import/apply';
 import { PLANS, ADDONS, expertPayout, inr } from '../../lib/pricing';
 import { LIVE, http } from '../../services/http';
 import { entryLabel } from '../../lib/jobProfile';
+import { IcAlert, IcArrowLeft, IcArrowRight, IcCheck, IcClock, IcX } from '../../components/icons';
 
 /** The customer's Job Profile, only when they allowed it (personal details only if they allowed those too). */
 function CustomerProfile({ orderId }) {
@@ -64,7 +65,7 @@ function Drawer({ title, onClose, children }) {
   }, []);
   return (
     <aside aria-label={title} className="card ex-drawer stack g16" style={{ position: 'fixed', right: 16, top, bottom: 16, width: 'min(460px, calc(100vw - 32px))', overflow: 'auto', zIndex: 40, padding: 20 }}>
-      <div className="row between g8"><strong className="ex-drawer-title">{title}</strong><button type="button" className="btn btn-icon" aria-label="Close" onClick={onClose}>✕</button></div>
+      <div className="row between g8"><strong className="ex-drawer-title">{title}</strong><button type="button" className="btn btn-icon" aria-label="Close" onClick={onClose}><IcX /></button></div>
       {children}
     </aside>
   );
@@ -126,7 +127,7 @@ function OrderWorkspace({ id }) {
     return (
       <><Header variant="expert" />
         <main className="container-wide ex-page ex-narrow stack g20 rise">
-          <Link to="/expert/orders" className="small">← Orders</Link>
+          <Link to="/expert/orders" className="small"><IcArrowLeft size={14} /> Orders</Link>
           <div className="mcard mcard-accent stack g16">
             <div className="mspread"><span className="stack g4"><span className="ex-kicker">{o.id}</span><h1 className="ex-title" style={{ fontSize: 34 }}>New order offer</h1></span><span className="badge b-warning">{o.status === 'declined' ? 'Declined' : `${mins} min to accept`}</span></div>
             <div className="ex-facts">
@@ -154,11 +155,11 @@ function OrderWorkspace({ id }) {
     return (
       <><Header variant="expert" />
         <main className="container-wide ex-page ex-narrow stack g16">
-          <Link to="/expert/orders" className="small">← Orders</Link>
+          <Link to="/expert/orders" className="small"><IcArrowLeft size={14} /> Orders</Link>
           <div className="mcard stack g8">
             <h1 className="ex-title" style={{ fontSize: 30 }}>{o.id} · {o.customer}</h1>
             <span className="muted">{PLANS[o.plan].name} · {o.role} · {o.versions.length} versions · {o.status}</span>
-            {o.rating && <span>★ {o.rating} — “{o.review}”</span>}
+            {o.rating && <span>Rated {o.rating}/5 — “{o.review}”</span>}
             <span className="xs faint">Resume files are deleted 60 days after delivery.</span>
           </div>
         </main>
@@ -205,13 +206,13 @@ function OrderWorkspace({ id }) {
             <span className="badge b-neutral">{PLANS[o.plan].name}</span>
             {[...new Set(o.addons || [])].map((a) => <span key={a} className="badge b-signal">+ {ADDONS[a]?.name}</span>)}
             <span className="badge b-neutral">{o.role}</span>
-            {live && <span className="xs strong" style={{ color: tl.color }}>⏱ {tl.label}</span>}
+            {live && <span className="xs strong" style={{ color: tl.color }}><IcClock size={14} /> {tl.label}</span>}
             {!live && <span className="badge b-success">{o.status === 'approved' ? 'Approved' : 'Delivered'}</span>}
           </div>
           <div className="ex-wsbar-id">
             <button type="button" className="btn btn-outline ex-ats" style={{ minHeight: 40 }} onClick={() => open('checks')} title="ATS score, job match and checklist">
-              ATS {orig?.score} → <strong style={{ color: now?.score >= 80 ? 'var(--success)' : 'var(--warning)' }}>{now?.score}</strong>
-              <span className="faint">· Job {now?.match.found.length}/{now?.match.keywords.length} · ✓ {ticks.filter(Boolean).length}/5</span>
+              ATS {orig?.score} to <strong style={{ color: now?.score >= 80 ? 'var(--success)' : 'var(--warning)' }}>{now?.score}</strong>
+              <span className="faint">· Job {now?.match.found.length}/{now?.match.keywords.length} · checks {ticks.filter(Boolean).length}/5</span>
             </button>
             {live && <button type="button" className="btn btn-signal" style={{ minHeight: 40 }} onClick={() => open('send')}>Send {o.status === 'revision' || draftN > 1 ? `draft ${draftN} / final` : `draft ${draftN}`}</button>}
           </div>
@@ -224,7 +225,7 @@ function OrderWorkspace({ id }) {
       </div>
       </div>
 
-      <div className="container-wide" style={{ padding: '0 24px' }}>
+      <div className="app-wide">
         {embedded && <Builder embedded={{ ...embedded, replace, focus }} />}
       </div>
 
@@ -256,12 +257,12 @@ function OrderWorkspace({ id }) {
         <Drawer title="Live checks" onClose={() => setDrawer(null)}>
           <div className="row g12" style={{ alignItems: 'baseline' }}><span className="display" style={{ fontSize: 40 }}>{now.score}</span><span className="muted">ATS score · was {orig.score}</span></div>
           <ul className="stack g4" style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-            {now.checks.map((c) => <li key={c.label} className="row g8 small" style={{ flexWrap: 'nowrap', alignItems: 'flex-start' }}><span aria-hidden="true" style={{ color: c.ok ? 'var(--success)' : 'var(--warning)', fontWeight: 700, width: 14 }}>{c.ok ? '✓' : '!'}</span><span><strong>{c.label}</strong>{!c.ok && <><br /><span className="xs muted">{c.tip}</span></>}</span></li>)}
+            {now.checks.map((c) => <li key={c.label} className="row g8 small" style={{ flexWrap: 'nowrap', alignItems: 'flex-start' }}><span aria-hidden="true" style={{ color: c.ok ? 'var(--success)' : 'var(--warning)', fontWeight: 700, width: 14 }}>{c.ok ? <IcCheck size={14} /> : <IcAlert size={14} />}</span><span><strong>{c.label}</strong>{!c.ok && <><br /><span className="xs muted">{c.tip}</span></>}</span></li>)}
           </ul>
           {now.match.keywords.length > 0 && (
             <div className="stack g8">
               <strong className="small">Job match · {now.match.found.length} of {now.match.keywords.length}</strong>
-              <div className="row g4">{now.match.found.map((k) => <span key={k} className="badge b-success">✓ {k}</span>)}{now.match.missing.map((k) => <span key={k} className="badge b-danger">✗ {k}</span>)}</div>
+              <div className="row g4">{now.match.found.map((k) => <span key={k} className="badge b-success"><IcCheck size={12} /> {k}</span>)}{now.match.missing.map((k) => <span key={k} className="badge b-danger"><IcX size={12} /> {k}</span>)}</div>
               {now.match.missing.length > 0 && <span className="xs muted">Add missing ones only if the customer really has them (ask in Messages).</span>}
             </div>
           )}
@@ -277,7 +278,7 @@ function OrderWorkspace({ id }) {
           {!allTicked && <div className="well small" style={{ color: 'var(--warning)' }}>Tick all 5 quality checks first (Checks). {ticks.filter(Boolean).length}/5 done. <button type="button" className="link-btn small" onClick={() => setDrawer('checks')}>Open checks</button></div>}
           {unresolved.length > 0 && <div className="well small">{unresolved.length} customer comment{unresolved.length > 1 ? 's' : ''} not marked fixed. <button type="button" className="link-btn small" onClick={() => setDrawer('messages')}>Review</button></div>}
           <div className="field"><label htmlFor="snote" className="label">Note to the customer</label><textarea id="snote" className="input" rows={3} value={note} onChange={(e) => setNote(e.target.value)} placeholder="e.g. I moved projects up and added numbers to every bullet. Check the summary." /></div>
-          <span className="small muted">ATS {orig.score} → {now.score} · job match {now.match.found.length}/{now.match.keywords.length}</span>
+          <span className="small muted">ATS {orig.score} to {now.score} · job match {now.match.found.length}/{now.match.keywords.length}</span>
           <div className="row g8">
             <button type="button" className="btn btn-ink" disabled={!allTicked || !d} onClick={() => send(false)}>Send draft {draftN}</button>
             <button type="button" className="btn btn-outline" disabled={!allTicked || !d || draftN === 1} onClick={() => send(true)} title={draftN === 1 ? 'Send at least one draft first' : ''}>Deliver final</button>
@@ -307,7 +308,7 @@ function OrderWorkspace({ id }) {
                 <div key={c.id} className="well stack g4" style={{ opacity: c.resolved ? 0.55 : 1 }}>
                   <span className="xs strong">{PRINTABLE[c.section] || c.section}</span><span className="small">{c.text}</span>
                   <span className="row g8"><button type="button" className="link-btn xs" onClick={() => { setFocus({ n: Date.now(), id: c.section }); setDrawer(null); }}>Go to section</button>
-                    <button type="button" className="link-btn xs" onClick={() => updateOrder(o.id, (x) => ({ comments: x.comments.map((y) => (y.id === c.id ? { ...y, resolved: !y.resolved } : y)) }))}>{c.resolved ? 'Reopen' : 'Mark fixed ✓'}</button></span>
+                    <button type="button" className="link-btn xs" onClick={() => updateOrder(o.id, (x) => ({ comments: x.comments.map((y) => (y.id === c.id ? { ...y, resolved: !y.resolved } : y)) }))}>{c.resolved ? 'Reopen' : 'Mark fixed'}</button></span>
                 </div>
               ))}
             </div>
@@ -336,7 +337,7 @@ function OrderWorkspace({ id }) {
               </span>
             </div>
           ))}
-          <Link to="/expert/snippets" className="small">Manage snippets →</Link>
+          <Link to="/expert/snippets" className="small">Manage snippets <IcArrowRight size={14} /></Link>
         </Drawer>
       )}
 

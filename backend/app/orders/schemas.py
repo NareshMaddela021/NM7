@@ -6,6 +6,7 @@ from pydantic import Field
 from app.core.schemas import CamelModel
 from app.orders.models import Order
 from app.orders.pricing import PLANS
+from app.payments.customer_invoice import CustomerBillingIn  # noqa: E402
 
 
 class CreateOrderIn(CamelModel):
@@ -13,6 +14,7 @@ class CreateOrderIn(CamelModel):
     role: str | None = Field(default=None, max_length=100)  # the job the resume is for
     addons: list[str] = Field(default_factory=list, max_length=5)
     code: str | None = Field(default=None, max_length=40)  # a code (Admin → Codes); one per order
+    billing: CustomerBillingIn | None = None  # optional: invoice to a company (name + GSTIN) for input tax credit
 
 
 class Prefill(CamelModel):
@@ -81,6 +83,9 @@ class OrderOut(CamelModel):
     refunds: list[RefundOut] = []
     coupon: CouponOut | None = None  # the code used: original price, discount, final price (paise)
     resume_id: str | None = None  # a free code that unlocked one resume's downloads
+    kind: str = "customer"  # "addon": an add-on / upgrade paid for an earlier order (parent_id)
+    parent_id: str | None = None
+    moved_from: str | None = None  # "whatsapp": an old WhatsApp order now paid through a Razorpay link
 
     @classmethod
     def of(cls, o: Order, payments: list | None = None, refunds: list | None = None) -> "OrderOut":
@@ -107,4 +112,7 @@ class OrderOut(CamelModel):
             refunds=[RefundOut.model_validate(r) for r in refunds or []],
             coupon=CouponOut.model_validate(o.coupon) if o.coupon else None,
             resume_id=o.resume_id,
+            kind=o.kind,
+            parent_id=o.parent_id,
+            moved_from=o.moved_from,
         )

@@ -6,6 +6,7 @@ import { useAdmin } from './AdminContext';
 import { PageHead, Tabs, Empty, Kpi, inr, fmtDT, downloadCsv } from './AdminUI';
 import { payoutGross } from '../../data/adminData';
 import { PLANS } from '../../lib/pricing';
+import { IcCheck } from '../../components/icons';
 
 const PO = { pending: ['Requested', 'b-warning'], approved: ['Approved', 'b-neutral'], paid: ['Paid', 'b-success'] };
 
@@ -34,7 +35,7 @@ function PaymentsTab() {
               <td className="small">{p.orderId ? <Link to={`/admin/orders?id=${p.orderId}`}>{p.orderId}</Link> : <strong style={{ color: 'var(--warning)' }}>No order {p.note ? `— ${p.note}` : ''}</strong>}</td>
               <td>{inr(p.amount)}</td><td className="small">{p.method}</td>
               <td><span className={`badge ${p.status === 'captured' ? 'b-success' : p.status === 'refunded' ? 'b-neutral' : 'b-danger'}`}>{p.status}</span></td>
-              <td className="small">{p.settled ? '✓' : '—'}</td>
+              <td className="small">{p.settled ? <><IcCheck size={14} /> Settled</> : '—'}</td>
             </tr>))}</tbody></table>
       </div>
     </>

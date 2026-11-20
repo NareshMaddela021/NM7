@@ -63,7 +63,14 @@
 .sx-check { display: flex; align-items: flex-start; gap: 12px; font-size: 19px; padding: 12px; border-radius: 14px; border: 2px solid var(--border2); background: var(--surface); cursor: pointer; }
 .sx-check input { width: 28px; height: 28px; flex: none; margin-top: 2px; accent-color: var(--ink); }
 .sx-frow .sx-big { flex: 1 1 0; justify-content: center; }
-.sx-chipic { display: inline-block; width: 1.2em; text-align: center; } /* the same width ticked or not: chips don't move (item 31) */
+/* View · Apply · Save on a job card: one row on a 390 px phone (icon above the word) */
+.sx-frow3 { gap: 8px; }
+.sx-frow3 .sx-big { min-width: 0; flex-direction: column; gap: 2px; padding: 8px 6px; font-size: 17px; text-align: center; }
+.sx-big.sx-applied:disabled { opacity: 1; background: var(--successbg); border-color: var(--success); color: var(--success); }
+.sx-chipic { display: inline-grid; place-items: center; width: 1.2em; vertical-align: -3px; color: var(--accent); } /* the same width ticked or not: chips don't move (item 31) */
+.sx-chipbtn[aria-pressed="true"] .sx-chipic { color: inherit; }
+.sx-trust svg, .sx-chip svg { vertical-align: -3px; color: var(--accent); }
+.sx-applied svg { flex: none; }
 .sx-chipbtn { font-weight: 600 !important; }
 .sx-ul { margin: 0; padding-left: 24px; display: flex; flex-direction: column; gap: 4px; font-size: 19px; }
 
@@ -84,13 +91,13 @@
 .sx-big { border: 2px solid var(--border2); border-radius: 20px; background: #fff; box-shadow: 0 1px 2px rgba(27, 23, 48, .04), 0 8px 20px -14px rgba(52, 40, 120, .3); font-weight: 700; }
 .sx-big:hover { border-color: var(--accent); }
 .sx-big.sx-ink { background: var(--grad-btn); color: #fff; border-color: transparent; box-shadow: var(--shadow-btn); }
-.sx-ic { display: inline-grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: #efeaff; font-size: 26px; }
-.sx-ink .sx-ic { background: rgba(255, 255, 255, .2); }
+.sx-ic { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 12px; background: #f1eefc; color: var(--accent); }
+.sx-ink .sx-ic { background: rgba(255, 255, 255, .16); color: #fff; }
 .sx-tile { border: 2px solid var(--border2); border-radius: 22px; background: #fff; box-shadow: var(--shadow-sm); min-height: 132px; font-weight: 700; }
-.sx-tile .sx-ic { width: 64px; height: 64px; font-size: 32px; background: #fff1e6; }
+.sx-tile .sx-ic { width: 56px; height: 56px; border-radius: 14px; }
 .sx-input { border: 2px solid var(--border2); border-radius: 16px; }
 .sx-input:focus { border-color: var(--accent); }
-.sx-say { border: 2px solid var(--border2); border-radius: 18px; background: #fff; }
+.sx-say { display: inline-grid; place-items: center; border: 2px solid var(--border2); border-radius: 18px; background: #fff; }
 .sx-check { border-radius: 16px; background: #fff; }
 .sx-check input { accent-color: var(--accent); }
 .sx-bar { border-color: var(--border); }
@@ -98,3 +105,32 @@
 .sx-lines { border-radius: 20px; background: #fff; }
 .sx-match { background: #efeaff; color: #3f36c9; }
 .sx-note, .sx-offline { border-radius: 16px; }
+
+/* Round W: on a wide screen the Easy dashboard uses the room. Screens with many choices (home tiles, the job list, the
+   lists of more things / what is left) widen to 1200 px and sit in two or three columns; questions and forms keep one
+   readable column (640 px). CSS only: nothing here adds JavaScript to /me/simple. */
+@media (min-width: 1024px) {
+  .sx-top { padding: 8px 24px; }
+  .sx-main:has(> .sx-tiles), .sx-main:has(.sx-job), .sx-main:has(.sx-list) { max-width: 1200px; padding: 28px 24px 72px; }
+  /* home: greeting across the top, the next step and big buttons on the left, the tiles on the right */
+  .sx-main:has(> .sx-tiles) { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; column-gap: 28px; }
+  .sx-main:has(> .sx-tiles) > * { grid-column: 1; }
+  .sx-main:has(> .sx-tiles) > .sx-h1, .sx-main:has(> .sx-tiles) > .sx-offline { grid-column: 1 / -1; }
+  .sx-main:has(> .sx-tiles) > .sx-tiles { grid-column: 2; grid-row: 2 / span 6; align-self: start; }
+  /* the job list: cards two to a row (three on a very wide screen); headings and buttons run across */
+  .sx-stack:has(> .sx-job) { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 460px), 1fr)); align-items: stretch; }
+  .sx-stack:has(> .sx-job) > :not(.sx-job) { grid-column: 1 / -1; }
+  .sx-stack:has(> .sx-job) > .sx-big { justify-self: start; width: auto; min-width: min(100%, 420px); }
+  /* lists of choices: two columns */
+  .sx-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr)); }
+}
+
+/* Profile setup P4: the setup checklist (SimpleChecklist.jsx) */
+.sx-setup-prog { gap: 8px; }
+.sx-setup-skip, .sx-setup-all { justify-content: center; }
+.sx-setup-skip { font-weight: 600; }
+.sx-setup-go, .sx-step-go { justify-content: space-between; }
+.sx-setup-done { display: flex; align-items: center; gap: 8px; font-weight: 700; }
+.sx-step .sx-label { display: inline-flex; align-items: center; gap: 6px; }
+.sx-step-done { border-color: var(--border2); box-shadow: none; }
+.sx-step-later, .sx-step-waiting { border-color: var(--border2); }

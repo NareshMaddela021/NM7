@@ -17,6 +17,14 @@ SENT = {
     "app.photos.reader": ["SCHEMA"], "app.seek.offers": ["EXPLAIN_SCHEMA"], "app.seek.roles": ["SCHEMA"],
     "app.hire.vetting.grade": ["rubric_schema", "PHOTO_SCHEMA"],
     "app.hire.vetting.interview": ["FOLLOW_SCHEMA", "GRADE_SCHEMA"],
+    "app.autoapply.tailoring": ["SCHEMA"], "app.autoapply.replies": ["SCHEMA"],
+    "app.jobs.ai_health": ["SCHEMA"],  # "Test the AI now": the collector's own schema
+    "app.trust.agent.understand": ["SCHEMA"],  # Vetting Trust T5: a WhatsApp reply the rules can't read
+    "app.trust.criteria.extract": ["SCHEMA"],  # Vetting Trust T7: a job's requirements
+    "app.trust.criteria.evaluate": ["SCHEMA"],  # Vetting Trust T7: Met / Not met / Unknown with a quote
+    "app.trust.honesty.explain": ["SCHEMA", "GRADE_SCHEMA"],  # Vetting Trust T9: Explain your answer (questions, check)
+    "app.trust.spoken.service": ["SCHEMA"],  # Vetting Trust T10: grammar + comprehension of the spoken-English score
+    "app.trust.fairness.regrade": ["rubric_schema", "IV_SCHEMA", "EXPLAIN_SCHEMA"],  # T12: second-opinion re-grades
 }  # fmt: skip
 APP = pathlib.Path(__file__).resolve().parents[1] / "app"
 

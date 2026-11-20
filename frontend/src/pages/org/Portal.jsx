@@ -2,7 +2,7 @@
 // (dashboard), …/activity. Plus the invite link (/org/invite/:token) and the reminder opt-out link (/groups/stop).
 // Coordinators sign in with their own Nm7 account; the admin console is never shown here. Everything they can see
 // is scoped by the server to their organization (and groups) — these screens only arrange it.
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { Link, NavLink, Navigate, Outlet, useLocation, useNavigate, useOutletContext, useParams, useSearchParams } from 'react-router-dom';
 import Header from '../../components/Header';
 import { Spinner, useToast } from '../../components/ui';
@@ -25,6 +25,8 @@ import Alumni from './Alumni';
 import Reviewers from './Reviewers';
 import { planBanners } from '../../lib/orgBilling';
 import RecruiterFeedback from './RecruiterFeedback';
+// Profile setup P3: the college's setup checklist on My groups and Dashboard (its own small chunk)
+const TeamChecklist = lazy(() => import('../me/TeamChecklist'));
 
 import { Still } from '../newhome/ParticleStage';
 import { TINTS, SHAPE_COLORS } from '../newhome/shapes';
@@ -32,13 +34,15 @@ import '../../styles/me-kit.css';
 import '../../styles/org.css';
 import '../../styles/org-groups.css';
 import { Empty } from '../me/kit';
+import { IcArrowLeft, IcArrowRight, IcCalendar, IcCap, IcCheck, IcClock, IcEdit, IcFile, IcGlobe, IcGrid, IcLink, IcMail, IcPhone, IcSwap, IcUser, IcUsers, IcWallet } from '../../components/icons';
 
 TINTS.college = SHAPE_COLORS.college; // colleges: teal (round P, Phase 4)
 
 const ROLE = { owner: 'Owner', coordinator: 'Coordinator', viewer: 'Viewer (view and print)', reviewer: 'Reviewer', admin: 'Nm7 admin' };
 
+/** wide: the portal with its side menu fills the screen (round W: 24 px sides, 16 px on a phone). */
 function Frame({ children, wide }) {
-  return (<><Header variant="me" /><main id="main" className={`${wide ? 'container-wide' : 'container'} stack g20`} style={{ padding: '24px 16px 72px', maxWidth: wide ? undefined : 720 }}>{children}</main></>);
+  return (<><Header variant="me" /><main id="main" className={`${wide ? 'app-wide og-wide' : 'container'} stack g20`} style={wide ? { paddingBlock: '20px 72px' } : { padding: '24px 16px 72px', maxWidth: 720 }}>{children}</main></>);
 }
 
 /** /org: the organization(s) this account helps run. */
@@ -50,7 +54,7 @@ export function OrgHome() {
   if (!LIVE) return <Frame><h1 className="display h2">My organization</h1><p className="muted">The organization portal works on the live site only.</p></Frame>;
   return (
     <Frame>
-      {asked.length > 0 && <Link to="/org/transfer" className="mcard mcard-accent mcard-link og-transfer" data-testid="transfer-waiting"><span className="mcard-ic" aria-hidden="true">⇄</span><span className="stack g4"><strong>You’ve been asked to become the Owner of {asked.map((t) => t.orgName).join(', ')}</strong><span className="small muted">Enter the code from the email →</span></span></Link>}
+      {asked.length > 0 && <Link to="/org/transfer" className="mcard mcard-accent mcard-link og-transfer" data-testid="transfer-waiting"><span className="mcard-ic" aria-hidden="true"><IcSwap /></span><span className="stack g4"><strong>You’ve been asked to become the Owner of {asked.map((t) => t.orgName).join(', ')}</strong><span className="small muted">Enter the code from the email</span></span></Link>}
       <Loading st={st}>{(orgs) => (orgs.length === 1 && !asked.length && (tr.data !== null || tr.error) ? <Navigate to={orgs[0].role === 'reviewer' ? `/review/${orgs[0].orgId}` : `/org/${orgs[0].orgId}`} replace /> : (
         <>
           <div className="og-home-head">
@@ -59,7 +63,7 @@ export function OrgHome() {
           </div>
           {orgs.length === 0
             ? <Empty shape="college" tint="college" title="You don’t run an organization on Nm7 yet." action={<Link to="/for-orgs?start=1#start" className="btn btn-signal">Start an organization</Link>}>Start one for free (you become its Owner), or ask your organization’s Owner for an invite — it comes by email with a one-time link.</Empty>
-            : <div className="og-org-list">{orgs.map((o) => <Link key={o.orgId} to={o.role === 'reviewer' ? `/review/${o.orgId}` : `/org/${o.orgId}`} className="mcard mcard-link og-org-card"><span className="og-avatar" aria-hidden="true">{(o.orgName || '?').trim().charAt(0).toUpperCase()}</span><strong className="og-org-name">{o.orgName}</strong><span className="mchip mchip-neutral">{ROLE[o.role]}</span><span className="og-org-go" aria-hidden="true">→</span></Link>)}</div>}
+            : <div className="og-org-list">{orgs.map((o) => <Link key={o.orgId} to={o.role === 'reviewer' ? `/review/${o.orgId}` : `/org/${o.orgId}`} className="mcard mcard-link og-org-card"><span className="og-avatar" aria-hidden="true">{(o.orgName || '?').trim().charAt(0).toUpperCase()}</span><strong className="og-org-name">{o.orgName}</strong><span className="mchip mchip-neutral">{ROLE[o.role]}</span><span className="og-org-go" aria-hidden="true"><IcArrowRight /></span></Link>)}</div>}
         </>
       ))}</Loading>
     </Frame>
@@ -87,10 +91,10 @@ export function PortalLayout() {
   // round P, Phase 4: the side menu in groups (students, drives, reaching out, running the college); the same links
   // and conditions as before, each with a symbol; the section title shows a small teal dotted shape on a desktop
   const groups = [
-    [['', 'My groups', '☷'], ['/dashboard', 'Dashboard', '⌂'], ['/resumes', 'Shared resumes', '▤']],
-    [...(f.drives ? [['/drives', 'Drives', '⚑']] : []), ...(f.offers ? [['/offers', 'Offers', '✉']] : []), ...(f.kiosk ? [['/kiosks', 'Kiosks', '▣']] : [])],
-    [...(f.recruiterLinks ? [['/recruiters', 'Recruiter links', '⇄']] : []), ...(f.alumni ? [['/alumni', 'Alumni', '☆']] : []), ...(f.facultyReview ? [['/reviewers', 'Reviewers', '✎']] : []), ...(f.branding ? [['/branding', 'Branding', '◧']] : [])],
-    [...(owner ? [['/team', 'Team', '☺'], ['/billing', 'Billing', '₹']] : []), ['/activity', 'Activity', '☰']],
+    [['', 'My groups', <IcUsers key="i" />], ['/dashboard', 'Dashboard', <IcGrid key="i" />], ['/resumes', 'Shared resumes', <IcFile key="i" />]],
+    [...(f.drives ? [['/drives', 'Drives', <IcCalendar key="i" />]] : []), ...(f.offers ? [['/offers', 'Offers', <IcMail key="i" />]] : []), ...(f.kiosk ? [['/kiosks', 'Kiosks', <IcPhone key="i" />]] : [])],
+    [...(f.recruiterLinks ? [['/recruiters', 'Recruiter links', <IcLink key="i" />]] : []), ...(f.alumni ? [['/alumni', 'Alumni', <IcCap key="i" />]] : []), ...(f.facultyReview ? [['/reviewers', 'Reviewers', <IcEdit key="i" />]] : []), ...(f.branding ? [['/branding', 'Branding', <IcGlobe key="i" />]] : [])],
+    [...(owner ? [['/team', 'Team', <IcUser key="i" />], ['/billing', 'Billing', <IcWallet key="i" />]] : []), ['/activity', 'Activity', <IcClock key="i" />]],
   ].filter((g) => g.length);
   const all = groups.flat();
   const sub = pathname.replace(`/org/${orgId}`, '').replace(/\/$/, '');
@@ -126,6 +130,7 @@ export function PortalLayout() {
             </div>
             {st.data.demo && <DemoBanner />}
             <PlanBanners home={st.data} orgId={orgId} />
+            {LIVE && st.data.type === 'college' && (sub === '' || sub === '/dashboard') && <Suspense fallback={null}><TeamChecklist kind="college" id={orgId} /></Suspense>}
             <Outlet context={{ ctx, home: st.data, reload: st.reload }} />
           </div>
         </div>
@@ -139,10 +144,12 @@ export function PortalLayout() {
 /** The demo college: made-up data, and (for the demo coordinator) a session that can open nothing else. */
 function DemoBanner() {
   const nav = useNavigate();
+  const { user } = useAuth();
   return (
     <div className="well small row between g8" role="note" data-testid="demo-banner" style={{ flexWrap: 'wrap', borderLeft: '4px solid var(--warning)' }}>
       <span><span className="badge b-warning">Demo</span> Made-up college and students, for demos and testing. Nothing here is real, and nobody is emailed. A demo coordinator can open only this college.</span>
-      <button type="button" className="btn btn-outline" style={{ minHeight: 32 }} onClick={async () => { await signOut(); nav('/login'); }} data-testid="demo-signout">Sign out of the demo</button>
+      {/* an admin's college view: Back to Admin is on the banner at the top instead */}
+      {!user?.view && <button type="button" className="btn btn-outline" style={{ minHeight: 32 }} onClick={async () => { await signOut(); nav('/login'); }} data-testid="demo-signout">Sign out of the demo</button>}
     </div>
   );
 }
@@ -196,10 +203,10 @@ export function PortalGroups() {
         </div>
       )}
       {home.groupList.length === 0 && <Empty shape="college" tint="college" title="No groups yet.">{home.canCreateGroups ? 'A group is one batch, event or drive with its own join code.' : 'Your organization hasn’t made a group yet.'}</Empty>}
-      <div className="og-group-list">
+      <div className="og-group-list" id="og-groups">
         {home.groupList.map((g) => <GroupCard key={g.id} g={g} ctx={ctx} busy={busy} run={run} reload={reload} toast={toast} />)}
       </div>
-      {home.canCreateGroups && <NewGroup ctx={ctx} url={`${ctx.base}/groups`} busy={busy} run={run} reload={reload} />}
+      {home.canCreateGroups && <div id="og-new"><NewGroup ctx={ctx} url={`${ctx.base}/groups`} busy={busy} run={run} reload={reload} /></div>}
       <SimpleDefault orgId={ctx.orgId} canManage={home.canManage} toast={toast} />
     </>
   );
@@ -213,7 +220,7 @@ function SimpleDefault({ orgId, canManage, toast }) {
   const set = (on) => run(async () => { await http(`/api/org/${orgId}/simple`, { method: 'PUT', body: { simpleDefault: on } }); st.reload(); }, on ? 'Students start on the simple dashboard' : 'Students start on the full dashboard');
   return (
     <section className="mcard og-simple" aria-label="Students’ dashboard" data-testid="org-simple">
-      <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">☺</span><span className="mcard-ht"><strong className="mcard-title">Students’ dashboard</strong><span className="mcard-sub">What your students see first when they sign in.</span></span></header>
+      <header className="mcard-h"><span className="mcard-ic" aria-hidden="true"><IcUser /></span><span className="mcard-ht"><strong className="mcard-title">Students’ dashboard</strong><span className="mcard-sub">What your students see first when they sign in.</span></span></header>
       <label className="og-toggle-row small"><input type="checkbox" checked={st.data.simpleDefault} disabled={busy || !canManage} onChange={(e) => set(e.target.checked)} data-testid="org-simple-on" /><span>Simple by default: big buttons, voice, English / Telugu / Hindi. Students can still switch to the full dashboard.</span></label>
     </section>
   );
@@ -244,7 +251,7 @@ export function PortalDashboard() {
   const { groupId } = useParams();
   const group = home.groupList.find((g) => g.id === groupId);
   usePageMeta(portalMeta(group ? `${group.name} dashboard` : `Group dashboard · ${home.name}`));
-  return <GroupDashboard ctx={ctx} groupId={groupId} onBack={<Link className="btn btn-outline og-btn-sm" to={`/org/${ctx.orgId}`}><span aria-hidden="true">← </span>All groups</Link>} />;
+  return <GroupDashboard ctx={ctx} groupId={groupId} onBack={<Link className="btn btn-outline og-btn-sm" to={`/org/${ctx.orgId}`}><IcArrowLeft size={16} /> All groups</Link>} />;
 }
 
 /** /org/:orgId/kiosks — only when Nm7 switched kiosks on for the organization */
@@ -334,7 +341,7 @@ export function StopReminders() {
         : st.error ? <div className="mcard mcard-bad og-center-card" role="alert"><span className="og-big-ic bad" aria-hidden="true">!</span><strong>This link doesn’t work</strong><span className="small muted">{st.error.message}</span><Link to="/me/groups" className="btn btn-outline">My groups</Link></div>
           : (
             <div className="mcard mcard-ok og-center-card" role="status">
-              <span className="og-big-ic ok" aria-hidden="true">✓</span>
+              <span className="og-big-ic ok" aria-hidden="true"><IcCheck size={28} /></span>
               <h1 className="display" style={{ fontSize: 26 }}>Reminders stopped</h1>
               <p>You won’t get reminder emails from {st.data?.orgName ? `${st.data.orgName} (${st.data.groupName})` : 'this group'} any more. Your resume is still shared with them.</p>
               <span className="small muted">You can switch reminders back on, or leave the group, in your dashboard.</span>

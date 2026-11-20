@@ -37,10 +37,22 @@ async def fresh_database():
 
 @pytest.fixture(autouse=True)
 async def clean_collections():
+    from app.jobs import ai_health
+
+    ai_health.reset()  # the collector's in-process "pause after API errors" never leaks between tests
     yield
     db = get_database()
     for name in COLLECTIONS:
         await db[name].delete_many({})
+
+
+@pytest.fixture(autouse=True)
+def no_weekly_day(monkeypatch):
+    """Auto Apply 2.0's weekly summary (A7) replaces the morning email on Mondays; tests that don't ask for it never
+    meet a weekly day, so they pass on any day of the week (a test sets weekly.WEEKDAY to today to get one)."""
+    from app.autoapply import weekly
+
+    monkeypatch.setattr(weekly, "WEEKDAY", -1)
 
 
 @pytest.fixture
@@ -135,7 +147,9 @@ class FakeRazorpay:
         self._ids = itertools.count(1)
         self.last_order: dict | None = None
         self.payment_overrides: dict = {}
+        self.listed: list[dict] = []  # what GET /v1/payments (the daily check's list) returns
         self.orders = router.post(f"{BASE_URL}/orders").mock(side_effect=self._create_order)
+        self.payment_list = router.get(url__regex=rf"{BASE_URL}/payments(\?.*)?$").mock(side_effect=self._list)
         self.payments = router.get(url__regex=rf"{BASE_URL}/payments/(?P<pid>[^/]+)$").mock(side_effect=self._payment)
         self.refunds = router.post(url__regex=rf"{BASE_URL}/payments/(?P<pid>[^/]+)/refund").mock(
             side_effect=self._refund
@@ -157,6 +171,14 @@ class FakeRazorpay:
             "notes": body["notes"],
         }
         return httpx.Response(200, json=self.last_link)
+
+    def _list(self, request):
+        q = request.url.params
+        skip, count = int(q.get("skip", 0)), int(q.get("count", 10))
+        start, end = int(q.get("from", 0)), int(q.get("to", 2**40))
+        items = [p for p in self.listed if start <= int(p.get("created_at", start)) <= end]
+        page = items[skip : skip + count]
+        return httpx.Response(200, json={"entity": "collection", "count": len(page), "items": page})
 
     def _create_order(self, request):
         body = json.loads(request.content)

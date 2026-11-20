@@ -68,7 +68,7 @@ test('guest → Create account (email code) → the draft becomes their resume a
   await page.waitForURL('**/signup?next=%2Fbuilder');
   // React Router 7 changes the address before the (lazy) sign-up page replaces the builder: wait for the page itself,
   // or "Full name" below fills the builder's field of the same name
-  await expect(page.getByRole('heading', { name: 'Create your account', level: 1 })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Create your free Nm7 account', level: 1 })).toBeVisible();
   const mail = email('gate-new');
   await page.getByLabel('Full name').fill('Guna Shekar');
   await page.getByLabel('Email').fill(mail);
@@ -144,6 +144,7 @@ test('payments on (mocked): unpaid sees "Unlock downloads - Rs 99", no file; pay
   await page.waitForURL('**/me');
   let paid = false;
   const orders = [];
+  await page.route('**/api/public/payment-mode', (r) => r.fulfill({ json: { mode: 'razorpay' } })); // the pay button follows it
   await page.route('**/api/me/entitlements', (r) => r.fulfill({ json: { canDownload: paid, reason: paid ? 'paid' : 'unpaid', paymentsOn: true, planId: 'diy', price: 99 } }));
   await page.route('**/api/me/exports', (r) => (paid
     ? r.fulfill({ json: { canDownload: true, reason: 'paid', paymentsOn: true, planId: 'diy', price: 99 } })

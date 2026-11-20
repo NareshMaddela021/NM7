@@ -1,4 +1,4 @@
-// The free ATS scan, entirely in the browser: read the file → analyze → report. Nothing is uploaded.
+// The free ATS scan, entirely in the browser: read the file -> analyze -> report. Nothing is uploaded.
 import { analyzeResume } from './analyze';
 import { extractResume } from './extract';
 import { SAMPLE_FILE, SAMPLE_LINES } from './sample';

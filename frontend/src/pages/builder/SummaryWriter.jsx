@@ -1,10 +1,10 @@
-// The summary writer, above the summary box on the builder's Summary step, in Job Profile → Summary and in the kiosk
+// The summary writer, above the summary box on the builder's Summary step, in Job Profile -> Summary and in the kiosk
 // builder. Layer A (smart templates, no network) and Layer B ("Write with AI", lib/summary/ai.js) share the cards.
 //   note:   "Tell us about yourself" — typed or spoken (lib/summary/speech.js: keeps listening until Stop, interim text
 //           shown live, final words appended), saved as a draft with the resume, never printed on it
 //   chips:  a starter sentence for the note
-//   Make my summary → three cards (Role-first, Skills-first, Simple) from the templates; tap one to fill the box
-//   Write with AI (signed in) → the same three cards written by Claude, "Writing… (about 5 seconds)" with Cancel;
+//   Make my summary -> three cards (Role-first, Skills-first, Simple) from the templates; tap one to fill the box
+//   Write with AI (signed in) -> the same three cards written by Claude, "Writing… (about 5 seconds)" with Cancel;
 //           a slot AI left empty is a template card, and any failure shows the template cards with a one-line notice
 //   quick fixes: Shorter, Try again (templates); with AI also More professional and Simpler words
 import { useEffect, useId, useRef, useState } from 'react';
@@ -56,7 +56,7 @@ export default function SummaryWriter({ resume, note = '', onNote, value = '', o
   };
   const cancel = () => { abortRef.current?.abort(); abortRef.current = null; setBusy(false); setStatus('Cancelled.'); };
 
-  /** Layer B. `mode` generate / retry → three cards; shorter / professional / simpler → the summary box. */
+  /** Layer B. `mode` generate / retry -> three cards; shorter / professional / simpler -> the summary box. */
   const writeAi = async (mode) => {
     abortRef.current?.abort();
     const ctl = new AbortController();

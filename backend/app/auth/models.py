@@ -10,6 +10,9 @@ from app.core.db import Doc
 from app.core.time import now
 
 ROLES = ("customer", "expert", "admin")
+# One account for individuals: the things a person does on Nm7. `role` above stays the account type the rest of the
+# app checks ("customer" for job seekers and students, "expert" for experts); it follows the active individual role.
+INDIVIDUAL_ROLES = ("jobseeker", "student", "expert")
 CODE_PURPOSES = ("verify_email", "reset_password")
 
 
@@ -26,13 +29,17 @@ class User(Doc):
     role: str  # customer / expert / admin
     admin_role: str | None = None  # owner / ops / finance / support / quality
     expert_status: str | None = None  # draft / review / test / approved / rejected
-    password_hash: str
+    password_hash: str  # "" = no password (an account made with Google until a password is set)
     totp_secret_enc: str | None = None  # admins: encrypted authenticator secret
     totp_last_step: int | None = None  # last accepted 30-second step (no reuse)
     email_verified_at: datetime | None = None
     unverified_expires_at: datetime | None = None  # set at sign-up, removed on confirmation; TTL index
     signup_token_hash: str | None = None  # the browser that signed up (or signed in) is the one that may confirm
     terms_accepted_at: datetime | None = None
+    roles: list[str] = Field(default_factory=list)  # jobseeker / student / expert; empty on older accounts (derived)
+    active_role: str | None = None  # the dashboard shown now; None on older accounts (derived from `role`)
+    roles_pending: bool = False  # signed up on the new page and hasn't answered "What would you like to do?" yet
+    expert_terms_accepted_at: datetime | None = None  # ticked the Expert Terms when adding the expert role
     disabled_at: datetime | None = None
     # Customer profile (dashboard settings)
     target_role: str = ""
@@ -44,7 +51,11 @@ class User(Doc):
     referred_by: str | None = None  # user id of the friend who referred them
     ref_flags: list[str] = Field(default_factory=list)  # why this sign-up does not count for a referral reward
     partner_id: str | None = None  # an approved referral partner (Phase 4C): /partner
+    demo: bool = False  # made-up people (demo students, test users, an admin's personas): never counted, never real
+    owner_admin_id: str | None = None  # an admin's own persona (app/admin/views.py): the admin it belongs to
     password_changed_at: datetime | None = None
+    # "Sign in with Google": only {sub, email, name, picture, linked_at}; never a Google token (app/auth/google.py)
+    google: dict[str, Any] | None = None
     created_at: datetime = Field(default_factory=now)
     updated_at: datetime = Field(default_factory=now)
 
@@ -56,6 +67,35 @@ class User(Doc):
     @property
     def verified(self) -> bool:
         return self.email_verified_at is not None
+
+    @property
+    def individual_roles(self) -> list[str]:
+        """The person's roles. Older accounts have none stored: they are derived from the account type (a customer is
+        a job seeker, an expert an expert), so nothing has to be rewritten. Admins have no individual roles."""
+        if self.role == "admin":
+            return []
+        have = set(self.roles) & set(INDIVIDUAL_ROLES)
+        if self.role == "expert":
+            have.add("expert")
+        elif not have & {"jobseeker", "student"}:
+            have.add("jobseeker")
+        return [r for r in INDIVIDUAL_ROLES if r in have]
+
+    @property
+    def current_role(self) -> str | None:
+        """The active role. It always agrees with `role` (which the route guards check)."""
+        mine = self.individual_roles
+        if not mine:
+            return None
+        if self.role == "expert":
+            return "expert"
+        if self.active_role in mine and self.active_role != "expert":
+            return self.active_role
+        return next(r for r in mine if r != "expert")
+
+    @property
+    def has_password(self) -> bool:
+        return bool(self.password_hash)
 
 
 class EmailCode(Doc):
@@ -87,6 +127,11 @@ class UserSession(Doc):
     revoked_at: datetime | None = None
     demo_org_id: str | None = None  # the demo coordinator (Admin → Organizations → Demo): only that demo college
     kiosk_id: str | None = None  # signed in at an event kiosk: short, fixed expiry; ends when the kiosk is revoked
+    # An admin's view (app/auth/views.py): set only on the in-memory session load_session answers with, never stored
+    view_id: str | None = None
+    view_mode: str | None = None  # persona / readonly
+    view_role: str | None = None  # jobseeker / student / expert / company / college / user
+    acting_admin_id: str | None = None
 
 
 class AdminChallenge(Doc):

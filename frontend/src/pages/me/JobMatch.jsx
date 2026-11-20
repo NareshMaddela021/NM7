@@ -2,12 +2,12 @@
 // score /100 with its breakdown, what's Found / Weak / Missing with honest next steps, then "Tailor this resume"
 // (Tailor pack): a copy for the job with suggestions to accept or skip. Saved matches are listed below, and a match
 // can be saved to My applications.
-import ShareWhatsApp from '../../components/ShareWhatsApp';
+import ShareResume from '../../components/ShareResume';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Spinner, useToast } from '../../components/ui';
 import { useMe, setMe, newId, openInBuilder, reloadMe, activeResume } from '../../lib/customerStore';
-import { BUY_WA, WA_PAY_TEXT } from '../../lib/waPay';
+import { PAY_SOON, payErrorLine } from '../../lib/payMode';
 import { inr, inrExact } from '../../lib/pricing';
 import CodeBox from '../../components/CodeBox';
 import { PACKS, STATUS_TEXT, VERDICT_TONE, buyPack, decide, getMatch, getTailor, jobAccess, listMatches, matchJob, patchMatch, readPdfText, readScreenshot, startTailor } from '../../lib/jobs';
@@ -17,10 +17,11 @@ import '../../styles/me-resume.css';
 import JobCover from './JobCover';
 import SkillGap from './SkillGap';
 import PassOffer from '../../components/PassOffer';
+import { IcSwap } from '../../components/icons';
 
 const KIND_LABEL = { tech: 'Skill', tool: 'Tool', cert: 'Certification', lang: 'Language' };
 
-/** The Tailor / Interview pack offer, following the payment mode (Off: Coming soon). */
+/** The Tailor / Interview pack offer, following the payment mode (Off: Payments coming soon). */
 export function PackOffer({ kind, acc, onBought, why }) {
   const toast = useToast();
   const [busy, setBusy] = useState(false);
@@ -30,11 +31,12 @@ export function PackOffer({ kind, acc, onBought, why }) {
   const price = quote ? quote.final / 100 : list;
   const onSale = acc?.onSale?.[kind];
   const buy = async () => {
+    if (busy) return;
     setBusy(true);
     try {
-      const r = await buyPack(kind, acc.mode, quote?.code);
-      if (!r?.whatsapp) { toast(`${pack.name} unlocked`); onBought?.(); }
-    } catch (e) { toast(e.message || 'Payment didn’t go through. You haven’t been charged.'); } finally { setBusy(false); }
+      await buyPack(kind, quote?.code);
+      toast(`${pack.name} unlocked`); onBought?.();
+    } catch (e) { toast(payErrorLine(e)); } finally { setBusy(false); }
   };
   return (
     <div className="well stack g8" data-testid={`pack-${kind}`}>
@@ -42,11 +44,10 @@ export function PackOffer({ kind, acc, onBought, why }) {
       <span className="xs muted">{why ? `${why} ` : ''}{pack.what}{kind === 'tailor' ? ` Included in the ${inr(acc?.prices?.diy ?? 99)} plan.` : ' Included in Career Launch.'}</span>
       {onSale ? (
         <button type="button" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={busy} onClick={buy}>
-          {busy && <Spinner />}{acc.mode === 'whatsapp' ? (busy ? 'Opening WhatsApp…' : BUY_WA) : busy ? 'Waiting for your payment…' : `Buy ${inrExact(price)}`}
+          {busy && <Spinner />}{busy ? 'Waiting for your payment…' : `Buy ${inrExact(price)}`}
         </button>
-      ) : <span className="btn btn-outline" aria-disabled="true" data-testid={`pack-${kind}-soon`} style={{ alignSelf: 'flex-start', opacity: 0.7, cursor: 'not-allowed' }}>Coming soon</span>}
+      ) : <span className="btn btn-outline" aria-disabled="true" data-testid={`pack-${kind}-soon`} style={{ alignSelf: 'flex-start', opacity: 0.7, cursor: 'not-allowed' }}>{PAY_SOON}</span>}
       {acc && <CodeBox item={pack.plan} onApplied={setQuote} disabled={busy} onUnlocked={() => { toast(`${pack.name} unlocked`); onBought?.(); }} />}
-      {onSale && acc.mode === 'whatsapp' && <span className="xs faint">{WA_PAY_TEXT}</span>}
       <PassOffer compact onBought={onBought} />
     </div>
   );
@@ -119,7 +120,7 @@ function Tailor({ m, onScore }) {
       <div className="mcard mcard-accent mcard-tight">
         <strong>Copy: {t.copy?.name}</strong>
         <span className="xs muted">Your original “{t.original.name}” never changes. Accepted suggestions go into this copy only.</span>
-        <span className="small" data-testid="jm-tailor-score">Score: {t.scoreBefore} → <strong>{t.scoreNow}</strong>{pending > 0 ? ` (${t.scoreIfAll} if you accept all)` : ''}</span>
+        <span className="small" data-testid="jm-tailor-score">Score: {t.scoreBefore} to <strong>{t.scoreNow}</strong>{pending > 0 ? ` (${t.scoreIfAll} if you accept all)` : ''}</span>
         {t.note && <span className="xs muted">{t.note}</span>}
         <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} onClick={() => { openInBuilder(t.copy.id); nav('/builder', { state: { open: 'build' } }); }}>Open the copy in the builder</button>
       </div>
@@ -195,7 +196,7 @@ function Result({ m, acc, onChange, onBought }) {
         <JobCover m={m} acc={acc} onUsed={onBought} offer={<PackOffer kind="tailor" acc={acc} onBought={onBought} why="Come back tomorrow for another free letter, or" />} />
         <div className="mrow jm-next">
           <button type="button" className="btn btn-outline" data-testid="jm-save-app" disabled={!!saved} onClick={saveApp}>{saved ? 'Saved to My applications' : 'Save to My applications'}</button>
-          <ShareWhatsApp job={{ role: m.title, company: m.company }} testid="jm-share-wa" />
+          <ShareResume job={{ role: m.title, company: m.company }} testid="jm-share" />
           <button type="button" className="btn btn-outline" data-testid="jm-interview" onClick={() => nav(`/me/interview/${m.id}`)}>Interview prep{m.interview ? ` · ${m.interview.practised} of ${m.interview.total} practised` : ''}</button>
         </div>
       </div>
@@ -249,7 +250,7 @@ export default function JobMatch() {
   return (
     <>
       <section className="mcard jm-form" aria-label="Match a job" data-testid="jm-form">
-        <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true">⇄</span><span className="mcard-ht"><h2 className="mcard-title">Match a job</h2><span className="mcard-sub">Paste a job post. We score your resume for it and show what to fix.</span></span></header>
+        <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true"><IcSwap /></span><span className="mcard-ht"><h2 className="mcard-title">Match a job</h2><span className="mcard-sub">Paste a job post. We score your resume for it and show what to fix.</span></span></header>
         <div className="field"><label htmlFor="jm-r" className="label">Resume</label>
           <select id="jm-r" className="input" value={rid} onChange={(e) => setRid(e.target.value)}>{me.resumes.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}</select></div>
         <div className="field">

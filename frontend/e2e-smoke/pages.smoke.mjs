@@ -18,7 +18,7 @@ const STUDENT = ['/me', '/me/auto-apply', '/me/progress', '/me/jobs', '/me/group
 const COMPANY_TABS = ['Overview', 'Jobs', 'Applicants', 'Hire now', 'Internships & projects', 'Talent pool', 'Team', 'Company page', 'Settings', 'Security', 'Activity'];
 const COLLEGE = ['', '/dashboard', '/resumes', '/drives', '/offers', '/kiosks', '/recruiters', '/branding', '/billing', '/team', '/alumni', '/reviewers', '/activity'];
 const ADMIN = ['', 'orders', 'experts', 'refunds', 'payments', 'customers', 'quality', 'reports', 'settings', 'automation', 'team', 'orgs', 'shared-resumes',
-  'plans', 'billing-settings', 'org-invoices', 'partners', 'whatsapp-payments', 'codes', 'courses', 'college-groups', 'stories', 'jobs', 'companies',
+  'plans', 'billing-settings', 'org-invoices', 'partners', 'codes', 'courses', 'college-groups', 'stories', 'jobs', 'companies',
   'auto-apply', 'skill-tests', 'learn-paths', 'programs', 'joining-reports'];
 
 const info = () => { try { return JSON.parse(readFileSync(join(STATE, 'info.json'), 'utf8')); } catch { return { demos: {} }; } };
@@ -59,7 +59,8 @@ test.describe('public', () => {
   });
 });
 
-// The live API (Render): healthy, and the vetting endpoints exist (signed out they answer 401/403, never 404).
+// The live API (Render): healthy, and the vetting and Daily report endpoints exist (signed out they answer 401/403,
+// never 404).
 const API = process.env.SMOKE_API || 'https://nm7-api.onrender.com';
 test('public › API health and the vetting endpoints', async ({ request }) => {
   const { expect } = await import('@playwright/test');
@@ -68,6 +69,35 @@ test('public › API health and the vetting endpoints', async ({ request }) => {
     const r = await request.get(`${API}${p}`, { timeout: 30_000 });
     expect([401, 403], `${p} answered ${r.status()}`).toContain(r.status());
   }
+  // Admin → Daily report (read, Refresh now) and the job collector's run report (needs the collector's key)
+  for (const [m, p] of [['get', '/api/admin/daily-report'], ['post', '/api/admin/daily-report/refresh'], ['post', '/api/jobs/collector/run-report']]) {
+    const r = await request[m](`${API}${p}`, { timeout: 30_000, ...(m === 'post' ? { data: {} } : {}) });
+    expect([401, 403], `${m.toUpperCase()} ${p} answered ${r.status()}`).toContain(r.status());
+  }
+});
+
+// No WhatsApp payments anywhere (WhatsApp is for support chat and sharing only). With payments off (no Razorpay keys
+// on the live API yet) /pricing says "Payments coming soon"; once the keys are added it must not.
+test('public › no WhatsApp payment text and pay buttons say Payments coming soon', async ({ page, request }) => {
+  test.setTimeout(180_000);
+  const { expect } = await import('@playwright/test');
+  const WA_PAY = /pay (on|via|through) whatsapp|buy on whatsapp|whatsapp pay/i;
+  for (const p of ['/', '/pricing', '/builder', '/linkedin', '/for-orgs', '/for-companies']) {
+    await page.goto(p);
+    await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {});
+    const text = await page.locator('body').innerText();
+    expect(text, `${p} mentions WhatsApp payments`).not.toMatch(WA_PAY);
+    const payLinks = await page.locator('a[href*="wa.me"]').evaluateAll((as) => as.map((a) => a.textContent || '').filter((x) => /pay|buy/i.test(x)));
+    expect(payLinks, `${p} has a wa.me link to pay or buy`).toEqual([]);
+  }
+  const r = await request.get(`${API}/api/public/payment-mode`, { timeout: 60_000 });
+  expect(r.ok()).toBe(true);
+  const { mode } = await r.json();
+  await page.goto('/pricing');
+  await page.waitForLoadState('networkidle', { timeout: 20_000 }).catch(() => {});
+  const soon = page.getByText('Payments coming soon', { exact: true });
+  if (mode === 'off') await expect(soon.first()).toBeVisible({ timeout: 20_000 });
+  else await expect(soon).toHaveCount(0);
 });
 
 area('seeker', 'seeker', ME.map((s) => `/me${s ? `/${s}` : ''}`).concat(['/builder']), (p) => p, { allow: ['/api/me/offer', '/api/me/drive'] });

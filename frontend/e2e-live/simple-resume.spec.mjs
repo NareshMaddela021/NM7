@@ -124,7 +124,7 @@ for (const [label, opts] of SIZES) {
       await page.goto('/me/simple/resume?step=college');
       await expect(page.getByTestId('sx-guided')).toHaveAttribute('data-step', 'college');
       await expect(page.getByTestId('sx-college-name-mic')).toHaveCount(0);
-      await expect(page.getByText('Tip: you can speak with your phone keyboard’s mic 🎤')).toBeVisible();
+      await expect(page.getByText('Tip: you can speak with your phone keyboard’s mic')).toBeVisible();
     });
   });
 }

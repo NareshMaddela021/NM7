@@ -173,6 +173,10 @@ async def close_silent(db, mailer, limit: int = 500) -> int:
             {"$set": {"status": "no_reply", "updated_at": t}, "$push": {"timeline": {"status": "no_reply", "at": t}}},
         )
         by_user.setdefault(a["user_id"], []).append(a)
+        if a.get("origin") == "auto":  # Auto Apply 2.0: the tracker shows it closed (the email below says it)
+            from app.autoapply import sync
+
+            await sync.on_status(db, a, "no_reply", emailed=True)
     from app.jobs.apply import followups_on
 
     site = get_settings().site_url.rstrip("/")

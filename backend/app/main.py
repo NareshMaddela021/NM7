@@ -13,16 +13,27 @@ from fastapi.responses import JSONResponse
 
 from app import automation, home_events, stories
 from app.admin import daily as admin_daily
+from app.admin import daily_report as admin_daily_report
+from app.admin import test_users
+from app.admin import views as admin_views
 from app.admin.console import router as admin_console_router
 from app.admin.router import router as admin_router
 from app.admin.setup import router as admin_setup_router
 from app.auth.admin_router import router as admin_auth_router
+from app.auth.google_router import router as google_auth_router
+from app.auth.roles import router as roles_router
 from app.auth.router import router as auth_router
 from app.autoapply import admin as auto_admin
 from app.autoapply import demo as auto_demo
+from app.autoapply import inbound as auto_inbound
 from app.autoapply import items as auto_items
+from app.autoapply import onetap as auto_onetap
+from app.autoapply import replies as auto_replies
 from app.autoapply import settings as auto_settings
 from app.autoapply import summary as auto_summary
+from app.autoapply import v2 as auto_v2
+from app.autoapply import weekly as auto_weekly
+from app.autoapply.ats import router as ats_router
 from app.billing import invoice_router as billing_docs
 from app.billing import migrate as billing_migrate
 from app.billing import router as billing
@@ -48,6 +59,7 @@ from app.core.config import get_settings
 from app.core.db import DB, close_client, ensure_indexes, get_database
 from app.core.email import email_health, get_mailer, log_email_status
 from app.core.observability import RequestContext, init_sentry
+from app.core.readonly import ReadOnlyGuard
 from app.coupons import router as coupons
 from app.courses import router as courses
 from app.downloads.router import router as downloads_router
@@ -77,6 +89,7 @@ from app.jobs import foryou as jobs_foryou
 from app.jobs import ingest as jobs_ingest
 from app.jobs import public as jobs_public
 from app.jobs import reports as jobs_reports
+from app.jobs import share as job_share
 from app.jobsearch.cover_router import router as jobs_cover_router
 from app.jobsearch.interview_router import router as jobs_interview_router
 from app.jobsearch.router import router as jobs_router
@@ -102,6 +115,7 @@ from app.orgs import router as orgs
 from app.orgs import staff as org_staff
 from app.orgs import transfer as org_transfer
 from app.partners import router as partners
+from app.payments.admin import admin as payments_admin
 from app.payments.router import router as payments_router
 from app.photos.router import router as photos_router
 from app.profile.router import router as profile_router
@@ -117,6 +131,11 @@ from app.seek import programs as seek_programs
 from app.seek import roles as seek_roles
 from app.seek import salary as seek_salary
 from app.seek import support as seek_support
+from app.setup.checklist import public as setup_public_router
+from app.setup.checklist import router as checklist_router
+from app.setup.router import router as setup_router
+from app.setup.teams import college as setup_college_router
+from app.setup.teams import company as setup_company_router
 from app.simple import demo as simple_demo
 from app.simple import guided as simple_guided
 from app.simple import jobs as simple_jobs
@@ -124,6 +143,25 @@ from app.simple import practice as simple_practice
 from app.simple import readiness as simple_readiness
 from app.simple import router as simple
 from app.summary.router import router as summary_router
+from app.trust import admin as trust_admin
+from app.trust import age as trust_age
+from app.trust import breach as trust_breach
+from app.trust import consent as trust_consent
+from app.trust import screening as trust_screening
+from app.trust import workprefs as trust_workprefs
+from app.trust.agent import router as trust_agent
+from app.trust.booking import router as trust_booking
+from app.trust.code import router as trust_code
+from app.trust.criteria import router as trust_criteria
+from app.trust.digilocker import router as trust_digilocker
+from app.trust.employer import router as trust_employer
+from app.trust.face import router as trust_face
+from app.trust.fairness import router as trust_fairness
+from app.trust.honesty import router as trust_honesty
+from app.trust.integrity import router as trust_integrity
+from app.trust.spoken import router as trust_spoken
+from app.trust.tth import router as trust_tth
+from app.trust.worktests import router as trust_worktests
 from app.wapay.router import router as wapay_router
 from app.work.router import router as work_router
 
@@ -135,10 +173,16 @@ logging.getLogger("nm7").setLevel(logging.INFO)
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
-    await ensure_indexes(get_database())  # collections + indexes; safe to run on every start
-    await billing_migrate.run(get_database())  # Phase 4: existing organizations keep working (runs once)
+    """The port opens at once (Render's health check gives up after a few minutes: 18 Nov, Auto Apply A1's deploy
+    timed out while the first automation pass ran before the server listened). Collections, indexes and the one-time
+    migrations run in the background right after start (idempotent: an existing index is a no-op); the first
+    automation pass waits automation.START_DELAY. Tests keep the old order (indexes before the first request)."""
     log_email_status()
-    task = asyncio.create_task(automation.loop(get_database)) if get_settings().app_env != "test" else None
+    if get_settings().app_env == "test":
+        await startup_work(get_database())
+        task = None
+    else:
+        task = asyncio.create_task(after_start(get_database))
     yield
     if task:
         task.cancel()
@@ -147,7 +191,20 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     await close_client()
 
 
-PRIVATE_PREFIXES = ("/api/me", "/api/auth", "/api/orders", "/api/org", "/api/admin", "/api/expert")
+async def startup_work(db) -> None:
+    await ensure_indexes(db)  # collections + indexes; safe to run on every start
+    await billing_migrate.run(db)  # Phase 4: existing organizations keep working (runs once)
+
+
+async def after_start(get_db) -> None:
+    try:
+        await startup_work(get_db())
+    except Exception:  # noqa: BLE001  (the server keeps serving; the next start tries again)
+        logging.getLogger("nm7").exception("start-up work failed")
+    await automation.loop(get_db, first_delay=automation.START_DELAY)
+
+
+PRIVATE_PREFIXES = ("/api/me", "/api/auth", "/api/orders", "/api/org", "/api/admin", "/api/expert", "/api/helper")
 
 
 def create_app() -> FastAPI:
@@ -166,6 +223,7 @@ def create_app() -> FastAPI:
     errors.install(app)
     app.add_middleware(RequestContext)  # innermost: request ids and a JSON 500 for anything unexpected
     app.add_middleware(BodyLimit)
+    app.add_middleware(ReadOnlyGuard)  # an admin's read-only "View as this user": no changes, masked answers
 
     @app.middleware("http")
     async def origin_check(request: Request, call_next):
@@ -218,12 +276,23 @@ def create_app() -> FastAPI:
     @app.get("/version", tags=["ops"])
     async def version() -> dict[str, str]:
         """The git commit this server was built from (Render sets RENDER_GIT_COMMIT), to confirm a deploy."""
+        from app.jobs import ai_health
+
         commit = os.environ.get("RENDER_GIT_COMMIT") or os.environ.get("GIT_COMMIT") or "unknown"
-        return {"commit": commit}
+        return {"commit": commit, "collectorAi": ai_health.coarse()}
 
     app.include_router(auth_router)
+    app.include_router(roles_router)
+    app.include_router(checklist_router)  # profile setup P2: before /api/me/setup/{role}
+    app.include_router(setup_public_router)
+    app.include_router(setup_router)
+    app.include_router(setup_company_router)  # profile setup P3: /api/company/{cid}/checklist
+    app.include_router(setup_college_router)  # profile setup P3: /api/org/{org_id}/checklist
+    app.include_router(google_auth_router)
     app.include_router(admin_auth_router)
     app.include_router(admin_setup_router)  # before admin_router: /api/admin/setup is public
+    app.include_router(admin_views.router)  # /api/admin/views (Switch to …, View as this user, Back to Admin)
+    app.include_router(test_users.router)  # /api/admin/test-users (100 test users for checking the live site)
     app.include_router(admin_router)
     app.include_router(org_demo_login.admin)  # /api/admin/demo-org/coordinator (before orgs.admin)
     app.include_router(org_demo_login.public)  # /api/public/demo-coordinator
@@ -254,11 +323,16 @@ def create_app() -> FastAPI:
     from app.jobs import collector_admin
 
     app.include_router(collector_admin.router)  # /api/admin/jobs/collector/* (round M; before /api/admin/jobs/{id})
+    from app.jobs import review_bulk
+
+    app.include_router(review_bulk.router)  # /api/admin/jobs/review/* (round W; before /api/admin/jobs/{id})
     app.include_router(jobs_admin.router)  # /api/admin/jobs (job board J1)
     app.include_router(jobs_ingest.router)  # /api/jobs/ingest (the job collector, J2)
     from app.jobs import collector as jobs_collector
 
+    app.include_router(admin_daily_report.collector_router)  # /api/jobs/collector/run-report (Admin → Daily report)
     app.include_router(jobs_collector.router)  # /api/jobs/collector (round J: the morning job-collector)
+    app.include_router(job_share.preview_router)  # /api/jobs/{slug}/preview (link preview for share robots)
     app.include_router(jobs_public.router)  # /api/jobs, /api/jobs/{slug}, the jobs sitemap (J3)
     app.include_router(jobs_public.me_router)  # /api/me/saved-jobs
     app.include_router(jobs_apply.router)  # /api/jobs/{id}/apply (J5)
@@ -271,6 +345,7 @@ def create_app() -> FastAPI:
     app.include_router(company_dashboard.router)  # /api/company/{id}/overview, page, activity
     app.include_router(company_dashboard.public)  # /api/companies/{slug} (public company page)
     app.include_router(company_posting.router)  # /api/company/{id}/jobs (safe posting, C3)
+    app.include_router(ats_router.router)  # /api/company/{id}/ats: Auto Apply 2.0 hiring-system connections (A4)
     app.include_router(jobs_reports.router)  # /api/jobs/{id}/report (C4)
     app.include_router(company_applicants.router)  # /api/company/{id}/applicants, /pool (C5)
     app.include_router(company_applicants.me)  # /api/me/applications/{key}/withdraw
@@ -279,6 +354,14 @@ def create_app() -> FastAPI:
     app.include_router(jobs_alerts.me)  # /api/me/job-alerts (C6)
     app.include_router(auto_settings.router)  # /api/me/auto-apply (Phase 3, A1)
     app.include_router(auto_items.router)  # /api/me/auto-apply/items (A2, A3)
+    app.include_router(auto_v2.router)  # /api/me/auto-apply/v2 (Auto Apply 2.0, behind its launch switch)
+    app.include_router(auto_v2.admin)  # /api/admin/auto-apply/v2
+    app.include_router(auto_replies.router)  # /api/me/auto-apply/v2/inbox (A7 replies inbox, behind the switch)
+    app.include_router(auto_weekly.router)  # /api/me/auto-apply/v2/week (A7 weekly summary, behind the switch)
+    app.include_router(auto_onetap.router)  # /api/me/auto-apply/v2/onetap and /helper (A6 one tap, behind the switch)
+    app.include_router(auto_onetap.helper)  # /api/helper: the Nm7 Apply helper (Chrome extension), its own token
+    app.include_router(auto_inbound.router)  # /api/webhooks/resend (A3: replies, bounces, complaints)
+    app.include_router(auto_inbound.public)  # /api/public/auto-apply/opt-out (A3: the employer's opt-out)
     app.include_router(auto_summary.router)  # /api/me/auto-apply/summary, /emails (A6)
     app.include_router(auto_summary.public)  # /api/public/auto-apply/stop-emails
     app.include_router(auto_admin.router)  # /api/admin/auto-apply (A7)
@@ -326,6 +409,50 @@ def create_app() -> FastAPI:
     app.include_router(vetting_interview.admin)  # /api/admin/vetting/interviews
     app.include_router(vetting_trust.me)  # /api/me/appeals, /api/me/data-export (Vetting V5)
     app.include_router(vetting_trust.admin)  # /api/admin/vetting/appeals, /fraud, /fairness (V5)
+    app.include_router(trust_consent.me)  # /api/me/trust: access, privacy, consents (Vetting Trust T1)
+    app.include_router(trust_age.me)  # /api/me/trust/age, /parent (T1: age gate, parental consent)
+    app.include_router(trust_consent.public)  # /api/public/trust/withdraw (the signed withdraw link)
+    app.include_router(trust_age.public)  # /api/public/trust/parent (the parent's one-time link)
+    app.include_router(trust_breach.admin)  # /api/admin/trust/breaches (T1: 72-hour breach log)
+    app.include_router(trust_admin.admin)  # /api/admin/trust (T1: switch, retention, inactivity)
+    app.include_router(trust_digilocker.me)  # /api/me/trust/documents (T2: DigiLocker documents)
+    app.include_router(trust_digilocker.public)  # /api/public/trust/digilocker/callback (T2: the vendor's callback)
+    app.include_router(trust_digilocker.admin)  # /api/admin/trust/documents (T2: provider, counts, review)
+    app.include_router(trust_face.me)  # /api/me/trust/face (T3: ID + live selfie, the joining-day check)
+    app.include_router(trust_face.admin)  # /api/admin/trust/face (T3: provider, thresholds, switches, review)
+    app.include_router(trust_integrity.me)  # /api/me/trust/integrity (T8: my rating, explain, webcam snapshots)
+    app.include_router(trust_integrity.admin)  # /api/admin/trust/integrity (T8: review queue, evidence, settings)
+    app.include_router(trust_honesty.me)  # /api/me/trust/honesty (T9: the honesty pledge, my retake limits)
+    app.include_router(trust_honesty.admin)  # /api/admin/trust/honesty (T9: retake limits, Explain your answer)
+    app.include_router(trust_spoken.me)  # /api/me/trust/spoken (T10: my spoken-English score, voice clips)
+    app.include_router(trust_spoken.admin)  # /api/admin/trust/spoken (T10: provider, role categories, counts)
+    app.include_router(trust_employer.company)  # /api/company/{cid}/trust/employer (T4: verify your business)
+    app.include_router(trust_employer.me)  # /api/me/trust/employer, /api/me/trust/fraud (T4: promise, report fraud)
+    app.include_router(trust_employer.admin)  # /api/admin/trust/employer, /api/admin/trust/fraud (T4)
+    app.include_router(trust_agent.company)  # /api/company/{cid}/trust/agent (T5: call / message matching candidates)
+    app.include_router(trust_agent.me)  # /api/me/trust/agent (T5: channels, language, quiet days, What we said)
+    app.include_router(trust_workprefs.me)  # /api/me/trust/work (T6: Work preferences, location pin, saved answers)
+    app.include_router(trust_screening.company)  # /api/company/{cid}/trust/knockouts (T6: templates, the refusal list)
+    app.include_router(trust_criteria.company)  # /api/company/{cid}/trust/criteria/{jid} (T7: requirements, evidence)
+    app.include_router(trust_criteria.me)  # /api/me/trust/criteria (T7: what I was checked on, add evidence)
+    app.include_router(trust_criteria.admin)  # /api/admin/trust/criteria (T7: evidence to check)
+    app.include_router(trust_agent.public)  # /api/public/trust/agent/whatsapp, /voice/{provider} (T5: signed webhooks)
+    app.include_router(trust_agent.admin)  # /api/admin/trust/agent (T5: providers, caps, templates, counts, log)
+    app.include_router(trust_booking.public)  # /api/public/trust/book|join|cjoin (T11: one-tap links, no sign-in)
+    app.include_router(trust_booking.company)  # /api/company/{cid}/trust/booking (T11: live bookings, joining days)
+    app.include_router(trust_booking.admin)  # /api/admin/trust/booking (T11: times, caps, template approvals, run)
+    app.include_router(trust_fairness.company)  # /api/company/{cid}/trust/fairness/check|ack (T12: unfair filters)
+    app.include_router(
+        trust_fairness.admin
+    )  # /api/admin/trust/fairness (T12: blind grading, re-grades, pass-rate gaps)
+    app.include_router(trust_tth.company)  # /api/company/{cid}/trust/tth (T13: its own time to hire vs the Nm7 median)
+    app.include_router(trust_code.me)  # /api/me/trust/code/{aid} (T14: coding task: draft, run, submit)
+    app.include_router(trust_code.company)  # /api/company/{cid}/trust/code/{uid} (T14: coding result + editor replay)
+    app.include_router(trust_code.admin)  # /api/admin/trust/code (T14: sandbox, limits, problems, results, replays)
+    app.include_router(trust_tth.admin)  # /api/admin/trust/tth (T13: "Needs attention" thresholds)
+    app.include_router(trust_worktests.me)  # /api/me/trust/worktests, /reliability (T15)
+    app.include_router(trust_worktests.public)  # /api/public/trust/rel/att|stay|me (T15: one-tap reliability links)
+    app.include_router(trust_worktests.admin)  # /api/admin/trust/worktests (T15: banks, results, disputes, run)
     app.include_router(vetting_verify.reviewer_access)  # /api/reviewer/access (the header link, V4)
     app.include_router(vetting_verify.reviewer)  # /api/reviewer (Vetting V4: reviewers, expert accounts)
     app.include_router(vetting_verify.company)  # /api/company/{cid}/hire/l4/{uid}
@@ -361,11 +488,13 @@ def create_app() -> FastAPI:
     app.include_router(partners.admin)
     app.include_router(home_events.public)
     app.include_router(home_events.admin)
+    app.include_router(job_share.public)  # /api/public/shares (Share button taps per channel, no personal data)
     app.include_router(coupons.me)  # /api/me/codes (Admin → Codes)
     app.include_router(coupons.admin)
-    app.include_router(wapay_router)  # pay via WhatsApp (before /api/orders/{id})
+    app.include_router(wapay_router)  # old WhatsApp payments, read-only (before /api/orders/{id})
     app.include_router(orders_router)
     app.include_router(payments_router)
+    app.include_router(payments_admin)  # Admin → Payments: Razorpay refunds, payment links, the daily check
     app.include_router(profile_router)  # before me_router: /api/me/job-profile
     app.include_router(photos_router)  # /api/me/photo-import
     app.include_router(summary_router)  # /api/me/summary/generate
@@ -384,6 +513,7 @@ def create_app() -> FastAPI:
     app.include_router(stories.admin)  # /api/admin/stories
     app.include_router(stories.public)  # /api/public/stories
     app.include_router(admin_daily.router)  # /api/admin/today (Dashboard → Today, Share to WhatsApp)
+    app.include_router(admin_daily_report.router)  # /api/admin/daily-report (Admin → Daily report)
     app.include_router(account_delete.admin)  # /api/admin/deletion-requests
     app.include_router(referral_rewards.admin)  # /api/admin/referral-rewards (see, revoke)
     app.include_router(college_campuses.owner)  # /api/college-group/{id} (roll-up, shared format, drives, invites)

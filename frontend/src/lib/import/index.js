@@ -1,6 +1,6 @@
 // Entry point for "Import LinkedIn" and "Rebuild my old resume".
 // Everything runs in the browser: the file never leaves the device in this version.
-// Later the server can take over (scanned resumes, AI checks) — see services/api.js → parseResume.
+// Later the server can take over (scanned resumes, AI checks) — see services/api.js -> parseResume.
 import { readPdf, toLines } from './pdfRead';
 import { isLinkedInPdf, parseLinkedIn } from './linkedin';
 import { parseResume } from './resume';
@@ -106,7 +106,7 @@ export async function importResume(input, mode, onStep = () => {}) {
   const buf = await file.arrayBuffer();
   const isPdf = /\.pdf$/i.test(name) || file.type === 'application/pdf';
   const isDocx = /\.docx$/i.test(name);
-  if (/\.doc$/i.test(name)) throw err('doc', 'Old .doc files can’t be read here. In Word, use File → Save As → .docx or PDF, then upload again.');
+  if (/\.doc$/i.test(name)) throw err('doc', 'Old .doc files can’t be read here. In Word, use File > Save As > .docx or PDF, then upload again.');
   if (/\.(png|jpe?g|webp|heic)$/i.test(name)) throw err('scanned', 'This is a photo. “Snap photos” reads photos of your resume or papers and fills the sections for you. Here, upload a PDF or Word file, or paste the text.');
   if (!isPdf && !isDocx) throw err('type', 'Please upload a PDF or Word (.docx) file.');
 

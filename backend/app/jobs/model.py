@@ -145,6 +145,9 @@ class JobIn(BaseModel):
     apply_method: Literal["link", "email", "nm7"] = "link"
     apply_url: str = Field("", max_length=2000)
     apply_email: str = Field("", max_length=200)
+    # Auto Apply 2.0 (A3): where the company itself published the apply email (its posting or careers page). Auto
+    # Apply emails only addresses with a source like this; never job boards or people pages.
+    apply_email_source: str = Field("", max_length=2000)
     status: Literal["active", "paused", "closed"] = "active"
     posted_at: datetime | None = None  # default: now
     closes_at: datetime | None = None
@@ -166,12 +169,10 @@ class JobIn(BaseModel):
     @field_validator("locations")
     @classmethod
     def _locations(cls, v):
-        out: list[str] = []
-        for x in v:
-            t = _tidy(x, 60)
-            if t and t.lower() not in {o.lower() for o in out}:
-                out.append(t)
-        return out
+        from app.jobsearch.parse import canonical_cities
+
+        # one spelling per city ("Bangalore" -> "Bengaluru", "PUNE" -> "Pune"), each once
+        return canonical_cities(_tidy(x, 60) for x in v)
 
     @field_validator("skills")
     @classmethod
@@ -198,6 +199,14 @@ class JobIn(BaseModel):
         v = (v or "").strip()
         if v and not URL_RE.match(v):
             raise ValueError("The apply link must start with http:// or https://")
+        return v
+
+    @field_validator("apply_email_source")
+    @classmethod
+    def _apply_email_source(cls, v):
+        v = (v or "").strip()
+        if v and not URL_RE.match(v):
+            raise ValueError("The apply email's source must be the web address of the company's page (https://…).")
         return v
 
     @field_validator("apply_email")
@@ -259,7 +268,12 @@ def to_doc(job: JobIn) -> dict[str, Any]:
         "education": job.education,
         "skills": job.skills,
         "description": job.description,
-        "apply": {"method": job.apply_method, "url": job.apply_url, "email": job.apply_email},
+        "apply": {
+            "method": job.apply_method,
+            "url": job.apply_url,
+            "email": job.apply_email,
+            **({"email_source": job.apply_email_source} if job.apply_email and job.apply_email_source else {}),
+        },
         "closes_at": job.closes_at,
         "dedupe_key": dedupe_key(job.company.name, job.title, job.locations, remote, apply_to),
     }
@@ -287,6 +301,7 @@ FIELD_WORDS = {
     "jobType": "Job type", "job_type": "Job type", "workType": "Work type", "work_type": "Work type",
     "applyMethod": "How to apply", "apply_method": "How to apply", "applyUrl": "Apply link", "apply_url": "Apply link",
     "applyEmail": "Apply email", "apply_email": "Apply email", "closesAt": "Closing date", "closes_at": "Closing date",
+    "applyEmailSource": "Apply email source", "apply_email_source": "Apply email source",
     "salary": "Salary", "salary.min": "Lowest salary", "salary.max": "Highest salary", "status": "Status",
 }  # fmt: skip
 

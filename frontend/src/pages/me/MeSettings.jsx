@@ -4,11 +4,13 @@ import { useVettingOn } from '../../lib/vettingAccess';
 import { langsShown } from '../../lib/i18n';
 import MyStories from './MyStories';
 import DeleteAccount from './DeleteAccount';
-import { useEffect, useState } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
+import { useTrustOn } from '../../lib/trustAccess';
 import { Link } from 'react-router-dom';
 import { Dialog, Spinner, useToast } from '../../components/ui';
+import ShareButton from '../../components/ShareButton';
 import { useMe, setMe, getMe, resetMe, saveProfile, raiseIssue } from '../../lib/customerStore';
-import { LIVE, changePassword, passwordIssue } from '../../lib/auth';
+import { LIVE, changePassword, passwordIssue, useAuth } from '../../lib/auth';
 import { useExpertOrders } from '../../lib/expertStore';
 import { savePdf } from '../builder/resumePdf';
 import { PROMISES } from '../../lib/pricing';
@@ -20,6 +22,9 @@ import { http } from '../../services/http';
 import { fmtDay } from './shared';
 import { Bar, Chip, FieldGroup, MeCard, StickyBar } from './kit';
 import '../../styles/me-account.css';
+import { IcAlert, IcArrowRight, IcBell, IcHeart, IcKey, IcLock, IcMail } from '../../components/icons';
+
+const GoogleCard = lazy(() => import('./GoogleCard')); // Sign in with Google: connect / remove (live only)
 
 /** Resume health alert emails (at most one every two weeks); the same switch as the email's "Stop these emails". */
 function HealthEmails() {
@@ -34,6 +39,25 @@ function HealthEmails() {
     </label>
   );
 }
+
+/** Profile setup P2: the weekly reminder about the next checklist step (at most once a week, none once complete). */
+function SetupReminders() {
+  const [on, setOn] = useState(null);
+  useEffect(() => { if (LIVE) http('/api/me/checklist/reminders').then((d) => setOn(d.on), () => {}); }, []);
+  if (on === null) return null;
+  const set = async (v) => { setOn(v); try { setOn((await http('/api/me/checklist/reminders', { method: 'PUT', body: { on: v } })).on); } catch { setOn(!v); } };
+  return (
+    <label className="acc-switch small">
+      <input type="checkbox" checked={on} onChange={(e) => set(e.target.checked)} data-testid="setup-reminders" />
+      <span><strong>Profile setup reminders</strong> — your next step, at most once a week, until your profile is complete.</span>
+    </label>
+  );
+}
+
+const PrivacyConsent = lazy(() => import('./trust/PrivacyConsent')); // Vetting Trust T1, only when the switch says yes
+const DigiLockerCard = lazy(() => import('./trust/DigiLockerCard')); // Vetting Trust T2: Verify with DigiLocker
+const FaceCard = lazy(() => import('./trust/FaceCard')); // Vetting Trust T3: ID + selfie check
+const NeverPayHelp = lazy(() => import('./trust/HireSafety').then((m) => ({ default: m.NeverPayHelp }))); // Vetting Trust T4
 
 const LEVELS = [['internship', 'Internship'], ['fresher', 'Fresher'], ['0_1', '0–1 years'], ['1_3', '1–3 years'], ['3_5', '3–5 years'], ['5_8', '5–8 years'], ['8_12', '8–12 years'], ['12_15', '12–15 years'], ['15_plus', '15+ years']];
 const ALL_LANGS = [['en', 'English'], ['te', 'తెలుగు (Telugu)'], ['hi', 'हिन्दी (Hindi)']];
@@ -59,7 +83,7 @@ function JobAlerts() {
   const lvl = (k) => setF({ ...f, experience: f.experience.includes(k) ? f.experience.filter((x) => x !== k) : [...f.experience, k] });
   return (
     <form id="job-alerts" className="mcard acc-sec" aria-label="Job alerts" onSubmit={save} data-testid="job-alerts">
-      <header className="mcard-h"><span className="mcard-ic teal" aria-hidden="true">✦</span><span className="mcard-ht"><h2 className="mcard-title">Job alerts</h2><span className="mcard-sub">New jobs on Nm7 that match, by email with a WhatsApp share link for each. Only when there are new matches; at most one email a day.</span></span>{a?.on && <span className="mcard-actions"><span className="xs muted acc-on" data-testid="alerts-status">On · {a.frequency === 'daily' ? 'daily' : 'weekly'}</span></span>}</header>
+      <header className="mcard-h"><span className="mcard-ic teal" aria-hidden="true"><IcBell /></span><span className="mcard-ht"><h2 className="mcard-title">Job alerts</h2><span className="mcard-sub">New jobs on Nm7 that match, by email with a WhatsApp share link for each. Only when there are new matches; at most one email a day.</span></span>{a?.on && <span className="mcard-actions"><span className="xs muted acc-on" data-testid="alerts-status">On · {a.frequency === 'daily' ? 'daily' : 'weekly'}</span></span>}</header>
       <label className="acc-switch small"><input type="checkbox" checked={f.on} onChange={(e) => setF({ ...f, on: e.target.checked })} data-testid="alerts-on" /> Send me job alerts</label>
       <FieldGroup title="What and where">
         <div className="field"><label className="label" htmlFor="al-roles">Roles or skills (comma between, up to 5)</label><input id="al-roles" className="input" placeholder="Data analyst, SQL" value={f.roles} onChange={(e) => setF({ ...f, roles: e.target.value })} /></div>
@@ -99,7 +123,8 @@ const KEEP = [
 export function MeSettings() {
   const me = useMe();
   const all = useExpertOrders();
-  const vet = useVettingOn(); // Vetting V5 additions only for people who get the engine (Admin → Skill checks → Launch)
+  const vet = useVettingOn(); // Vetting V5 additions only for people who get the engine (Admin -> Skill checks -> Launch)
+  const trust = useTrustOn(); // Vetting Trust T1: Privacy & consent (Admin -> Skill checks -> Vetting Trust)
   const toast = useToast();
   const [f, setF] = useState(me.account);
   const [del, setDel] = useState(false);
@@ -138,7 +163,7 @@ export function MeSettings() {
     <>
       <MeHead title="Profile & settings" sub="Your account, how we reach you, and your data." />
       <nav className="acc-jump" aria-label="On this page">
-        {[['#s-profile', 'Profile'], ['#s-notify', 'Notifications'], ...(LIVE ? [['#job-alerts', 'Job alerts']] : []), ['#s-password', 'Password'], ['#s-privacy', 'Privacy']].map(([h, l]) => <a key={h} href={h} className="acc-jump-a">{l}</a>)}
+        {[['#s-profile', 'Profile'], ['#s-notify', 'Notifications'], ...(LIVE ? [['#job-alerts', 'Job alerts']] : []), ['#s-password', 'Password'], ['#s-privacy', 'Privacy'], ...(trust ? [['#s-consent', 'Consent'], ['#s-work', 'Work preferences'], ['#s-criteria', 'Job requirements'], ['#s-calls', 'Calls & WhatsApp'], ['#s-docs', 'Documents'], ['#s-face', 'ID + selfie']] : [])].map(([h, l]) => <a key={h} href={h} className="acc-jump-a">{l}</a>)}
       </nav>
       <form id="s-profile" className="mcard acc-sec" onSubmit={save} aria-label="Profile" noValidate>
         <header className="mcard-h"><span className="mavatar" aria-hidden="true">{(me.account.name || '?').trim()[0]?.toUpperCase()}</span><span className="mcard-ht"><h2 className="mcard-title">Profile</h2><span className="mcard-sub">Your name and mobile number. Career details live in your Job Profile.</span></span></header>
@@ -148,22 +173,25 @@ export function MeSettings() {
           <div className="field full"><label htmlFor="p-e" className="label">Email</label><input id="p-e" type="email" className="input" style={{ background: 'var(--sunken)', color: 'var(--text2)', cursor: 'not-allowed' }} value={me.account.email} readOnly aria-readonly="true" aria-describedby="p-e-h" /><span id="p-e-h" className="xs faint">This is your sign-in email. To change it, write to info@nm7.si from this address.</span></div>
         </FieldGroup>
         {error && <span className="small" role="alert" style={{ color: 'var(--danger)' }}>{error}</span>}
-        <Link to="/me/profile" className="btn btn-outline acc-jp">Target role, cities &amp; career details → Job Profile</Link>
+        <Link to="/me/profile" className="btn btn-outline acc-jp">Target role, cities &amp; career details: Job Profile <IcArrowRight size={16} /></Link>
         <StickyBar label="Profile actions"><button type="submit" className="btn btn-signal" disabled={busy}>{busy ? <Spinner /> : 'Save'}</button></StickyBar>
       </form>
 
-      <MeCard as="section" id="s-notify" className="acc-sec" label="Notifications" icon="🔔" title="Notifications" sub="Choose how we tell you about each thing.">
+      <MeCard as="section" id="s-notify" className="acc-sec" label="Notifications" icon={<IcBell />} title="Notifications" sub="Choose how we tell you about each thing.">
         <div className="table-wrap mtable-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table mtable acc-notify"><thead><tr><th>Event</th>{CHANNELS.map(([k, l]) => <th key={k}>{l}</th>)}</tr></thead>
           <tbody>{EVENTS.map(([ev, l]) => <tr key={ev}><th scope="row" className="small acc-ev">{l}</th>{CHANNELS.map(([ch, cl]) => <td key={ch} data-label={cl}><input type="checkbox" className="acc-cb" aria-label={`${l} on ${cl}`} checked={!!me.account.notify[ch][ev]} disabled={ev === 'order' && ch === 'email'} onChange={(e) => notify(ch, ev, e.target.checked)} /></td>)}</tr>)}</tbody></table></div>
         <span className="xs faint">Order emails stay on — they carry your receipts and refund updates.</span>
         <HealthEmails />
+        <SetupReminders />
       </MeCard>
 
       <JobAlerts />
 
+      {LIVE && <Suspense fallback={null}><GoogleCard /></Suspense>}
+
       <ChangePassword />
 
-      <MeCard as="section" id="s-privacy" className="acc-sec" label="Privacy" icon="🔒" title="Privacy" sub={`Expert files are kept for ${PROMISES.retentionDays} days after delivery. Your own resumes stay until you delete them.`}>
+      <MeCard as="section" id="s-privacy" className="acc-sec" label="Privacy" icon={<IcLock />} title="Privacy" sub={`Expert files are kept for ${PROMISES.retentionDays} days after delivery. Your own resumes stay until you delete them.`}>
         <ul className="mlist">
           <li className="mitem"><span className="mitem-main"><span className="mitem-title">Your data</span><span className="mitem-meta">Download everything we hold about you — resumes, orders, messages, applications.</span></span><span className="mitem-side"><button type="button" className="btn btn-outline" onClick={exportAll}>Download my data</button></span></li>
           {canSave() && <li className="mitem"><span className="mitem-main"><span className="mitem-title">LinkedIn data</span><span className="mitem-meta">Your LinkedIn link, the text from your LinkedIn PDF or pasted sections, and your checks. Kept on your account only, never shared with organizations.</span></span><span className="mitem-side"><button type="button" className="btn btn-outline" onClick={() => setLiDel(true)}>Delete my LinkedIn data</button></span></li>}
@@ -176,7 +204,10 @@ export function MeSettings() {
           </ul>
         </div>}
       </MeCard>
-      <MeCard as="section" tone="bad" className="acc-danger" label="Delete account" icon="⚠" title="Delete account" sub="Removes your account and everything in it. Invoices are kept as the law requires.">
+      {trust && <Suspense fallback={null}><PrivacyConsent /></Suspense>}
+      {trust && <Suspense fallback={null}><DigiLockerCard /></Suspense>}
+      {trust && <Suspense fallback={null}><FaceCard /></Suspense>}
+      <MeCard as="section" tone="bad" className="acc-danger" label="Delete account" icon={<IcAlert />} title="Delete account" sub="Removes your account and everything in it. Invoices are kept as the law requires.">
         {LIVE ? <DeleteAccount /> : <div className="mspread"><span className="small" style={{ color: 'var(--danger)' }}>Delete my account and all my data.</span><button type="button" className="btn btn-outline acc-danger-btn" onClick={() => setDel(true)}>Delete account</button></div>}
       </MeCard>
       {jobDel && (
@@ -219,6 +250,19 @@ export function MeSettings() {
 
 /** Current password + new password twice. Signs out every other browser. */
 function ChangePassword() {
+  const { user } = useAuth();
+  if (LIVE && user && user.hasPassword === false) return <SetPassword email={user.email} />;
+  return <ChangePasswordForm />;
+}
+/** An account made with Google has no password yet: Forgot password's emailed code sets one. */
+function SetPassword({ email }) {
+  return (
+    <MeCard as="section" id="s-password" className="acc-sec" label="Password" icon={<IcKey />} title="Set a password" sub="You sign in with Google. Set a password to also sign in with your email.">
+      <Link to={`/forgot-password?set=1&email=${encodeURIComponent(email || '')}`} className="btn btn-outline" style={{ alignSelf: 'flex-start' }}>Set a password</Link>
+    </MeCard>
+  );
+}
+function ChangePasswordForm() {
   const toast = useToast();
   const [p, setP] = useState({ current: '', next: '', again: '' });
   const [busy, setBusy] = useState(false);
@@ -238,7 +282,7 @@ function ChangePassword() {
   };
   return (
     <form id="s-password" className="mcard acc-sec" onSubmit={submit} aria-label="Change password" noValidate>
-      <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true">🔑</span><span className="mcard-ht"><h2 className="mcard-title">Change password</h2><span className="mcard-sub">Changing it signs you out on every other device.</span></span></header>
+      <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true"><IcKey /></span><span className="mcard-ht"><h2 className="mcard-title">Change password</h2><span className="mcard-sub">Changing it signs you out on every other device.</span></span></header>
       <FieldGroup>
         <div className="field full"><label htmlFor="pw-c" className="label">Current password</label><input id="pw-c" type="password" autoComplete="current-password" className="input" value={p.current} onChange={set('current')} /></div>
         <div className="field"><label htmlFor="pw-n" className="label">New password</label><input id="pw-n" type="password" autoComplete="new-password" className="input" value={p.next} onChange={set('next')} aria-invalid={!!issue} aria-describedby="pw-n-h" /><span id="pw-n-h" className="xs" style={{ color: issue ? 'var(--danger)' : 'var(--text3)' }}>{issue || 'At least 8 characters, with letters and a number.'}</span></div>
@@ -266,11 +310,13 @@ export function MeHelp() {
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState('');
   const link = `nm7.si/?ref=${me.account.referralCode}`;
+  const trust = useTrustOn();
   return (
     <>
       <MeHead title="Help & referral" sub="Answers, support, and a link to share with friends." />
       <div className="mgrid-2">
         <div className="mstack">
+          {trust && <Suspense fallback={null}><NeverPayHelp /></Suspense>}
           <MeCard as="section" label="Questions" icon="?" title="Common questions" sub="Tap a question to see the answer.">
             <div className="acc-faq">{FAQ.map(([q, a]) => <details key={q} className="acc-faq-i"><summary>{q}</summary><p className="small muted">{a}</p></details>)}</div>
           </MeCard>
@@ -280,7 +326,7 @@ export function MeHelp() {
             setSending(true); setSendError('');
             try { await raiseIssue({ topic: t.topic, order: t.order || null, text: t.text.trim() }); setT({ ...t, text: '' }); toast('Sent — our team replies by email within 24 hours'); } catch (err) { setSendError(err.message || 'Not sent. Please try again.'); } finally { setSending(false); }
           }}>
-            <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true">✉</span><span className="mcard-ht"><h2 className="mcard-title">Raise an issue</h2><span className="mcard-sub">Our team replies by email within 24 hours.</span></span></header>
+            <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true"><IcMail /></span><span className="mcard-ht"><h2 className="mcard-title">Raise an issue</h2><span className="mcard-sub">Our team replies by email within 24 hours.</span></span></header>
             <FieldGroup>
               <div className="field"><label htmlFor="is-t" className="label">About</label><select id="is-t" className="input" value={t.topic} onChange={(e) => setT({ ...t, topic: e.target.value })}>{['Order', 'Payment', 'Refund', 'Expert', 'Builder', 'Account', 'Other'].map((x) => <option key={x}>{x}</option>)}</select></div>
               <div className="field"><label htmlFor="is-o" className="label">Order</label><select id="is-o" className="input" value={t.order} onChange={(e) => setT({ ...t, order: e.target.value })}><option value="">None</option>{me.orders.map((o) => <option key={o.id}>{o.id}</option>)}</select></div>
@@ -306,10 +352,10 @@ export function MeHelp() {
         </div>
         <div className="mstack">
           <section className="mcard mcard-accent acc-ref" aria-label="Refer a friend">
-            <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">♥</span><span className="mcard-ht"><h2 className="mcard-title">Refer a friend</h2><span className="mcard-sub">Share your link. Friends get a resume that works.</span></span></header>
+            <header className="mcard-h"><span className="mcard-ic" aria-hidden="true"><IcHeart /></span><span className="mcard-ht"><h2 className="mcard-title">Refer a friend</h2><span className="mcard-sub">Share your link. Friends get a resume that works.</span></span></header>
             <ReferralProgress reward={me.referralReward} />
             <div className="acc-reflink"><span className="mono small" style={{ overflowWrap: 'anywhere' }} data-testid="ref-link">{link}</span><button type="button" className="btn btn-outline" onClick={async () => { try { await navigator.clipboard.writeText(`https://${link}`); toast('Link copied'); } catch { toast(`Copy this: https://${link}`); } }}>Copy</button></div>
-            <a className="btn btn-signal" style={{ alignSelf: 'flex-start' }} href={`https://wa.me/?text=${encodeURIComponent(`I fixed my resume on Nm7 — try it: https://${link}`)}`} target="_blank" rel="noreferrer">Share on WhatsApp</a>
+            <ShareButton className="btn btn-signal" style={{ alignSelf: 'flex-start' }} url={`https://${link}`} text="I fixed my resume on Nm7 — try it:" title="Nm7" testid="ref-share" />
             <div className="mgrid-3 acc-ref-stats">
               <div className="mstat"><span className="mstat-l">Friends joined</span><strong className="mstat-v">{me.referrals.length}</strong></div>
               <div className="mstat"><span className="mstat-l">Bought a plan</span><strong className="mstat-v">{me.referrals.filter((r) => r.status === 'bought').length}</strong></div>

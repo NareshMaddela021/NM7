@@ -1,4 +1,4 @@
-// /demo-student#t=… — opened from Admin → Auto Apply → "Reset and open as student (Auto Apply)" or "(Easy dashboard,
+// /demo-student#t=… — opened from Admin -> Auto Apply -> "Reset and open as student (Auto Apply)" or "(Easy dashboard,
 // Telugu)". Signs this browser in as that made-up demo student (the link works once), then opens their page.
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -19,7 +19,7 @@ export default function DemoStudentLogin() {
   return (
     <main id="main" className="container stack g12" style={{ maxWidth: 560, padding: '48px 16px' }}>
       {err ? (
-        <div className="card stack g8" role="alert"><strong>Couldn’t open the demo</strong><span className="small muted">{err}</span><Link to="/admin/auto-apply">Back to Admin → Auto Apply</Link></div>
+        <div className="card stack g8" role="alert"><strong>Couldn’t open the demo</strong><span className="small muted">{err}</span><Link to="/admin/auto-apply">Back to Admin &gt; Auto Apply</Link></div>
       ) : <div className="row g12 muted" role="status"><Spinner /> Opening the demo student…</div>}
     </main>
   );

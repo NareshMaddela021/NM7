@@ -8,6 +8,7 @@ import { useFlow } from '../lib/flow';
 import { scanResume } from '../services/api';
 import { MESSAGES } from '../lib/scan';
 import { PLANS, PROMISES, inr } from '../lib/pricing';
+import { PAY_SOON, usePayMode } from '../lib/payState';
 import { currentUser } from '../lib/auth';
 import { blankResume } from '../lib/customerStore';
 import { applyImport } from '../lib/import/apply';
@@ -76,6 +77,7 @@ function SaveScanToProfile({ report }) {
 
 function Report({ report }) {
   const nav = useNavigate();
+  const payOff = usePayMode()?.mode === 'off'; // no Razorpay keys yet: no checkout
   const { setUpload } = useFlow();
   const [focus, setFocus] = useState(null);
   const [skim, setSkim] = useState(false);
@@ -167,7 +169,7 @@ function Report({ report }) {
         <div className="card stack g8">
           <h2 style={{ fontSize: 16, fontFamily: 'var(--font-body)', letterSpacing: 0, ...wrap }}>Keywords for {role}</h2>
           <div className="row g4" style={{ flexWrap: 'wrap' }}>
-            {report.keywords.found.map((k) => <span key={k} className="badge b-success">✓ {k}</span>)}
+            {report.keywords.found.map((k) => <span key={k} className="badge b-success"><Icon name="check" size={13} stroke={2.5} style={{ marginRight: 4 }} />{k}</span>)}
             {report.keywords.missing.map((k) => <span key={k} className="badge b-neutral" style={{ opacity: .8 }}>{k}</span>)}
           </div>
           <span className="xs faint">Green = found in your resume. Add the others only if you really have them.</span>
@@ -193,7 +195,8 @@ function Report({ report }) {
         <div className="card-ink stack g12">
           <h2 style={{ fontSize: 22, fontWeight: 600 }}>Want a professional to do all of it?</h2>
           <p style={{ opacity: .8, fontSize: 15, ...wrap }}>A verified {report.role || 'industry'} expert rewrites it for this role, delivered in {PROMISES.delivery}.</p>
-          <button type="button" className="btn btn-signal btn-lg" onClick={() => nav('/checkout')}>Get an expert rewrite · {inr(PLANS.expert.price)}</button>
+          {payOff ? <span className="btn btn-signal btn-lg" aria-disabled="true" data-testid="pay-soon" style={{ opacity: 0.7, cursor: 'not-allowed' }}>{PAY_SOON}</span>
+            : <button type="button" className="btn btn-signal btn-lg" onClick={() => nav('/checkout')}>Get an expert rewrite · {inr(PLANS.expert.price)}</button>}
           <Link to="/editor" className="btn" style={{ color: 'var(--onink)', opacity: .85 }}>or keep fixing it myself</Link>
         </div>
       </aside>
@@ -224,7 +227,7 @@ export default function Scan() {
     return () => { alive = false; };
   }, [upload]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (!upload && !report) return leaving.current ? null : <Navigate to="/pricing#scan" replace />; // nothing scanned yet → back to the upload box
+  if (!upload && !report) return leaving.current ? null : <Navigate to="/pricing#scan" replace />; // nothing scanned yet -> back to the upload box
   return (
     <>
       <Header variant="flow" />

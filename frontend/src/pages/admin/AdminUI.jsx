@@ -1,5 +1,6 @@
 // Small building blocks for the admin console: KPI tiles, charts (inline SVG), tabs, side panel, helpers.
 import { useState } from 'react';
+import SlideOver from '../../components/SlideOver';
 import { inr } from '../../lib/pricing';
 import { savePdf } from '../builder/resumePdf';
 
@@ -42,10 +43,13 @@ export function Tabs({ tabs, value, onChange, label }) {
   );
 }
 
-export function Panel({ title, onClose, children }) {
+/** A panel with onClose (an edit or detail view opened from a list) slides over from the right (round W: the list
+ *  keeps its full width); without onClose it is a card in the page. */
+export function Panel({ title, onClose, children, testid }) {
+  if (onClose) return <SlideOver title={title} onClose={onClose} testid={testid}>{children}</SlideOver>;
   return (
     <aside aria-label={title} className="card stack g16 sticky" style={{ flex: '2 1 380px', maxWidth: 520, top: 88, maxHeight: 'calc(100vh - 110px)', overflow: 'auto', padding: 20 }}>
-      <div className="row between g8"><strong style={{ fontSize: 18 }}>{title}</strong>{onClose && <button type="button" className="btn btn-icon" aria-label="Close panel" onClick={onClose}>✕</button>}</div>
+      <div className="row between g8"><strong style={{ fontSize: 18 }}>{title}</strong></div>
       {children}
     </aside>
   );
@@ -65,7 +69,7 @@ function Tip({ tip }) {
 
 /**
  * Bars per day. series = [{ key, label, color }]; data = [{ label, [key]: number }].
- * One series → simple bars; several → stacked with a 2px gap, legend, hover tooltip and a table view.
+ * One series -> simple bars; several -> stacked with a 2px gap, legend, hover tooltip and a table view.
  */
 export function BarChart({ title, data, series, fmt = (v) => v, height = 180 }) {
   const [tip, setTip] = useState(null);
@@ -142,7 +146,7 @@ export function Funnel({ steps }) {
   const max = steps[0].value || 1;
   return (
     <div className="stack g12">
-      <strong className="small">Funnel · free scan → checkout → paid</strong>
+      <strong className="small">Funnel · free scan, checkout, paid</strong>
       {steps.map((s, i) => (
         <div key={s.label} className="stack g4">
           <div className="row between xs"><strong>{s.label}</strong><span className="mono">{s.value.toLocaleString('en-IN')}{i > 0 && <span className="muted"> · {Math.round((s.value / (steps[i - 1].value || 1)) * 100)}% of previous</span>}</span></div>

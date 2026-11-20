@@ -23,6 +23,11 @@ from app.core.db import (
     ALUMNI_REQUESTS,
     APPLICATIONS,
     ATS_CHECKS,
+    ATS_DELIVERIES,
+    AUTO_ALIASES,
+    AUTO_MAIL,
+    AUTO_MORNINGS,
+    AUTO_REPLIES,
     CERTIFICATES,
     COVER_LETTERS,
     DRIVE_CHECKINS,
@@ -30,6 +35,8 @@ from app.core.db import (
     EMAIL_CODES,
     FEATURE_GRANTS,
     HEALTH,
+    HELPER_CODES,
+    HELPER_TOKENS,
     HIRE_EVENTS,
     HIRE_INVITES,
     HIRE_OFFERS,
@@ -68,6 +75,9 @@ from app.core.db import (
     STORIES,
     TALENT_POOL,
     TICKETS,
+    TRUST_CONSENTS,
+    TRUST_PARENTS,
+    TRUST_PROFILES,
     USERS,
     VETTING_INTERVIEWS,
     VETTING_L4,
@@ -129,6 +139,12 @@ async def erase_user_data(db: AsyncDatabase, user_id: str) -> dict[str, int]:
         JOININGS, mine
     )  # Phase 6 S10 (reports to Nm7 keep the company side, without the person)
     await db[JOINING_REPORTS].update_many(mine, {"$set": {"user_id": None, "note": ""}})
+    out["auto_apply_replies"] = await gone(AUTO_REPLIES, mine)  # A3: companies' replies to the apply address
+    out["auto_apply_emails"] = await gone(AUTO_MAIL, mine)  # A3: the log of Auto Apply 2.0 emails
+    out["auto_apply_partner"] = await gone(ATS_DELIVERIES, mine)  # A4: deliveries to companies' hiring systems
+    out["auto_apply_mornings"] = await gone(AUTO_MORNINGS, mine)  # A6: the morning "jobs ready" lists
+    out["apply_helper"] = await gone(HELPER_TOKENS, mine) + await gone(HELPER_CODES, mine)  # A6: paired browsers
+    out["auto_apply_address"] = await gone(AUTO_ALIASES, mine)  # A3: the apply address (never reused: replies stop)
     out["program_apps"] = await gone(PROGRAM_APPS, mine)  # Phase 6 S8: certificates stop verifying
     out["certificates"] = await gone(CERTIFICATES, mine)
     out["offers"] = await gone(OFFERS, mine)
@@ -151,6 +167,11 @@ async def erase_user_data(db: AsyncDatabase, user_id: str) -> dict[str, int]:
     out["tickets"] = await gone(TICKETS, mine)
     out["stories"] = await gone(STORIES, mine)
     out["memberships"] = await _memberships(db, user_id)
+    from app.trust.retention import erase_user as erase_trust
+
+    out.update({f"trust_{k}": v for k, v in (await erase_trust(db, user_id)).items()})  # Vetting Trust data types
+    out["trust_consents"] = await gone(TRUST_CONSENTS, mine)  # the consent history goes with the account
+    out["trust_age"] = await gone(TRUST_PROFILES, {"_id": user_id}) + await gone(TRUST_PARENTS, mine)
     out["coupon_uses_anonymised"] = await forget_user(db, user_id)
     return out
 
@@ -210,6 +231,7 @@ async def erase_account(db: AsyncDatabase, user_id: str) -> dict[str, int]:
                 "deleted_at": now(),
             },
             "$unset": {
+                "google": "",  # the Google sign-in link (sub, email, name, picture)
                 "deletion": "",
                 "auto_apply": "",
                 "simple": "",
@@ -217,6 +239,10 @@ async def erase_account(db: AsyncDatabase, user_id: str) -> dict[str, int]:
                 "job_alert_ran_at": "",
                 "job_alert_sent_day": "",
                 "role_finder": "",
+                "setup": "",  # the quick-start answers and checklist skips (app/setup/store.py, checklist.py)
+                "setup_reminders_off": "",
+                "setup_reminded_at": "",
+                "setup_checked_at": "",
                 "verified_skills": "",
                 "learn_nudges_off": "",
                 "learn_nudged_at": "",

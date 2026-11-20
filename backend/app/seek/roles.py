@@ -207,6 +207,9 @@ async def live_jobs(db, role: dict[str, Any], city: str, n: int = 3) -> list[dic
         "$and": [live_filter(), {"demo": {"$ne": True}}, {"title": {"$regex": words, "$options": "i"}}]
     }
     if city:
+        from app.jobsearch.parse import canonical_city
+
+        city = canonical_city(city)
         q["$and"].append(
             {"$or": [{"remote": True}, {"locations": {"$regex": f"^{re.escape(city)}$", "$options": "i"}}]}
         )

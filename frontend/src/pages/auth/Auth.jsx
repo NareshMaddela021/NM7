@@ -1,6 +1,6 @@
 // Sign in, sign up (customer or expert, confirmed with an email code), forgot password, admin two-step login, and route guards.
-import { useEffect, useRef, useState } from 'react';
-import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { Link, Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Logo, ThemeToggle } from '../../components/Header';
 import { Spinner, useToast } from '../../components/ui';
 import {
@@ -12,9 +12,37 @@ import LangSwitch from '../../components/LangSwitch';
 import { useLang } from '../../lib/i18n';
 import { usePageMeta } from '../../lib/meta';
 import { safeNext } from '../../lib/safeNext';
+import { addRoles, fits, roleFor, roleFromLink, rolesOf, switchRole } from '../../lib/roles';
 import '../../styles/admin-ops.css';
+import { IcCheck, IcKey, IcShield } from '../../components/icons';
 
 const isPreview = import.meta.env.VITE_PREVIEW === '1';
+// "Continue with Google": its own small chunk; it renders nothing while the server has no Google client ID.
+const GoogleButtonLazy = lazy(() => import('../../components/GoogleButton'));
+function Google(props) {
+  return <Suspense fallback={null}><GoogleButtonLazy note={<GoogleTerms />} {...props} /></Suspense>;
+}
+/** A new account made with Google gives the sign-up form's one tick on the next step ("What would you like to do?"). */
+function GoogleTerms() {
+  return <>New here? Continuing with Google creates a free account. Next you tick to agree to the <Link to="/terms" target="_blank">Terms</Link> and <Link to="/privacy" target="_blank">Privacy Policy</Link> and confirm you’re 18 or older (or your parent or guardian agrees).</>;
+}
+/** Where a new account goes after sign-up — email (after the code) and Google alike: "What would you like to do?"
+ * (/welcome, the role from the link ticked). A page that sent them here to finish something (a download, a checkout,
+ * their college's group) gets them straight back, with the role that fits. An existing account: `next` or its home. */
+const ORG_NEXT = /^\/(for-orgs|org\/|college-group\/)/; // a college's own flow: no role question on the way
+const JOIN_NEXT = /^\/join\//; // a student joining their college's placement group
+async function afterSignup(nav, u, next, role = '') {
+  if (!u.rolesPending) { nav(next || homeFor(u), { replace: true }); return; }
+  // a new Google account never saw the form's one tick: it gives it on the picker, so it always goes there
+  if (next && role !== 'expert' && u.hasPassword !== false) {
+    const add = role ? [role] : JOIN_NEXT.test(next) ? ['student'] : ORG_NEXT.test(next) ? [] : ['jobseeker'];
+    try { await addRoles({ add }); } catch { /* the account menu can add roles later */ }
+    nav(next, { replace: true });
+    return;
+  }
+  const q = new URLSearchParams(Object.entries({ role, next }).filter(([, v]) => v)).toString();
+  nav(`/welcome${q ? `?${q}` : ''}`, { replace: true });
+}
 
 /** This page's own tab title (when it differs from the route's). */
 function PageTitle({ title }) {
@@ -22,7 +50,7 @@ function PageTitle({ title }) {
   return null;
 }
 /** lang / top: sign-in passes its language and the language switch (the other screens are English only). */
-function Shell({ title, sub, children, wide, meta, lang, top }) {
+function Shell({ title, sub, children, wide, meta, lang, top, footer }) {
   return (
     <>
       {meta && <PageTitle title={title} />}
@@ -32,7 +60,7 @@ function Shell({ title, sub, children, wide, meta, lang, top }) {
         <div className="stack g4"><h1 className="display" style={{ fontSize: 32 }}>{title}</h1>{sub && <span className="muted">{sub}</span>}</div>
         {children}
       </main>
-      <SiteFooter />
+      {footer || <SiteFooter />}
     </>
   );
 }
@@ -107,7 +135,9 @@ export function Login() {
   const [emailErr, setEmailErr] = useState('');
   const [show, setShow] = useState(false);
   const [t, lang] = useLang();
-  const go = (u) => nav(next && !(u.role === 'expert' && next.startsWith('/me')) && !(u.role === 'customer' && next.startsWith('/expert')) ? next : homeFor(u), { replace: true });
+  // a new account answers "What would you like to do?" first; `next` must suit one of the person's roles (the page
+  // then switches to that role by itself, see WrongAccount)
+  const go = (u) => nav(u.rolesPending ? `/welcome${next ? `?next=${encodeURIComponent(next)}` : ''}` : next && !(next.startsWith('/me') && !fits(u, 'customer')) && !(next.startsWith('/expert') && !fits(u, 'expert')) ? next : homeFor(u), { replace: true });
   if (verify) return <VerifyEmail email={verify.email} note={verify.note} onDone={go} onBack={() => setVerify(null)} />;
   if (user && user.role !== 'admin') return <Navigate to={next || homeFor(user)} replace />;
   // Values are read from the form itself, so browser autofill (which may not fire change events) works too.
@@ -129,6 +159,7 @@ export function Login() {
   return (
     // A server message (wrong password, too many tries …) is shown as the server wrote it, in English.
     <Shell title={t('signin.title')} sub={t('signin.sub')} lang={lang} top={<LangSwitch t={t} lang={lang} style={{ alignSelf: 'flex-end' }} />}>
+      {LIVE && <Google mode="signin" next={next} onDone={(u) => (u.isNew ? afterSignup(nav, u, next) : go(u))} />}
       <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); submit(e.currentTarget); }}>
         <Field id="li-e" name="email" label={t('signin.email')} type="email" autoComplete="email" value={f.email} error={emailErr} onChange={(e) => { setF({ ...f, email: e.target.value }); setEmailErr(''); }} />
         <div className="stack g4">
@@ -138,7 +169,8 @@ export function Login() {
         {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
         <button type="submit" className="btn btn-ink btn-lg" disabled={busy}>{busy && <Spinner />}{t('signin.button')}</button>
       </form>
-      <span className="small">{t('signin.new')} <Link to={`/signup${next ? `?next=${encodeURIComponent(next)}` : ''}`}>{t('signin.create')}</Link> · {t('signin.experts')} <Link to="/signup?as=expert">{t('signin.joinExpert')}</Link></span>
+      <span className="small">{t('signin.new')} <Link to={`/signup${next ? `?next=${encodeURIComponent(next)}` : ''}`}>{t('signin.create')}</Link> · {t('signin.experts')} <Link to="/signup?role=expert">{t('signin.joinExpert')}</Link></span>
+      <Link to="/for-orgs" className="xs" data-testid="org-link">Hiring or placements? Go to Nm7 for companies / colleges</Link>
       <Demo>
         sample accounts use password <code>{SAMPLE_PASSWORD}</code>; every email code is <code>{DEMO_CODE}</code>.{' '}
         <button type="button" className="link-btn xs" onClick={() => fill('saivarsha@example.com')}>Customer · Sai Varsha</button>{' · '}
@@ -149,71 +181,87 @@ export function Login() {
   );
 }
 
-/* ---------- sign up ---------- */
+/* ---------- sign up: one account for individuals (job seekers, students, experts) ---------- */
+// Companies and colleges have their own sign-up and sign-in (/for-companies, /for-orgs): this page names them only in
+// the one small link at the bottom. Old links (the tabs: ?as=expert, ?tab=…, /signup/expert, /expert/signup) come here
+// with the role preselected for the "What would you like to do?" step that follows the email code.
+function SignupFooter() {
+  return (
+    <footer className="site-footer" lang="en" style={{ borderTop: '1px solid var(--border)' }}>
+      <div className="container stack g12 small faint" style={{ padding: '24px 20px' }}>
+        <Link to="/for-orgs" className="small" data-testid="org-link">Hiring or placements? Go to Nm7 for companies / colleges</Link>
+        <nav aria-label="Site links" className="row g16" style={{ flexWrap: 'wrap' }}>
+          <Link to="/terms">Terms</Link><Link to="/privacy">Privacy</Link><Link to="/refund-policy">Refunds & cancellation</Link>
+          <Link to="/delivery-policy">Delivery</Link><Link to="/contact">Contact us</Link><Link to="/accessibility">Accessibility</Link>
+        </nav>
+        <span>Nm7 · nm7.si</span>
+      </div>
+    </footer>
+  );
+}
+export { default as Welcome } from './Welcome'; // the step after sign-up, in this chunk
+/** Each role's quick start (/start/<role>): its own chunk, loaded through this one so the main bundle stays small. */
+const QuickStartPage = lazy(() => import('../start/QuickStart'));
+export const QuickStart = () => <QuickStartPage />;
 export function Signup() {
   const nav = useNavigate();
   const [params] = useSearchParams();
   const next = safeNext(params.get('next'));
   const { user } = useAuth();
-  const [role, setRole] = useState(params.get('as') === 'expert' ? 'expert' : 'customer');
+  const old = useParams()['*']; // an old link by path: /signup/expert, /signup/student …
+  const role = roleFromLink(params.get('role') || params.get('as') || params.get('tab') || old);
   const [f, setF] = useState({ name: '', email: '', phone: '', password: '', confirm: '', agree: false });
   const [showPw, setShowPw] = useState(false);
   const [touched, setTouched] = useState(false);
   const [pending, setPending] = useState(null); // { email } waiting for the email code
-  const { busy, err, run } = useRun();
-  if (user && !pending && params.get('as') === 'expert' && user.role !== 'expert') {
-    // "Become an expert" while signed in as a customer: experts use a separate account
-    return (
-      <Shell meta title="Expert accounts are separate" sub={`You’re signed in as ${user.email || user.name}, a customer account.`}>
-        <div className="card stack g12" role="note">
-          <span className="small">To work as an expert, create a new account with a different email address. Your customer account and its resumes stay as they are.</span>
-          <div className="row g8">
-            <button type="button" className="btn btn-ink" onClick={async () => { await signOut(); nav('/signup?as=expert', { replace: true }); }}>Sign out and create an expert account</button>
-            <Link to={homeFor(user)} className="btn btn-outline">Back to my dashboard</Link>
-          </div>
-        </div>
-      </Shell>
-    );
+  const { busy, err, setErr, run } = useRun();
+  const qs = (o) => { const p = new URLSearchParams(Object.entries(o).filter(([, v]) => v)); const t = p.toString(); return t ? `?${t}` : ''; };
+  // the old tab links: same page, with the role preselected for the next step
+  if (!params.get('role') && (params.get('as') || params.get('tab') || old)) return <Navigate to={`/signup${qs({ role, next })}`} replace />;
+  if (user && !pending) {
+    // signed in: a role from a link means "add this role" (one account), else their own dashboard
+    if (role && user.role !== 'admin' && !rolesOf(user).includes(role)) return <Navigate to={`/welcome${qs({ add: '1', role, next })}`} replace />;
+    return <Navigate to={next || homeFor(user)} replace />;
   }
-  if (user && !pending) return <Navigate to={homeFor(user)} replace />;
+  const after = (u) => afterSignup(nav, u, next, role); // after the email code, or Google
   const errs = {
     name: f.name.trim().length < 2 && 'Enter your full name',
     email: !EMAIL_RE.test(f.email.trim()) && 'Enter a valid email address',
     phone: !!f.phone.trim() && !PHONE_RE.test(f.phone.trim()) && 'Enter a 10-digit Indian mobile number',
     password: passwordIssue(f.password),
     confirm: !f.confirm ? 'Type your password again' : f.confirm !== f.password ? 'Passwords don’t match' : '',
-    agree: !f.agree && 'Please accept the terms to continue',
+    agree: !f.agree && 'Please tick the box to continue',
   };
   const ok = !Object.values(errs).some(Boolean);
   const e_ = (k) => (touched ? errs[k] || '' : '');
 
   if (pending) {
     // The API answers the same way whether or not the address already has an account (nobody can use sign-up to find out).
-    return <VerifyEmail email={pending.email} note={`We sent a 6-digit code to ${pending.email}. It works for 10 minutes. If you already have an account, we sent a sign-in reminder instead.`} onDone={(u) => nav(u.role === 'expert' ? '/expert/profile' : next || '/me', { replace: true })} onBack={() => setPending(null)} />;
+    return <VerifyEmail email={pending.email} note={`We sent a 6-digit code to ${pending.email}. It works for 10 minutes. If you already have an account, we sent a sign-in reminder instead.`} onDone={(u) => run(() => after(u))} onBack={() => setPending(null)} />;
   }
   return (
-    <Shell title="Create your account" sub={role === 'expert' ? 'Experts write resumes for job seekers and get paid per order.' : 'Free to join. You only pay when you order a service.'} wide>
-      <div className="segmented" role="radiogroup" aria-label="I want to" style={{ alignSelf: 'flex-start' }}>
-        {[['customer', 'Get my resume done'], ['expert', 'Work as an expert']].map(([k, l]) => <button key={k} type="button" role="radio" aria-checked={role === k} onClick={() => setRole(k)}>{l}</button>)}
-      </div>
-      <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); setTouched(true); if (!ok) return; run(async () => setPending(await signUp({ role, ...f }))); }}>
+    <Shell title="Create your free Nm7 account" sub="Find jobs, build your career, or work as an expert, all in one account." wide footer={<SignupFooter />}>
+      {LIVE && <Google mode="signup" role="customer" next={next} onDone={(u) => run(() => after(u))} />}
+      <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); setTouched(true); setErr(''); if (!ok) return; run(async () => setPending(await signUp({ role: 'customer', pickRoles: true, ...f }))); }}>
         <Field id="su-n" label="Full name" autoComplete="name" value={f.name} error={e_('name')} onChange={(e) => setF({ ...f, name: e.target.value })} />
         <div className="row g12" style={{ alignItems: 'flex-start' }}>
-          <div style={{ flex: '1 1 220px' }}><Field id="su-e" label="Email" type="email" autoComplete="email" value={f.email} error={e_('email')} onChange={(e) => setF({ ...f, email: e.target.value })} /></div>
-          <div style={{ flex: '1 1 200px' }}><Field id="su-p" label="Mobile (WhatsApp) — optional" hint="Only for order updates from your expert" type="tel" inputMode="tel" autoComplete="tel" placeholder="98765 43210" value={f.phone} error={e_('phone')} onChange={(e) => setF({ ...f, phone: e.target.value })} /></div>
+          <div style={{ flex: '1 1 220px', minWidth: 0 }}><Field id="su-e" label="Email" type="email" autoComplete="email" value={f.email} error={e_('email')} onChange={(e) => setF({ ...f, email: e.target.value })} /></div>
+          <div style={{ flex: '1 1 200px', minWidth: 0 }}><Field id="su-p" label="Mobile (WhatsApp) — optional" hint="For updates about your account" type="tel" inputMode="tel" autoComplete="tel" placeholder="98765 43210" value={f.phone} error={e_('phone')} onChange={(e) => setF({ ...f, phone: e.target.value })} /></div>
         </div>
         <div className="row g12" style={{ alignItems: 'flex-start' }}>
-          <div style={{ flex: '1 1 220px' }}><Field id="su-pw" label="Password" type={showPw ? 'text' : 'password'} autoComplete="new-password" value={f.password} error={e_('password')} hint="8+ characters, with letters and a number" onChange={(e) => setF({ ...f, password: e.target.value })} /></div>
-          <div style={{ flex: '1 1 220px' }}><Field id="su-pw2" label="Re-type password" type={showPw ? 'text' : 'password'} autoComplete="new-password" value={f.confirm}
+          <div style={{ flex: '1 1 220px', minWidth: 0 }}><Field id="su-pw" label="Password" type={showPw ? 'text' : 'password'} autoComplete="new-password" value={f.password} error={e_('password')} hint="8+ characters, with letters and a number" onChange={(e) => setF({ ...f, password: e.target.value })} /></div>
+          <div style={{ flex: '1 1 220px', minWidth: 0 }}><Field id="su-pw2" label="Re-type password" type={showPw ? 'text' : 'password'} autoComplete="new-password" value={f.confirm}
             error={e_('confirm') || (f.confirm && f.confirm !== f.password && f.confirm.length >= f.password.length ? 'Passwords don’t match' : '')}
-            hint={f.confirm && f.confirm === f.password ? '✓ Passwords match' : 'Type it again to be sure'} onChange={(e) => setF({ ...f, confirm: e.target.value })} /></div>
+            hint={f.confirm && f.confirm === f.password ? 'Passwords match' : 'Type it again to be sure'} onChange={(e) => setF({ ...f, confirm: e.target.value })} /></div>
         </div>
-        <label className="row g4 xs" style={{ marginTop: -8 }}><input type="checkbox" checked={showPw} onChange={(e) => setShowPw(e.target.checked)} />Show passwords</label>
+        <label className="row g4 xs" style={{ marginTop: -8, minHeight: 44 }}><input type="checkbox" checked={showPw} onChange={(e) => setShowPw(e.target.checked)} />Show passwords</label>
+        {/* The one tick. The per-purpose privacy consents (Vetting Trust T1) are asked one by one later, when a
+            feature needs them, and the date of birth with a parent's confirmation for under-18s then, as before. */}
         <label className="check small" style={{ alignItems: 'flex-start' }}>
-          <input type="checkbox" checked={f.agree} onChange={(e) => setF({ ...f, agree: e.target.checked })} />
-          <span>I agree to the <Link to="/terms" target="_blank">Terms</Link>{role === 'expert' && <>, <Link to="/expert-terms" target="_blank">Expert Terms</Link></>} and <Link to="/privacy" target="_blank">Privacy Policy</Link>, and I’m 18 or older (or have a parent’s consent).</span>
+          <input type="checkbox" checked={f.agree} onChange={(e) => setF({ ...f, agree: e.target.checked })} aria-describedby="su-agree-m" />
+          <span>I agree to the <Link to="/terms" target="_blank">Terms</Link> and <Link to="/privacy" target="_blank">Privacy Policy</Link>, and I’m 18 or older (or my parent or guardian agrees).</span>
         </label>
-        {e_('agree') && <span className="error">{e_('agree')}</span>}
+        <span id="su-agree-m" className={e_('agree') ? 'error' : 'help'} style={{ marginTop: -8 }}>{e_('agree') || 'Under 18? Before skill checks or AI interviews we ask your date of birth, and a parent or guardian confirms by email.'}</span>
         {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
         <button type="submit" className="btn btn-ink btn-lg" disabled={busy}>{busy && <Spinner />}Create account</button>
       </form>
@@ -226,12 +274,14 @@ export function Signup() {
 export function ForgotPassword() {
   const nav = useNavigate();
   const toast = useToast();
+  const [params] = useSearchParams();
+  const setting = params.get('set') === '1'; // Settings -> "Set a password" (an account made with Google)
   const [step, setStep] = useState('email');
-  const [f, setF] = useState({ email: '', code: '', password: '', confirm: '' });
+  const [f, setF] = useState({ email: params.get('email') || '', code: '', password: '', confirm: '' });
   const [emailErr, setEmailErr] = useState('');
   const { busy, err, run } = useRun();
   return (
-    <Shell title="Reset your password" sub={step === 'email' ? 'We’ll email you a code.' : `If ${f.email} has an account, a code is on its way.`}>
+    <Shell title={setting ? 'Set a password' : 'Reset your password'} sub={step === 'email' ? 'We’ll email you a code.' : `If ${f.email} has an account, a code is on its way.`}>
       {step === 'email' ? (
         <form className="card stack g16" noValidate onSubmit={(e) => {
           e.preventDefault();
@@ -243,16 +293,16 @@ export function ForgotPassword() {
             <button type="submit" className="btn btn-ink btn-lg" disabled={busy}>{busy && <Spinner />}Send code</button>
         </form>
       ) : (
-        <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); run(async () => { await resetPassword(f.email, f.code, f.password, f.confirm); toast('Password changed — sign in with the new one'); nav('/login'); }); }}>
+        <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); run(async () => { await resetPassword(f.email, f.code, f.password, f.confirm); toast(setting ? 'Password set — sign in with it once' : 'Password changed — sign in with the new one'); nav(setting ? '/login?next=%2Fme%2Fsettings' : '/login'); }); }}>
           <CodeInput value={f.code} onChange={(code) => setF({ ...f, code })} />
           <Field id="fp-p" label="New password" type="password" autoComplete="new-password" value={f.password} hint="8+ characters, with letters and a number" error={f.password && passwordIssue(f.password)} onChange={(e) => setF({ ...f, password: e.target.value })} />
-          <Field id="fp-p2" label="Re-type new password" type="password" autoComplete="new-password" value={f.confirm} error={f.confirm && f.confirm !== f.password && f.confirm.length >= f.password.length ? 'Passwords don’t match' : ''} hint={f.confirm && f.confirm === f.password ? '✓ Passwords match' : ''} onChange={(e) => setF({ ...f, confirm: e.target.value })} />
+          <Field id="fp-p2" label="Re-type new password" type="password" autoComplete="new-password" value={f.confirm} error={f.confirm && f.confirm !== f.password && f.confirm.length >= f.password.length ? 'Passwords don’t match' : ''} hint={f.confirm && f.confirm === f.password ? 'Passwords match' : ''} onChange={(e) => setF({ ...f, confirm: e.target.value })} />
           {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
             <button type="submit" className="btn btn-ink btn-lg" disabled={busy || f.code.length !== 6 || !!passwordIssue(f.password) || f.confirm !== f.password}>{busy && <Spinner />}Change password</button>
         </form>
       )}
       <Demo>the code is <code>{DEMO_CODE}</code>.</Demo>
-      <Link to="/login" className="small">← Back to sign in</Link>
+      <Link to="/login" className="small">Back to sign in</Link>
     </Shell>
   );
 }
@@ -281,7 +331,7 @@ export function AdminLogin() {
           if (!email || !password) { setErr('Enter your work email and password.'); return; }
           run(async () => { const r = await adminPassword(email, password); if (r.signedIn) nav(next?.startsWith('/admin') ? next : '/admin', { replace: true }); else setStep(r); });
         }}>
-          <span className="ad-auth-top"><span className="ad-auth-ic" aria-hidden="true">⚿</span><span className="ad-auth-kicker">STEP 1 OF 2 · PASSWORD</span><span className="ad-auth-steps" aria-hidden="true"><i className="on" /><i /></span></span>
+          <span className="ad-auth-top"><span className="ad-auth-ic"><IcKey size={22} /></span><span className="ad-auth-kicker">STEP 1 OF 2 · PASSWORD</span><span className="ad-auth-steps" aria-hidden="true"><i className="on" /><i /></span></span>
           <p className="ad-auth-help">Use your Nm7 work email. After the password you’ll enter a code from your authenticator app.</p>
           <Field id="ad-e" name="email" label="Work email" type="email" autoComplete="username" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
           <Field id="ad-p" name="password" label="Password" type="password" autoComplete="current-password" value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />
@@ -290,7 +340,7 @@ export function AdminLogin() {
         </form>
       ) : (
         <form className="ad-auth" noValidate onSubmit={(e) => { e.preventDefault(); run(async () => { await adminVerify(step.userId, f.code, f.trust); nav(next?.startsWith('/admin') ? next : '/admin', { replace: true }); }); }}>
-          <span className="ad-auth-top"><span className="ad-auth-ic" aria-hidden="true">⛨</span><span className="ad-auth-kicker">STEP 2 OF 2 · AUTHENTICATOR</span><span className="ad-auth-steps" aria-hidden="true"><i className="on" /><i className="on" /></span></span>
+          <span className="ad-auth-top"><span className="ad-auth-ic"><IcShield size={22} /></span><span className="ad-auth-kicker">STEP 2 OF 2 · AUTHENTICATOR</span><span className="ad-auth-steps" aria-hidden="true"><i className="on" /><i className="on" /></span></span>
           <span className="ad-auth-help">Open Google Authenticator, Microsoft Authenticator or Authy and enter the 6-digit code for Nm7 admin.</span>
           {recovery
             ? <Field id="ad-r" label="Recovery code" autoComplete="one-time-code" placeholder="ABCD-EFGH" maxLength={9} value={f.code} onChange={(e) => setF({ ...f, code: e.target.value.toUpperCase() })} hint="Each recovery code works once." />
@@ -299,7 +349,7 @@ export function AdminLogin() {
           {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
             <button type="submit" className="btn btn-signal btn-lg" disabled={busy || (recovery ? f.code.replace(/[^A-Z0-9]/gi, '').length !== 8 : f.code.length !== 6)}>{busy && <Spinner />}Verify & open admin</button>
           <div className="ad-auth-foot">
-          <button type="button" className="link-btn small" style={{ alignSelf: 'flex-start' }} onClick={() => { setStep(null); setF({ ...f, code: '' }); }}>← Use a different account</button>
+          <button type="button" className="link-btn small" style={{ alignSelf: 'flex-start' }} onClick={() => { setStep(null); setF({ ...f, code: '' }); }}>Use a different account</button>
           <span className="xs faint">Lost your phone? <button type="button" className="link-btn xs" onClick={() => { setRecovery(!recovery); setF({ ...f, code: '' }); }}>{recovery ? 'Use the authenticator code' : 'Use a recovery code'}</button> or ask the owner to reset your two-step login.</span>
           </div>
         </form>
@@ -358,7 +408,7 @@ export function AdminSetup() {
     return (
       <Shell title="Owner account ready" sub={`${done.email} is the owner admin. Setup is now closed for good.`}>
         <div className="ad-auth">
-          <span className="ad-auth-top"><span className="ad-auth-ic" aria-hidden="true">✓</span><span className="ad-auth-kicker">SETUP DONE</span></span>
+          <span className="ad-auth-top"><span className="ad-auth-ic"><IcCheck size={22} /></span><span className="ad-auth-kicker">SETUP DONE</span></span>
           <span className="small">Sign in with your email, password and the 6-digit code from your authenticator app.</span>
           <span className="small muted">On Render, delete <code>ADMIN_SETUP_TOKEN</code> from the API’s environment now.</span>
           <Link to="/admin/login" className="btn btn-signal btn-lg">Go to admin sign in</Link>
@@ -399,17 +449,17 @@ export function AdminSetup() {
   return (
     <Shell title="Set up the owner admin" sub="One time only. This page stops working as soon as an admin account exists.">
       <form className="ad-auth" noValidate onSubmit={(e) => { e.preventDefault(); if (ready) run(async () => setSetup(await adminSetupStart(f))); }}>
-        <span className="ad-auth-top"><span className="ad-auth-ic" aria-hidden="true">⚿</span><span className="ad-auth-kicker">OWNER ACCOUNT</span></span>
+        <span className="ad-auth-top"><span className="ad-auth-ic"><IcKey size={22} /></span><span className="ad-auth-kicker">OWNER ACCOUNT</span></span>
         <p className="ad-auth-help">You need the setup token from the API’s environment. After this you’ll scan a QR code and save recovery codes.</p>
         <Field id="as-t" label="Setup token" type="password" autoComplete="off" value={f.token} hint="The ADMIN_SETUP_TOKEN value from the API’s environment on Render" onChange={(e) => setF({ ...f, token: e.target.value })} />
         <Field id="as-e" label="Work email" type="email" autoComplete="username" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
         <Field id="as-n" label="Your name" autoComplete="name" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} />
         <Field id="as-p" label="Password" type="password" autoComplete="new-password" value={f.password} hint="8+ characters, with letters and a number" error={pwIssue || ''} onChange={(e) => setF({ ...f, password: e.target.value })} />
-        <Field id="as-p2" label="Re-type password" type="password" autoComplete="new-password" value={f.confirm} error={f.confirm && f.confirm !== f.password && f.confirm.length >= f.password.length ? 'Passwords don’t match' : ''} hint={f.confirm && f.confirm === f.password ? '✓ Passwords match' : ''} onChange={(e) => setF({ ...f, confirm: e.target.value })} />
+        <Field id="as-p2" label="Re-type password" type="password" autoComplete="new-password" value={f.confirm} error={f.confirm && f.confirm !== f.password && f.confirm.length >= f.password.length ? 'Passwords don’t match' : ''} hint={f.confirm && f.confirm === f.password ? 'Passwords match' : ''} onChange={(e) => setF({ ...f, confirm: e.target.value })} />
         {err && <p role="alert" className="error" style={{ margin: 0 }}>{err}</p>}
         <button type="submit" className="btn btn-signal btn-lg" disabled={busy || !ready}>{busy && <Spinner />}Continue</button>
       </form>
-      <Link to="/admin/login" className="small">← Admin sign in</Link>
+      <Link to="/admin/login" className="small">Admin sign in</Link>
     </Shell>
   );
 }
@@ -417,14 +467,22 @@ export function AdminSetup() {
 /* ---------- guards ---------- */
 export { RequireAuth } from './RequireAuth'; // kept here for older imports
 
-/** Signed in with the wrong kind of account for the page (loaded by RequireAuth only when needed). */
+/** Signed in with the wrong kind of account for the page (loaded by RequireAuth only when needed). A person who has a
+ * role for this page (one account: job seeker / student / expert) is switched to it here, and the page opens. */
 export function WrongAccount({ user, need }) {
   const nav = useNavigate();
+  const can = need !== 'admin' && fits(user, need);
+  const [failed, setFailed] = useState('');
+  useEffect(() => { if (can) switchRole(roleFor(user, need)).catch((e) => setFailed(e.message || 'Please try again.')); }, [can, need, user]);
+  if (can && !failed) return <main className="container row g8" style={{ padding: 40 }} aria-busy="true"><Spinner /><span className="muted">Switching to your {need === 'expert' ? 'expert' : 'job seeker'} dashboard…</span></main>;
+  if (can) return <Shell meta title="Couldn’t switch" sub={failed}><Link to={homeFor(user)} className="btn btn-outline">Go to my home</Link></Shell>;
   const label = { customer: 'a customer', expert: 'an expert', admin: 'an admin' };
+  const add = need === 'expert' ? 'expert' : need === 'customer' ? 'jobseeker' : '';
   return (
     <Shell meta title="Different account needed" sub={`You’re signed in as ${user.name} (${label[user.role]} account). This page is for ${label[need]} account.`}>
       <div className="row g8">
-        <button type="button" className="btn btn-ink" onClick={async () => { await signOut(); nav(`/login`); }}>Sign out and switch</button>
+        {add && user.role !== 'admin' && <Link to={`/welcome?add=1&role=${add}`} className="btn btn-ink">Add this role to my account</Link>}
+        <button type="button" className={add && user.role !== 'admin' ? 'btn btn-outline' : 'btn btn-ink'} onClick={async () => { await signOut(); nav(`/login`); }}>Sign out and switch</button>
         <Link to={homeFor(user)} className="btn btn-outline">Go to my home</Link>
       </div>
     </Shell>

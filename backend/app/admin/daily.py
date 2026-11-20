@@ -49,11 +49,22 @@ def _span(day: date) -> tuple[datetime, datetime]:
     return start, start + timedelta(days=1)
 
 
-async def count_error() -> None:
-    """Called for every request that failed with an unexpected error (app/core/observability.py)."""
+async def count_error(method: str = "", path: str = "", exc: BaseException | None = None, rid: str = "") -> None:
+    """Called for every request that failed with an unexpected error (app/core/observability.py). Also keeps the last
+    20 of the day (method, path, the error's type and first line, request id) so Admin → Daily report can say what
+    they were — never the request body, headers, cookies or query string."""
+    import re as _re
+
+    entry = {
+        "at": now(), "method": (method or "")[:8], "path": _re.sub(r"[0-9a-f]{12,}", ":id", (path or "")[:120]),
+        "error": type(exc).__name__ if exc else "", "rid": rid[:16],
+        "message": _re.sub(r"[\w.+-]+@[\w-]+(\.[\w-]+)+", "[email]", str(exc or "").split("\n")[0])[:160],
+    }  # fmt: skip
     try:
         await get_database()[OPS_DAILY].update_one(
-            {"_id": f"errors:{ist_day().isoformat()}"}, {"$inc": {"n": 1}}, upsert=True
+            {"_id": f"errors:{ist_day().isoformat()}"},
+            {"$inc": {"n": 1}, "$push": {"recent": {"$each": [entry], "$slice": -20}}},
+            upsert=True,
         )
     except Exception:  # noqa: BLE001 — counting must never make an error worse
         log.warning("could not count a server error")
@@ -77,6 +88,9 @@ async def numbers(db: AsyncDatabase, day: date, until: datetime | None = None) -
         )
     ).to_list()  # fmt: skip
     errors = await db[OPS_DAILY].find_one({"_id": f"errors:{day.isoformat()}"}) or {}
+    from app.jobs.share import shares_on
+
+    shares = await shares_on(db, day.isoformat())
     return {
         "day": day.isoformat(),
         "newUsers": await db[USERS].count_documents({"role": "customer", "created_at": w, "demo": {"$ne": True}}),
@@ -98,6 +112,8 @@ async def numbers(db: AsyncDatabase, day: date, until: datetime | None = None) -
         "companySignups": await db[COMPANIES].count_documents({"created_at": w, "demo": {"$ne": True}}),
         "companiesWaiting": await db[COMPANIES].count_documents({"review.state": "pending", "demo": {"$ne": True}}),
         "errors": errors.get("n", 0),
+        "shares": shares["total"],  # Share button taps (per channel on Admin → Daily report)
+        "sharesByChannel": shares["byChannel"],
     }
 
 
@@ -119,6 +135,7 @@ def message(n: dict[str, Any], title: str) -> str:
             f"Jobs posted: {n['jobsPosted']} · Live jobs: {n['jobsLive']}",
             f"Job applications: {n['applications']} (Auto Apply: {n['autoApplications']})",
             f"New companies: {n['companySignups']} · Waiting for review: {n['companiesWaiting']}",
+            f"Shares: {n.get('shares', 0)}",
             f"Server errors: {n['errors']}",
         ]
     )

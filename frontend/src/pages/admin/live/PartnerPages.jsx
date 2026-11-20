@@ -1,4 +1,4 @@
-// Admin → Partners: applications to approve (with a code like ASX-RAVI), approved partners with what they're owed,
+// Admin -> Partners: applications to approve (with a code like ASX-RAVI), approved partners with what they're owed,
 // one partner's referred organizations, commission ledger and payouts, and "mark paid" with a reference and a TDS
 // note. All money arithmetic is on the server; every action is logged.
 import { useState } from 'react';
@@ -127,7 +127,7 @@ export function LivePartners() {
   );
 }
 
-/** Admin → Organization → Plan and billing: which partner the organization is credited to, and correcting it. */
+/** Admin -> Organization -> Plan and billing: which partner the organization is credited to, and correcting it. */
 export function OrgPartner({ orgId, partner, reload }) {
   const toast = useToast();
   const [busy, run] = useAction(toast);

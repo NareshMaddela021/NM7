@@ -15,14 +15,22 @@ import { http } from '../../services/http';
 import { lazyRetry } from '../../lib/chunks';
 import { useLang } from '../../lib/i18n';
 import { useVettingOn } from '../../lib/vettingAccess';
+import { useTrustOn } from '../../lib/trustAccess';
 import { MeHead } from './MeLayout';
 import { Chip, Empty, MeCard, Skel, Stat } from './kit';
 import { API, GROUPS, LANGS, RUN_KEY, TASKS, badgeLine, day, readStore, renewState, writeStore } from './vetting/lib';
 import '../../styles/me-vet.css';
+import { IcArrowLeft, IcCheck, IcLock } from '../../components/icons';
 
 const Classic = lazy(lazyRetry(() => import('./MeSkillChecksClassic')));
 const TestRunner = lazy(lazyRetry(() => import('./vetting/TestRunner')));
 const Result = lazy(lazyRetry(() => import('./vetting/Result')));
+const FaceCheck = lazy(lazyRetry(() => import('./trust/FaceCheck'))); // Vetting Trust T3: ID + selfie before a test
+const SnapshotChoice = lazy(lazyRetry(() => import('./trust/Snapshots').then((m) => ({ default: m.SnapshotChoice })))); // Vetting Trust T8: optional webcam snapshots (own consent)
+const Pledge = lazy(lazyRetry(() => import('./trust/Honesty').then((m) => ({ default: m.Pledge })))); // Vetting Trust T9: honesty pledge (Trust only)
+const RetakeInfo = lazy(lazyRetry(() => import('./trust/Honesty').then((m) => ({ default: m.RetakeInfo })))); // T9: retake limits
+const WorkTests = lazy(lazyRetry(() => import('./trust/WorkTests'))); // Vetting Trust T15: typing, SJT, aptitude (Trust only)
+const tries = (cat) => (cat.retakeAttempts > 1 ? `${cat.retakeAttempts} tries` : 'One try'); // T9: Admin may allow more
 
 const MONITORED = [
   ['Leaving the test page', 'how many times, and for how long'],
@@ -51,7 +59,7 @@ function ConsentCard({ onDone }) {
     try { onDone((await http(`${API}/consent`, { method: 'POST' })).consentAt); } catch (e) { setErr(e.message); setBusy(false); }
   };
   return (
-    <MeCard tone="flat" icon="🔒" title="Before your first test: what we check" sub="So results are fair for everyone, the test page notices a few things while you take it." testid="vt-consent" id="vt-consent">
+    <MeCard tone="flat" icon={<IcLock />} title="Before your first test: what we check" sub="So results are fair for everyone, the test page notices a few things while you take it." testid="vt-consent" id="vt-consent">
       <ConsentList />
       <label className="vet-check">
         <input type="checkbox" checked={ok} onChange={(e) => setOk(e.target.checked)} data-testid="vt-consent-tick" />
@@ -63,9 +71,12 @@ function ConsentCard({ onDone }) {
   );
 }
 
-function RoleCard({ r, cat, onStart, onRenew }) {
+export function RoleCard({ r, cat, onStart, onRenew }) {
   const last = r.last;
-  const running = last && !last.done;
+  // an older skill check (before Vetting V2, v 1) has no result page or test runner here: its score is shown only
+  // (full site test, 19 Nov: "See result" opened "That test isn't here.")
+  const v2 = last?.v === 2;
+  const running = v2 && !last.done;
   const renew = renewState(r.verified);
   const nQ = Math.min(cat.questions, r.questions);
   return (
@@ -75,12 +86,12 @@ function RoleCard({ r, cat, onStart, onRenew }) {
         <span className="xs muted">{r.test} · {nQ} questions · {TASKS[r.task] || 'Practical task'}</span>
       </div>
       <div className="vet-role-meta">
-        {r.langs.length > 1 && <span className="xs">🗣 {r.langs.map((l) => LANGS[l].split(' ')[0]).join(' · ')}</span>}
-        <span className="xs">{r.demand ? `💼 ${r.demand} live job${r.demand === 1 ? '' : 's'}` : '💼 No live jobs right now'}</span>
+        {r.langs.length > 1 && <span className="xs">Languages: {r.langs.map((l) => LANGS[l].split(' ')[0]).join(' · ')}</span>}
+        <span className="xs">{r.demand ? `${r.demand} live job${r.demand === 1 ? '' : 's'}` : 'No live jobs right now'}</span>
       </div>
       {(r.verified || last) && (
         <div className="mrow" style={{ gap: 6 }}>
-          {r.verified && !r.verified.expired && <Chip tone="ok">✓ Verified · {r.verified.score}/100</Chip>}
+          {r.verified && !r.verified.expired && <Chip tone="ok"><IcCheck size={14} /> Verified · {r.verified.score}/100</Chip>}
           {r.verified?.expired && <Chip tone="warn">Badge expired</Chip>}
           {r.verified && !r.verified.expired && renew.open && <Chip tone="warn">Ends in {renew.daysLeft} day{renew.daysLeft === 1 ? '' : 's'}</Chip>}
           {last?.done && !r.verified && (last.retest ? <Chip tone="info">Free retest offered</Chip> : <Chip tone={last.pass ? 'ok' : 'warn'}>Last score {last.score}/100</Chip>)}
@@ -92,7 +103,7 @@ function RoleCard({ r, cat, onStart, onRenew }) {
         {running ? <button type="button" className="btn btn-signal" onClick={() => onStart(r, { resume: true })} data-testid={`sk-start-${r.test}`}>Carry on with the test</button>
           : r.canStart ? <button type="button" className={`btn ${renew.open ? 'btn-outline' : 'btn-signal'}`} onClick={() => onStart(r)} aria-label={`Start: ${r.role}`} data-testid={`sk-start-${r.test}`}>{last?.freeRetest ? 'Start free retest' : 'Start'}</button>
             : !renew.open && <span className="xs muted" data-testid="vt-wait">Next try from {day(last?.againAt)}</span>}
-        {last?.done && <Link className="btn btn-outline" to={`/me/skill-checks/${last.id}`} aria-label={`See result: ${r.role}`}>See result</Link>}
+        {v2 && last.done && <Link className="btn btn-outline" to={`/me/skill-checks/${last.id}`} aria-label={`See result: ${r.role}`}>See result</Link>}
       </div>
     </li>
   );
@@ -106,18 +117,20 @@ function StartDialog({ r, cat, preset, needConsent, onConsent, onClose, onGo }) 
   const [ok, setOk] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
+  const [pledge, setPledge] = useState(); // T9: undefined = not asked, null = not ticked yet, n = the version ticked
   const go = async () => {
     setBusy(true); setErr('');
     try {
       if (needConsent) onConsent((await http(`${API}/consent`, { method: 'POST' })).consentAt);
-      await onGo({ skill: r.test, band, lang, extraTime: extra });
+      await onGo({ skill: r.test, band, lang, extraTime: extra, ...(pledge ? { pledge } : {}) });
     } catch (e) { setErr(e.message); setBusy(false); }
   };
   const minutes = extra ? cat.minutes * 1.5 : cat.minutes;
   return (
     <Dialog title={`Start: ${r.role}`} onClose={onClose} showTitle>
       <div className="stack g16" data-testid="vt-start">
-        <p className="small" style={{ margin: 0 }}>{cat.questions} questions, about {String(minutes).replace('.5', '½')} minutes. Each question has its own timer and moves on by itself. Pass mark {cat.pass}/100. One try every {cat.retakeDays} days.</p>
+        <p className="small" style={{ margin: 0 }}>{cat.questions} questions, about {String(minutes).replace('.5', '½')} minutes. Each question has its own timer and moves on by itself. Pass mark {cat.pass}/100. {tries(cat)} every {cat.retakeDays} days.</p>
+        {r.retake && <Suspense fallback={null}><RetakeInfo rk={r.retake} /></Suspense>}
         <fieldset className="vet-fs">
           <legend className="vet-legend">Your experience</legend>
           <div className="vet-chips">
@@ -147,6 +160,7 @@ function StartDialog({ r, cat, preset, needConsent, onConsent, onClose, onGo }) 
           <input type="checkbox" checked={extra} onChange={(e) => setExtra(e.target.checked)} data-testid="vt-extra" />
           <span><strong>I need extra time</strong><span className="xs muted" style={{ display: 'block' }}>For a disability, reading difficulty or a slow phone: 1½ times the time. It doesn’t change your score.</span></span>
         </label>
+        <Suspense fallback={null}><SnapshotChoice kind="skill" /></Suspense>
         {needConsent && (
           <div className="stack g8">
             <strong className="small">What the test page checks</strong>
@@ -157,10 +171,11 @@ function StartDialog({ r, cat, preset, needConsent, onConsent, onClose, onGo }) 
             </label>
           </div>
         )}
+        <Suspense fallback={null}><Pledge kind="skill" lang={lang} onChange={setPledge} /></Suspense>
         <p className="xs muted" style={{ margin: 0 }}>Find a quiet place with a steady connection. If the connection drops, come back within 10 minutes to carry on.</p>
         {err && <p className="error" role="alert">{err}</p>}
         <div className="vet-actions">
-          <button type="button" className="btn btn-signal btn-lg" disabled={busy || (needConsent && !ok)} onClick={go} data-testid="vt-go">{busy ? 'Starting…' : 'Start the test'}</button>
+          <button type="button" className="btn btn-signal btn-lg" disabled={busy || (needConsent && !ok) || pledge === null} onClick={go} data-testid="vt-go">{busy ? 'Starting…' : 'Start the test'}</button>
           <button type="button" className="btn btn-ghost" onClick={onClose}>Not now</button>
         </div>
       </div>
@@ -177,11 +192,12 @@ function RenewDialog({ r, needConsent, onConsent, onClose, onGo }) {
   const [ok, setOk] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
+  const [pledge, setPledge] = useState(); // T9 (see StartDialog)
   const go = async () => {
     setBusy(true); setErr('');
     try {
       if (needConsent) onConsent((await http(`${API}/consent`, { method: 'POST' })).consentAt);
-      await onGo({ skill: r.test, band: v.band, lang, extraTime: extra, refresh: true });
+      await onGo({ skill: r.test, band: v.band, lang, extraTime: extra, refresh: true, ...(pledge ? { pledge } : {}) });
     } catch (e) { setErr(e.message); setBusy(false); }
   };
   return (
@@ -216,9 +232,11 @@ function RenewDialog({ r, needConsent, onConsent, onClose, onGo }) {
             </label>
           </div>
         )}
+        <Suspense fallback={null}><Pledge kind="skill" lang={lang} onChange={setPledge} /></Suspense>
+        {r.retake?.refreshDays && <p className="xs muted" style={{ margin: 0 }}>If the refresher doesn’t renew your badge, you can take it again after {r.retake.refreshDays} days.</p>}
         {err && <p className="error" role="alert">{err}</p>}
         <div className="vet-actions">
-          <button type="button" className="btn btn-signal btn-lg" disabled={busy || (needConsent && !ok)} onClick={go} data-testid="vt-renew-go">{busy ? 'Starting…' : 'Start the refresher'}</button>
+          <button type="button" className="btn btn-signal btn-lg" disabled={busy || (needConsent && !ok) || pledge === null} onClick={go} data-testid="vt-renew-go">{busy ? 'Starting…' : 'Start the refresher'}</button>
           <button type="button" className="btn btn-ghost" onClick={onClose}>Not now</button>
         </div>
       </div>
@@ -226,7 +244,7 @@ function RenewDialog({ r, needConsent, onConsent, onClose, onGo }) {
   );
 }
 
-/** Vetting V2 for people who get it (Admin → Skill checks → Launch), else the skill checks as before. */
+/** Vetting V2 for people who get it (Admin -> Skill checks -> Launch), else the skill checks as before. */
 export default function MeSkillChecks() {
   const on = useVettingOn();
   if (on == null) return <Skel cards={2} lines={3} label="Loading skill checks" />;
@@ -234,6 +252,7 @@ export default function MeSkillChecks() {
 }
 
 function MeSkillChecksV2() {
+  const trust = useTrustOn(); // Vetting Trust T15: the work tests card
   const { id } = useParams();
   const loc = useLocation();
   const nav = useNavigate();
@@ -251,8 +270,13 @@ function MeSkillChecksV2() {
   const load = () => http(API).then(setCat, (e) => setErr(e.message));
   useEffect(() => { load(); }, []);
 
+  const [face, setFace] = useState(null); // Vetting Trust T3: the start body waiting for the ID + selfie check
   const begin = async (body) => {
-    const p = await http(`${API}/start`, { method: 'POST', body });
+    let p;
+    try { p = await http(`${API}/start`, { method: 'POST', body }); } catch (e) {
+      if (e.code === 'face_check_needed') { setDialog(null); setRenewing(null); setFace(body); return; }
+      throw e;
+    }
     writeStore(RUN_KEY, { ...body, id: p.id });
     setDialog(null);
     setRenewing(null);
@@ -339,7 +363,7 @@ function MeSkillChecksV2() {
     const retest = (r) => nav(`/me/skill-checks?skill=${encodeURIComponent(r.skill)}&band=${encodeURIComponent(r.band)}`);
     return (
       <>
-        <MeHead title="Your skill check result" right={<Link className="btn btn-ghost" to="/me/skill-checks">← All skill checks</Link>} />
+        <MeHead title="Your skill check result" right={<Link className="btn btn-ghost" to="/me/skill-checks"><IcArrowLeft size={16} /> All skill checks</Link>} />
         <Suspense fallback={<Skel cards={1} lines={4} label="Loading your result" />}>
           <Result key={id} id={id} initial={loc.state?.result} onRetest={retest} />
         </Suspense>
@@ -361,12 +385,12 @@ function MeSkillChecksV2() {
           <ol className="vet-steps">
             <li><strong>Test:</strong> {cat.questions} questions, about {cat.minutes} minutes, at your experience level. Pass mark {cat.pass}.</li>
             <li><strong>Practical task:</strong> a short real-work task (writing, speaking or work situations). Pass mark {cat.taskPass}.</li>
-            <li><strong>Badge:</strong> “✓ Skill verified” on your profile for {cat.validDays} days. Companies hiring now see it.</li>
+            <li><strong>Badge:</strong> “Skill verified” on your profile for {cat.validDays} days. Companies hiring now see it.</li>
           </ol>
         </div>
         <div className="vet-hero-stats">
           <Stat label="Verified" value={verifiedCount} tone={verifiedCount ? 'ok' : undefined} testid="vt-verified-count" />
-          <Stat label="Tests taken" value={taken} sub={`one try per role every ${cat.retakeDays} days`} />
+          <Stat label="Tests taken" value={taken} sub={`${tries(cat).toLowerCase()} per role every ${cat.retakeDays} days`} />
         </div>
       </section>
 
@@ -378,7 +402,7 @@ function MeSkillChecksV2() {
             return (
               <li key={r.test} className="vet-badge-row" data-testid="vt-badge" data-test={r.test}>
                 <div className={`vet-badge ${st.expired ? 'expired' : ''}`}>
-                  <strong>{badgeLine(r.verified, r.role)}</strong>
+                  <strong><IcCheck size={14} /> {badgeLine(r.verified, r.role)}</strong>
                   <span className="xs">{st.expired ? <><strong>expired</strong> · ended {day(r.verified.expiresAt)}</> : `Valid until ${day(r.verified.expiresAt)}`}</span>
                 </div>
                 {st.open && !running && (
@@ -442,8 +466,14 @@ function MeSkillChecksV2() {
         </>
       )}
 
-      <MeCard tone="flat" className="mcard-tight" icon="🔒" title="Fair and private" sub="No camera and no screen recording. Companies see only your badge and scores, and only if you choose to show the score." headingLevel={2} />
+      {trust && <Suspense fallback={null}><WorkTests /></Suspense>}
+      <MeCard tone="flat" className="mcard-tight" icon={<IcLock />} title="Fair and private" sub="No camera and no screen recording. Companies see only your badge and scores, and only if you choose to show the score." headingLevel={2} />
       {renewing && <RenewDialog r={renewing} needConsent={!cat.consentAt} onConsent={(at) => setCat({ ...cat, consentAt: at })} onClose={closeRenew} onGo={begin} />}
+      {face && (
+        <Suspense fallback={null}>
+          <FaceCheck mode="identity" step="skill_check" onClose={() => setFace(null)} onDone={() => { const b = face; setFace(null); begin(b).catch((e) => setErr(e.message)); }} />
+        </Suspense>
+      )}
       {dialog && <StartDialog r={dialog.r} cat={cat} preset={dialog.preset} needConsent={!cat.consentAt} onConsent={(at) => setCat({ ...cat, consentAt: at })} onClose={closeDialog} onGo={begin} />}
     </>
   );

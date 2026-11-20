@@ -21,8 +21,9 @@ import { Chip, ScoreRing, Skel, StickyBar } from './kit';
 import { useMyLevel } from './LevelCard';
 import LevelBadge from '../../components/LevelBadge';
 import '../../styles/me-resume.css';
+import { IcBriefcase, IcBuilding, IcCap, IcCheck, IcCheckCircle, IcEdit, IcFile, IcFlag, IcGlobe, IcGrid, IcHeart, IcLock, IcMessage, IcShield, IcStar, IcSun, IcUpload, IcUser } from '../../components/icons';
 
-const ICONS = { basics: '◉', summary: '❝', exp: '▤', intern: '◇', proj: '▣', edu: '✎', certs: '✪', skills: '✓', ach: '★', langs: 'あ', extra: '⚑', hobbies: '☼', strengths: '♥', pinfo: '⚿', decl: '✍', privacy: '⛨' };
+const ICONS = { basics: IcUser, summary: IcMessage, exp: IcBriefcase, intern: IcBuilding, proj: IcGrid, edu: IcCap, certs: IcFile, skills: IcCheckCircle, ach: IcStar, langs: IcGlobe, extra: IcFlag, hobbies: IcSun, strengths: IcHeart, pinfo: IcLock, decl: IcEdit, privacy: IcShield };
 
 const f = (key, label, type = 'text', extra = {}) => ({ key, label, type, ...extra });
 const BASICS = [
@@ -52,7 +53,7 @@ function Section({ id, title, sub, children, badge }) {
   return (
     <section id={`pf-${id}`} className="mcard pf-section" style={{ scrollMarginTop: 90 }} aria-labelledby={`pf-${id}-h`}>
       <header className="mcard-h">
-        <span className="mcard-ic violet" aria-hidden="true">{ICONS[id] || '•'}</span>
+        {ICONS[id] && <span className="mcard-ic violet" aria-hidden="true">{(() => { const Ic = ICONS[id]; return <Ic />; })()}</span>}
         <span className="mcard-ht"><h2 id={`pf-${id}-h`} className="mcard-title">{title}{badge && <Chip tone="neutral" style={{ marginLeft: 8, verticalAlign: 'middle' }}>{badge}</Chip>}</h2>{sub && <span className="mcard-sub">{sub}</span>}</span>
       </header>
       {children}
@@ -98,8 +99,9 @@ const ObjFields = ({ k, fields, p }) => (
   <FieldGrid>{fields.map((fd) => <SchemaField key={fd.key} field={fd} idBase={`pf-${k}`} value={p[k][fd.key]} onChange={(v) => setJobProfile((x) => ({ ...x, [k]: { ...x[k], [fd.key]: v } }))} />)}</FieldGrid>
 );
 
-/** Import: an old resume, a LinkedIn PDF, or one of my resumes. Only adds what's missing. */
-function Importer({ p }) {
+/** Import: an old resume, a LinkedIn PDF, or one of my resumes. Only adds what's missing. onAdded(n): after each
+ * import (the quick start counts the step as done). */
+function Importer({ p, onAdded }) {
   const me = useMe();
   const toast = useToast();
   const [busy, setBusy] = useState('');
@@ -110,6 +112,7 @@ function Importer({ p }) {
     const { profile, added } = mergeIntoProfile(p, resumeToProfileParts(data));
     setJobProfile(profile);
     toast(added ? `Added ${added} item${added === 1 ? '' : 's'} from ${what} — check each section` : `Nothing new in ${what}`);
+    onAdded?.(added);
   };
   const fromFile = async (file, mode) => {
     if (!file) return;
@@ -122,7 +125,7 @@ function Importer({ p }) {
   };
   return (
     <section className="mcard mcard-accent" aria-labelledby="pf-import-h">
-      <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">⇪</span><span className="mcard-ht"><h2 id="pf-import-h" className="mcard-title">Fill your profile faster</h2><span className="mcard-sub">We only add what your profile doesn’t have yet — nothing you typed is overwritten.</span></span></header>
+      <header className="mcard-h"><span className="mcard-ic" aria-hidden="true"><IcUpload /></span><span className="mcard-ht"><h2 id="pf-import-h" className="mcard-title">Fill your profile faster</h2><span className="mcard-sub">We only add what your profile doesn’t have yet — nothing you typed is overwritten.</span></span></header>
       <div className="pf-import">
         {[['resume', 'Upload my old resume (PDF or Word)'], ['linkedin', 'Upload my LinkedIn PDF']].map(([mode, label]) => (
           <label key={mode} className="btn btn-outline pf-import-btn" style={{ cursor: 'pointer' }}>
@@ -152,6 +155,14 @@ function Importer({ p }) {
       )}
     </section>
   );
+}
+
+/** "Fill your profile faster" on its own: the quick start's last step (pages/start/QuickStart.jsx). */
+export function FillFaster({ onAdded }) {
+  const pr = useJobProfile();
+  if (pr.loading || (!pr.data && pr.available && !pr.error)) return <Skel cards={1} lines={2} label="Loading your Job Profile…" />;
+  if (!pr.data) return <p className="small muted" role="status">{pr.error || 'This isn’t available right now. Skip it for now and fill it in later from your Job Profile.'}</p>;
+  return <Importer p={pr.data} onAdded={onAdded} />;
 }
 
 export default function MeProfile() {
@@ -200,7 +211,7 @@ export default function MeProfile() {
       <div className="pf-layout">
       <nav aria-label="Profile sections" className="pf-nav">
         <span className="mkicker pf-nav-h">Sections</span>
-        {SECTIONS.map(([id, l]) => <a key={id} href={`#pf-${id}`} className="pf-nav-link" onClick={(e) => { e.preventDefault(); document.getElementById(`pf-${id}`)?.scrollIntoView({ behavior: 'smooth' }); }}><span aria-hidden="true">{ICONS[id]}</span>{l}</a>)}
+        {SECTIONS.map(([id, l]) => <a key={id} href={`#pf-${id}`} className="pf-nav-link" onClick={(e) => { e.preventDefault(); document.getElementById(`pf-${id}`)?.scrollIntoView({ behavior: 'smooth' }); }}>{l}</a>)}
       </nav>
       <div className="mstack pf-main">
       <Importer p={p} />
@@ -263,7 +274,7 @@ export default function MeProfile() {
       </div>
       </div>
       <StickyBar label="Job Profile">
-        <span className="pf-saved" aria-hidden="true">{pr.saving ? 'Saving…' : '✓ Saved'}</span>
+        <span className="pf-saved" aria-hidden="true">{pr.saving ? 'Saving…' : <><IcCheck size={14} /> Saved</>}</span>
         <Link to="/builder" state={{ open: 'start' }} className="btn btn-signal pf-sticky-only">Make a resume</Link>
       </StickyBar>
     </>

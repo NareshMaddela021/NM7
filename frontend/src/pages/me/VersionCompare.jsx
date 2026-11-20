@@ -1,4 +1,4 @@
-// Versions → Compare: any two versions (or a version and the current resume), side by side by section. Added lines
+// Versions -> Compare: any two versions (or a version and the current resume), side by side by section. Added lines
 // green, removed red, changed lines with the changed words marked; template / design changes listed on their own.
 // Under 600 px the two sides stack (older above newer).
 import { useMemo, useState } from 'react';
@@ -67,7 +67,7 @@ export default function VersionCompare({ options, onRestore }) {
             <div className="well stack g4" data-testid="vc-design">
               <strong className="xs" style={{ textTransform: 'uppercase', letterSpacing: '.06em' }}>Template and design</strong>
               <ul className="small" style={{ margin: 0, paddingLeft: 18 }}>
-                {look.map((c) => <li key={c.what}>{c.what}: {c.from} → {c.to}</li>)}
+                {look.map((c) => <li key={c.what}>{c.what}: {c.from} to {c.to}</li>)}
               </ul>
             </div>
           )}

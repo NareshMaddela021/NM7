@@ -21,9 +21,9 @@ export async function scanResume(source, role, onStep) {
 }
 
 /* ---------- Orders & payment ---------- */
-/** POST /api/orders { planId, role, addons } → { orderId, razorpayOrderId, amount (paise), currency, keyId, … } */
-export async function createOrder({ planId, role, addons = [], code }) {
-  if (LIVE) return http('/api/orders', { method: 'POST', body: { planId, role: role || null, addons, ...(code ? { code } : {}) } });
+/** POST /api/orders { planId, role, addons } -> { orderId, razorpayOrderId, amount (paise), currency, keyId, … } */
+export async function createOrder({ planId, role, addons = [], code, billing }) {
+  if (LIVE) return http('/api/orders', { method: 'POST', body: { planId, role: role || null, addons, ...(code ? { code } : {}), ...(billing ? { billing } : {}) } });
   await wait(400);
   return { orderId: null, planId, role, razorpayOrderId: 'order_TEST123' };
 }
@@ -45,7 +45,9 @@ const METHOD = { upi: 'UPI', card: 'Card', netbanking: 'Netbanking', wallet: 'Wa
 /**
  * Opens Razorpay's own checkout window (UPI, card, netbanking…) for an order from createOrder(),
  * then has the server confirm the payment (POST /api/payments/verify).
- * Resolves with { orderId, method, invoiceNo, paymentId }. Closing the window rejects with code 'dismissed'.
+ * Resolves with { orderId, method, invoiceNo, paymentId }. Closing the window rejects with code 'dismissed' (no money
+ * was taken); a payment Razorpay took that the server couldn't confirm yet rejects with code 'verify_failed' (the
+ * webhook still confirms it).
  */
 export async function pay(order) {
   if (!LIVE) { await wait(1600); return { orderId: null, method: 'UPI', invoiceNo: null, paymentId: null }; }
@@ -61,11 +63,12 @@ export async function pay(order) {
       prefill: { name: order.prefill?.name, email: order.prefill?.email, ...(order.prefill?.contact ? { contact: order.prefill.contact } : {}) },
       theme: { color: '#111111' },
       handler: resolve,
-      modal: { ondismiss: () => reject(Object.assign(new Error('You closed the payment window. Nothing was charged.'), { code: 'dismissed' })) },
+      modal: { ondismiss: () => reject(Object.assign(new Error('Payment not completed — no money was taken.'), { code: 'dismissed' })) },
     });
     rzp.open();
   });
-  const o = await http('/api/payments/verify', { method: 'POST', body: result });
+  let o;
+  try { o = await http('/api/payments/verify', { method: 'POST', body: result }); } catch (e) { throw Object.assign(e, { code: 'verify_failed' }); }
   return { orderId: o.id, method: METHOD[o.paymentMethod] || 'Razorpay', invoiceNo: o.invoiceNo, paymentId: o.paymentId, order: o };
 }
 
@@ -86,7 +89,7 @@ export async function submitIntake(id, intake, role) {
 }
 
 /**
- * POST /api/orders/:id/refund { reason, details } — the server decides (late → refunded at once, else reviewed).
+ * POST /api/orders/:id/refund { reason, details } — the server decides (late -> refunded at once, else reviewed).
  * Live: resolves with { ref, autoApproved, amount (₹) }. Preview: null (the browser decides, see askRefund).
  */
 export async function requestRefund(id, { reason, details }) {
@@ -115,7 +118,7 @@ export async function getExpertOrders() { await wait(200); return LIVE ? [] : EX
 // Real: POST /api/expert/orders/:id/draft
 export async function sendDraft(id) { await wait(600); return { ok: true, id }; }
 export async function getEarnings() { await wait(200); return LIVE ? null : EARNINGS; }
-// Real: POST /api/expert/withdraw { amount } → Razorpay payout
+// Real: POST /api/expert/withdraw { amount } -> Razorpay payout
 export async function withdraw(amount) { await wait(1200); return { ok: true, amount }; }
 
 /* ---------- Admin ---------- */
@@ -125,7 +128,7 @@ export async function assignExpert(orderId, expertId) { await wait(300); return 
 
 /**
  * Resume / LinkedIn import. In this frontend-only version the file is read in the browser
- * (src/lib/import). Real endpoint later: POST /api/resume/parse (multipart file) → same shape as
+ * (src/lib/import). Real endpoint later: POST /api/resume/parse (multipart file) -> same shape as
  * importResume() returns, adding OCR for scanned files and an AI check of every field.
  */
 export async function parseResumeOnServer(file) {
@@ -135,9 +138,9 @@ export async function parseResumeOnServer(file) {
 
 /* ---------- asuraa.ai profile link (experts already on asuraa.ai) ---------- */
 // Real (needs two small endpoints on asuraa.ai, called from the Nm7 BACKEND, never the browser):
-//   GET  https://asuraa.ai/api/public/profile/{username}           → public profile fields
-//   POST https://asuraa.ai/api/public/profile/{username}/verify    → sends a 6-digit code to the account's email/phone
-//   POST https://asuraa.ai/api/public/profile/{username}/verify/check { code } → { ok }
+//   GET  https://asuraa.ai/api/public/profile/{username}           -> public profile fields
+//   POST https://asuraa.ai/api/public/profile/{username}/verify    -> sends a 6-digit code to the account's email/phone
+//   POST https://asuraa.ai/api/public/profile/{username}/verify/check { code } -> { ok }
 // Nm7 exposes them as: GET /api/experts/asuraa-ai/{username}, POST …/send-code, POST …/check-code
 /** Linking an asuraa.ai profile needs those endpoints; until they exist it only works in the preview build. */
 export const ASURAA_AI_LINK = !LIVE;

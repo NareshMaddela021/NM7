@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 export const DEFAULT_SPEECH_LANG = 'en-IN';
 export const SILENCE_MS = 20_000; // stop on our own after this long without a word
 export const MIXED_HINT = 'Speaking Telugu or Hindi mixed with English? "English + mixed" usually hears it best.';
-export const KEYBOARD_TIP = 'Tip: you can also use your phone keyboard’s mic 🎤';
+export const KEYBOARD_TIP = 'Tip: you can also use your phone keyboard’s mic.';
 
 export const MESSAGES = {
   'not-allowed': 'Allow microphone in your browser settings',
@@ -29,7 +29,7 @@ const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : '');
 
 /**
  * Adds a committed piece of speech to the note: never overwrites, adds one space, and a full stop between chunks
- * when the note doesn't already end in punctuation. "I am Angelin" + "I completed BSc" → "I am Angelin. I completed BSc".
+ * when the note doesn't already end in punctuation. "I am Angelin" + "I completed BSc" -> "I am Angelin. I completed BSc".
  */
 export function appendSpeech(existing, chunk) {
   const base = (existing || '').replace(/\s+$/, '');
@@ -157,7 +157,7 @@ export class SpeechSession {
 const activity = () => { try { window.dispatchEvent(new Event('nm7-activity')); } catch { /* no window */ } };
 
 /**
- * useSpeech({ lang, onText }) → { supported, listening, interim, seconds, error, start, stop }
+ * useSpeech({ lang, onText }) -> { supported, listening, interim, seconds, error, start, stop }
  * `onText(words)` gets each committed chunk; the caller appends it to the note with appendSpeech.
  */
 export function useSpeech({ lang = DEFAULT_SPEECH_LANG, onText }) {

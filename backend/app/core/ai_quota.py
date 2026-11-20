@@ -27,9 +27,13 @@ from app.core.db import AI_USAGE
 from app.core.errors import ApiError
 from app.core.time import IST, now
 
-Feature = Literal["photos", "summary", "linkedin", "jobs", "projects", "roles", "offers", "vetting", "interview"]
+Feature = Literal[
+    "photos", "summary", "linkedin", "jobs", "projects", "roles", "offers", "vetting", "interview", "autoapply_tailor",
+    "autoapply_reply", "agent_reply", "criteria", "explain", "spoken", "regrade",
+]  # fmt: skip
 FEATURES: tuple[Feature, ...] = (
-    "photos", "summary", "linkedin", "jobs", "projects", "roles", "offers", "vetting", "interview",
+    "photos", "summary", "linkedin", "jobs", "projects", "roles", "offers", "vetting", "interview", "autoapply_tailor",
+    "autoapply_reply", "agent_reply", "criteria", "explain", "spoken", "regrade",
 )  # fmt: skip
 PER_PERSON: dict[str, int] = {
     "photos": 5,
@@ -41,6 +45,13 @@ PER_PERSON: dict[str, int] = {
     "offers": 5,
     "vetting": 4,  # V2 practical tasks: grading a written / spoken answer and checking a photo of work
     "interview": 12,  # V3 screening interview: up to 7 follow-ups and 1 grading
+    "autoapply_tailor": 25,  # Auto Apply 2.0: one tailoring per new job (never twice), up to the 25-a-day maximum
+    "autoapply_reply": 30,  # Auto Apply 2.0 (A7): reading a company's email reply the rules can't place
+    "agent_reply": 10,  # Vetting Trust T5: a WhatsApp reply to the calling agent the rules can't read
+    "criteria": 150,  # Vetting Trust T7, per company: reading a job's requirements, and one call per candidate checked
+    "explain": 4,  # Vetting Trust T9: "Explain your answer" questions from the practical task, and checking the answers
+    "spoken": 3,  # Vetting Trust T10: grammar and comprehension of the spoken-English score (one call per interview)
+    "regrade": 3,  # Vetting Trust T12: the weekly second-opinion re-grade of an AI-graded answer (5% sample, capped)
 }
 PER_KIOSK: dict[str, int] = {
     "photos": 300,
@@ -52,6 +63,13 @@ PER_KIOSK: dict[str, int] = {
     "offers": 600,
     "vetting": 600,
     "interview": 600,
+    "autoapply_tailor": 600,
+    "autoapply_reply": 600,
+    "agent_reply": 600,
+    "criteria": 600,
+    "explain": 600,
+    "spoken": 600,
+    "regrade": 600,
 }
 DAILY_CAP = 2000  # every AI call on the site, all features together
 OUTCOMES = ("fallback", "failed", "limited", "capped", "dropped")  # always present per feature in usage()
@@ -68,6 +86,11 @@ PERSON_MESSAGE = {
     "offers": "You've used today's AI offer explanations. The checks below come from the offer text.",
     "vetting": "Your task is saved. Our team will grade it within a day.",
     "interview": "Your interview is saved. Our team will grade it within a day.",
+    "autoapply_tailor": "Today's AI tailoring is used up. Nm7 uses the rules version: your own resume, reordered.",
+    "criteria": "Today's AI checks of requirements are used up. The rest are checked by rules or tomorrow.",
+    "explain": "Today's AI checks are used up, so your interview uses a standard question about your task instead.",
+    "spoken": "Today's AI checks are used up, so your spoken English is scored by simple rules instead.",
+    "regrade": "Today's second-opinion checks are used up; they run again next week.",
 }
 KIOSK_MESSAGE = "This kiosk has used today's AI limit. Please type your details instead."
 

@@ -9,6 +9,7 @@ import { Loading, http, useAction, useApi } from '../admin/live/common';
 import { Bar, Empty } from '../me/kit';
 import '../../styles/me-kit.css';
 import '../../styles/org-drives.css';
+import { IcLock } from '../../components/icons';
 
 const TYPES = { full_time: 'Full-time', internship: 'Internship', ppo: 'PPO' };
 const STATUSES = { offered: 'Offered', accepted: 'Accepted', declined: 'Declined', joined: 'Joined' };
@@ -87,7 +88,7 @@ export default function Offers({ orgId, groups, canManage }) {
   return (
     <div className="stack g16 of-page">
       <div className="mcard mcard-accent of-bar">
-        <span className="small of-note"><span aria-hidden="true">🔒 </span>Offers and packages are for your placement team only — never shown to recruiters or other students. Each student sees their own offers.</span>
+        <span className="small of-note"><IcLock size={14} /> Offers and packages are for your placement team only — never shown to recruiters or other students. Each student sees their own offers.</span>
         <div className="of-tools">
           <label className="field"><span className="label">Batch</span><select className="input" value={group} onChange={(e) => setGroup(e.target.value)} data-testid="offers-group"><option value="">All batches</option>{groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}</select></label>
           {canManage && <button type="button" className="btn btn-signal" onClick={() => openForm()} data-testid="offer-add">Add an offer</button>}

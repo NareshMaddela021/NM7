@@ -4,13 +4,19 @@
 // everything. Phone and email are never shown to a company until the candidate accepts an invite. Invites from
 // companies (H2) show at the top: Accept, or Not interested with a reason.
 import { useVettingOn } from '../../lib/vettingAccess';
-import { useEffect, useState } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
+import { trustOn, useTrustOn } from '../../lib/trustAccess';
 import { useToast } from '../../components/ui';
 import { API_BASE, http } from '../../services/http';
 import { MeHead } from './MeLayout';
 import { Bar, Empty, FieldGroup, MeCard, Skel, StickyBar } from './kit';
 import '../../styles/me-jobs.css';
 import { fmtDay } from '../../lib/format';
+import { IcBolt, IcCheck, IcCheckCircle, IcClock, IcLock, IcMail, IcMinus, IcPause, IcStar } from '../../components/icons';
+
+const FaceCheck = lazy(() => import('./trust/FaceCheck')); // Vetting Trust T3: the joining-day "same person" check
+const HireSafety = lazy(() => import('./trust/HireSafety')); // Vetting Trust T4: employer badge, Never pay, Report fraud
+const ReliabilityCard = lazy(() => import('./trust/ReliabilityCard')); // Vetting Trust T15: the reliability record
 
 const TYPES = [['full_time', 'Full-time'], ['internship', 'Internship'], ['part_time', 'Part-time'], ['contract', 'Contract']];
 const day = (ms) => new Date(ms).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
@@ -48,7 +54,7 @@ function PayHint({ cities }) {
 }
 
 export default function MeHire() {
-  const vet = useVettingOn(); // Vetting V2 wording only for people who get it (Admin → Skill checks → Launch)
+  const vet = useVettingOn(); // Vetting V2 wording only for people who get it (Admin -> Skill checks -> Launch)
   const toast = useToast();
   const [s, setS] = useState(null);
   const [f, setF] = useState(null);
@@ -84,7 +90,7 @@ export default function MeHire() {
       <MeHead title="Ready to join" sub="Tell companies hiring now that you can start, and they can invite you to an interview." />
       <section className="mcard mcard-accent" aria-labelledby="hire-status-h" data-testid="hire-status">
         <div className="mhire-status">
-          <span className={`mhire-badge ${ring}`} aria-hidden="true">{s.available ? '✓' : s.on ? (s.paused ? 'II' : '!') : '○'}</span>
+          <span className={`mhire-badge ${ring}`} aria-hidden="true">{s.available ? <IcCheck size={22} /> : s.on ? (s.paused ? <IcPause size={22} /> : '!') : <IcMinus size={22} />}</span>
           <div className="stack g8" style={{ minWidth: 0 }}>
             <div className="mrow"><h2 id="hire-status-h" className="mcard-title">Status</h2><span className={`badge ${tone}`} data-testid="hire-badge">{s.available ? 'Visible' : s.on ? (s.paused ? 'Paused' : 'Not visible') : 'Off'}</span></div>
             <p className="mhire-line" data-testid="hire-line">{hireLine(s)}</p>
@@ -97,7 +103,7 @@ export default function MeHire() {
           </div>
         </div>
         <div className="mgrid" style={{ gap: 12 }}>
-          <p className="xs muted" style={{ margin: 0 }}>🔒 Your phone number and email are never shown to a company until you accept its invite.</p>
+          <p className="xs muted" style={{ margin: 0 }}><IcLock size={14} /> Your phone number and email are never shown to a company until you accept its invite.</p>
           {vet
             ? <p className="small" style={{ margin: 0 }}>Stand out: <a href="/me/skill-checks" data-testid="hire-skill-link">get a skill verified</a> (a 15-minute test and a short practical task). Companies hiring now see the badge.</p>
             : <p className="small" style={{ margin: 0 }}>Stand out: take a 10-minute <a href="/me/skill-checks" data-testid="hire-skill-link">skill check</a> and choose to show the score.</p>}
@@ -106,6 +112,7 @@ export default function MeHire() {
       <Offers />
       <Invites />
       <Slots />
+      <TrustReliability />
       <div className="mgrid-2">
         <form className="mcard" onSubmit={(e) => { e.preventDefault(); save(true); }} aria-label="Ready to join details" data-testid="hire-form">
           <FieldGroup title="When you can start">
@@ -139,9 +146,9 @@ export default function MeHire() {
           </StickyBar>
         </form>
         <div className="mstack">
-          <MeCard title="Your checklist" sub="What companies hiring now look at first." icon="✓" tone="flat">
+          <MeCard title="Your checklist" sub="What companies hiring now look at first." icon={<IcCheckCircle />} tone="flat">
             <ul className="mhire-check" aria-label="Your checklist">
-              {ready.map(([l, ok]) => <li key={l}><span className={`ok ${ok ? '' : 'no'}`} aria-hidden="true">{ok ? '✓' : '·'}</span>{l}<span className="sr-only">{ok ? ': done' : ': not yet'}</span></li>)}
+              {ready.map(([l, ok]) => <li key={l}><span className={`ok ${ok ? '' : 'no'}`} aria-hidden="true">{ok ? <IcCheck size={14} /> : '·'}</span>{l}<span className="sr-only">{ok ? ': done' : ': not yet'}</span></li>)}
             </ul>
             <Bar label="Ready" value={ready.filter((x) => x[1]).length} max={ready.length} tone="ok" />
           </MeCard>
@@ -163,11 +170,17 @@ const STATE = { sent: 'Waiting for your answer', accepted: 'Accepted: the compan
 
 /** Invites from companies hiring now (H2): Accept shares the email and phone with that company; Not interested asks
  * for a reason (no pop-up: the reasons open under the invite). */
+function TrustReliability() {
+  const trust = useTrustOn();
+  return trust ? <Suspense fallback={null}><ReliabilityCard /></Suspense> : null;
+}
+
 export function Invites() {
   const toast = useToast();
   const [list, setList] = useState(null);
   const [why, setWhy] = useState({});
   const [err, setErr] = useState('');
+  const trust = useTrustOn();
   useEffect(() => { http('/api/me/hire/invites').then(setList, () => setList([])); }, []);
   if (!list || !list.length) return null;
   const answer = async (i, a, reason) => {
@@ -181,7 +194,8 @@ export function Invites() {
   };
   return (
     <section id="invites" className="mcard" aria-labelledby="hire-inv-h" data-testid="hire-invites">
-      <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true">✉</span><span className="mcard-ht"><h2 id="hire-inv-h" className="mcard-title">Invites from companies hiring now</h2><span className="mcard-sub">Accept to share your email and phone with that company only.</span></span></header>
+      <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true"><IcMail /></span><span className="mcard-ht"><h2 id="hire-inv-h" className="mcard-title">Invites from companies hiring now</h2><span className="mcard-sub">Accept to share your email and phone with that company only.</span></span></header>
+      {trust && <Suspense fallback={null}><HireSafety promise /></Suspense>}
       {err && <p className="error" role="alert" style={{ margin: 0 }}>{err}</p>}
       <ul className="mgrid" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
         {list.map((i) => (
@@ -205,6 +219,7 @@ export function Invites() {
               )
             ) : <span className={`mchip ${i.status === 'accepted' ? 'mchip-ok' : 'mchip-neutral'}`} style={{ alignSelf: 'flex-start', maxWidth: '100%', whiteSpace: 'normal' }} data-testid="hire-invite-state">{i.status === 'sent' ? 'This job is closed' : STATE[i.status]}</span>}
             {i.status === 'sent' && <span className="xs muted">Accepting shares your email and phone with {i.company} only.</span>}
+            {trust && <Suspense fallback={null}><HireSafety context="invite" id={i.id} companyId={i.companyId} /></Suspense>}
           </li>
         ))}
       </ul>
@@ -230,7 +245,7 @@ export function Slots() {
   };
   return (
     <section className="mcard" aria-labelledby="hire-slots-h" data-testid="hire-slots">
-      <header className="mcard-h"><span className="mcard-ic blue" aria-hidden="true">◷</span><span className="mcard-ht"><h2 id="hire-slots-h" className="mcard-title">Pick your interview time</h2><span className="mcard-sub">Reminders come 1 day and 1 hour before. Times are India time (IST).</span></span></header>
+      <header className="mcard-h"><span className="mcard-ic blue" aria-hidden="true"><IcClock /></span><span className="mcard-ht"><h2 id="hire-slots-h" className="mcard-title">Pick your interview time</h2><span className="mcard-sub">Reminders come 1 day and 1 hour before. Times are India time (IST).</span></span></header>
       {err && <p className="error" role="alert" style={{ margin: 0 }}>{err}</p>}
       {list.map((j) => (
         <div key={j.jobId} className="mhire-offer" data-testid="hire-slot-job">
@@ -271,7 +286,11 @@ export function Offers() {
   const [f, setF] = useState({});
   const [err, setErr] = useState('');
   const load = () => http('/api/me/hire/offers').then(setList, () => setList([]));
-  useEffect(() => { load(); }, []);
+  const [face, setFace] = useState(null); // Vetting Trust T3: joining-day check state (only when Trust is on)
+  const [faceFor, setFaceFor] = useState(null);
+  const trust = useTrustOn(); // Vetting Trust T4
+  const loadFace = () => trustOn().then((on) => (on ? http('/api/me/trust/face').then(setFace, () => setFace(null)) : null));
+  useEffect(() => { load(); loadFace(); }, []);
   if (!list || !list.length) return null;
   const v = (id) => f[id] || { name: '', agree: false, reason: '', mode: '' };
   const put = (id, x) => setF({ ...f, [id]: { ...v(id), ...x } });
@@ -282,13 +301,15 @@ export function Offers() {
   const today = new Date().toISOString().slice(0, 10);
   return (
     <section id="offers" className="mcard mcard-ok" aria-labelledby="hire-offers-h" data-testid="hire-offers">
-      <header className="mcard-h"><span className="mcard-ic teal" aria-hidden="true">★</span><span className="mcard-ht"><h2 id="hire-offers-h" className="mcard-title">Your offers</h2><span className="mcard-sub">Read the letter, then accept or decline. The company is told at once.</span></span></header>
+      <header className="mcard-h"><span className="mcard-ic teal" aria-hidden="true"><IcStar /></span><span className="mcard-ht"><h2 id="hire-offers-h" className="mcard-title">Your offers</h2><span className="mcard-sub">Read the letter, then accept or decline. The company is told at once.</span></span></header>
+      {trust && <Suspense fallback={null}><HireSafety promise /></Suspense>}
       {err && <p className="error" role="alert" style={{ margin: 0 }}>{err}</p>}
       {list.map((o) => (
         <article key={o.id} className="mhire-offer" data-testid="hire-offer">
           <div className="mhire-offer-top"><span className="mjob-top"><span className="mavatar" aria-hidden="true">{(o.company || '?').slice(0, 1).toUpperCase()}</span><strong style={{ overflowWrap: 'anywhere' }}>{o.title} · {o.company}</strong></span>{o.status !== 'sent' && <span className={`mchip ${['accepted', 'joined'].includes(o.status) ? 'mchip-ok' : 'mchip-neutral'}`} data-testid="hire-offer-state">{OFFER_STATE[o.status]}</span>}</div>
           <p className="mhire-letter" data-testid="hire-offer-letter">{o.letter}</p>
           <a className="btn btn-ghost btn-sm" style={{ alignSelf: 'flex-start' }} href={`${API_BASE}/api/me/hire/offers/${o.id}/pdf`} download="offer.pdf">Download PDF</a>
+          {trust && <Suspense fallback={null}><HireSafety context="offer" id={o.id} companyId={o.companyId} /></Suspense>}
           {o.status === 'sent' && (v(o.id).mode === 'decline' ? (
             <div className="stack g8">
               <label className="field"><span className="label">Why not? (optional, the company sees it)</span><input className="input" maxLength={300} value={v(o.id).reason} onChange={(e) => put(o.id, { reason: e.target.value })} /></label>
@@ -305,6 +326,14 @@ export function Offers() {
               <span className="xs muted">{o.notESign}</span>
             </div>
           ))}
+          {face?.provider?.ready && face.joining.some((j) => j.offerId === o.id) && (face.state.continuity?.offerId === o.id && face.state.continuity.status === 'same'
+            ? <span className="mchip mchip-ok" style={{ alignSelf: 'flex-start' }} data-testid="hire-offer-same"><IcCheck size={14} /> Same person at joining: confirmed</span>
+            : (
+              <span className="row g8" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
+                <button type="button" className="btn btn-outline btn-sm" style={{ minHeight: 44 }} onClick={() => setFaceFor(o.id)} data-testid="hire-offer-face">Joining-day selfie check</button>
+                <span className="xs muted">A quick live selfie to confirm it’s the same person who did the interview. Your photos aren’t kept.</span>
+              </span>
+            ))}
           {o.status === 'accepted' && (v(o.id).mode === 'drop' ? (
             <div className="stack g8">
               <label className="field"><span className="label">Why can’t you join? (the company sees it)</span><input className="input" maxLength={300} value={v(o.id).reason} onChange={(e) => put(o.id, { reason: e.target.value })} data-testid="hire-offer-drop-reason" /></label>
@@ -320,6 +349,7 @@ export function Offers() {
           ))}
         </article>
       ))}
+      {faceFor && <Suspense fallback={null}><FaceCheck mode="joining" offerId={faceFor} onClose={() => { setFaceFor(null); loadFace(); }} onDone={() => { setFaceFor(null); loadFace(); }} /></Suspense>}
     </section>
   );
 }
@@ -348,7 +378,7 @@ export function HireCard() {
   const still = async () => { try { setS(await http('/api/me/hire/confirm', { method: 'POST' })); } catch { /* stays */ } };
   return (
     <section className="mcard" style={{ flex: '1 1 300px' }} aria-labelledby="hire-card-h" data-testid="hire-card">
-      <header className="mcard-h"><span className="mcard-ic teal" aria-hidden="true">⚡</span><span className="mcard-ht"><h2 id="hire-card-h" className="mcard-title">Ready to join</h2></span></header>
+      <header className="mcard-h"><span className="mcard-ic teal" aria-hidden="true"><IcBolt /></span><span className="mcard-ht"><h2 id="hire-card-h" className="mcard-title">Ready to join</h2></span></header>
       <span className="small" data-testid="hire-card-line">{hireLine(s)}</span>
       <span className="row g8" style={{ flexWrap: 'wrap' }}>
         {s.on && !s.paused && (s.due || s.stale) && <button type="button" className="btn btn-signal" onClick={still} data-testid="hire-card-still">Still ready</button>}

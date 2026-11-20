@@ -12,6 +12,7 @@ import { lazyRetry } from '../lib/chunks';
 import { track } from '../lib/track';
 import { TEMPLATE_COUNT } from './home/templateMeta';
 import '../styles/home.css';
+import { IcBolt, IcBriefcase, IcBuilding, IcCamera, IcEdit, IcFile, IcLink, IcUser } from '../components/icons';
 
 const HomeMore = lazy(lazyRetry(() => import('./home/HomeMore')));
 const reduced = () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
@@ -43,12 +44,12 @@ function HeroSample({ t }) {
   );
 }
 
-const JOBS = [['board', '/jobs', '💼'], ['auto', '/me/auto-apply', '⚡'], ['simple', '/me/simple', '🙂'], ['companies', '/for-companies', '🏢']];
+const JOBS = [['board', '/jobs', <IcBriefcase key="i" size={22} />], ['auto', '/me/auto-apply', <IcBolt key="i" size={22} />], ['simple', '/me/simple', <IcUser key="i" size={22} />], ['companies', '/for-companies', <IcBuilding key="i" size={22} />]];
 const START = [
-  ['resume', 'start_resume', '📄'],
-  ['papers', 'start_papers', '📷', 'photos'],
-  ['nothing', 'start_nothing', '✏️', 'scratch'],
-  ['linkedin', 'start_linkedin', '🔗', 'linkedin'],
+  ['resume', 'start_resume', <IcFile key="i" size={22} />],
+  ['papers', 'start_papers', <IcCamera key="i" size={22} />, 'photos'],
+  ['nothing', 'start_nothing', <IcEdit key="i" size={22} />, 'scratch'],
+  ['linkedin', 'start_linkedin', <IcLink key="i" size={22} />, 'linkedin'],
 ];
 
 export default function Home() {

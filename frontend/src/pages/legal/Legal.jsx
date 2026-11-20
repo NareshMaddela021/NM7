@@ -1,6 +1,6 @@
 // Legal pages: Terms, Privacy, Refunds & cancellation, Delivery, Expert terms, Contact.
-// DRAFT wording for a lawyer to review. Business details come from src/lib/legal.js; a sentence whose detail is
-// still empty is left out. Lines starting "?? " are business decisions to confirm (tagged in the preview only).
+// Plain wording; a lawyer may still review it. Business details come from src/lib/legal.js; a sentence whose detail
+// is still empty is left out. Lines starting "?? " are business decisions to confirm (tagged in the preview only).
 import { PageArt } from '../../components/PageHero';
 import { Link, useSearchParams } from 'react-router-dom';
 import JobRemovalForm from './JobRemovalForm';
@@ -17,21 +17,25 @@ function T({ s }) {
   return <>{confirm && PREVIEW && <span className="badge b-warning" style={{ marginRight: 6, fontSize: 11 }}>To confirm</span>}{confirm ? s.slice(3) : s}</>;
 }
 
+/** Round W: the page is full width; on a wide screen "On this page" stays in view in a left column and the text keeps a
+ *  readable line (about 72 characters); on a phone the list sits above the text. */
 function Page({ title, intro, sections }) {
   return (
     <>
       <Header />
-      <main id="main" className="container stack g20 legal" style={{ maxWidth: 820, padding: '32px 20px 64px' }}>
+      <main id="main" className="app-wide stack g20 legal legal-page">
         <div className="ph-row"><div className="stack g8">
           <span className="kicker">Last updated · {L.updated}</span>
           <h1 className="display" style={{ fontSize: 36 }}>{title}</h1>
           {intro && <p className="lead" style={{ fontSize: 17, margin: 0 }}><T s={intro} /></p>}
           {PREVIEW && <div className="well small" style={{ borderLeft: '3px solid var(--warning)' }}><strong>Draft for review.</strong> Have a lawyer check this page before going live. Still empty in src/lib/legal.js (those lines are hidden): {missingLegal().join(', ') || 'nothing'}.</div>}
         </div><PageArt shape="resume" /></div>
-        <nav aria-label="On this page" className="card stack g4 small" style={{ padding: 16 }}>
+        <div className="legal-body">
+        <nav aria-label="On this page" className="card stack g4 small legal-toc" style={{ padding: 16 }}>
           <strong className="xs muted">ON THIS PAGE</strong>
           {sections.filter(([, body]) => body.length).map(([h], i) => <a key={h} href={`#s${i + 1}`} onClick={(e) => { e.preventDefault(); document.getElementById(`s${i + 1}`)?.scrollIntoView({ behavior: 'smooth' }); }}>{i + 1}. {h}</a>)}
         </nav>
+        <div className="stack g20 legal-text">
         {sections.filter(([, body]) => body.length).map(([h, body], i) => (
           <section key={h} id={`s${i + 1}`} className="stack g8" style={{ scrollMarginTop: 90 }}>
             <h2 style={{ fontSize: 21 }}>{i + 1}. {h}</h2>
@@ -41,6 +45,8 @@ function Page({ title, intro, sections }) {
           </section>
         ))}
         <p className="small muted" style={{ margin: 0 }}>Questions? Write to <a href={`mailto:${L.email}`}>{L.email}</a> or see <Link to="/contact">Contact us</Link>.</p>
+        </div>
+        </div>
       </main>
       <SiteFooter />
     </>
@@ -56,7 +62,7 @@ const grievance = [
 const jobRemoval = <>Some jobs on Nm7 come from companies’ own careers pages. A company can ask us to remove a job at <Link to="/contact?topic=job-removal">nm7.si/contact?topic=job-removal</Link>; we remove it, usually within 2 working days.</>;
 
 export function Terms() {
-  return <Page title="Terms of Service" intro={`These terms are an agreement between you and ${L.company}${L.entity ? ` (${L.entity})` : ''}, which runs Nm7 at ${L.site}. By creating an account or buying a service you accept them.`} sections={[
+  return <Page title="Terms of Service" intro={`These terms are an agreement between you and ${L.company}, which runs Nm7 at ${L.site}. By creating an account or buying a service you accept them.`} sections={[
     ['Who we are', [`${L.company} runs ${L.brands}. Nm7 helps job seekers improve their resumes with free tools, paid tools and verified human experts.${L.address ? ` Registered office: ${L.address}.` : ''}`]],
     ['Who can use Nm7', ['You must be 18 or older. If you are younger, a parent or guardian must agree to these terms and to our Privacy Policy for you.', 'Give true details when you sign up, keep your password private and tell us at once if someone else uses your account.']],
     ['Our services', [[
@@ -66,7 +72,7 @@ export function Terms() {
       `${PLANS.launch.name} — ${inr(PLANS.launch.price)}: ${PLANS.launch.blurb}.`,
       `Add-ons: ${Object.values(ADDONS).map((a) => `${a.name} (${inr(a.price)})`).join(', ')}.`,
     ], 'What each plan includes is shown on the page where you buy it. That description is part of these terms.']],
-    ['Prices and payment', [`Prices are in Indian rupees and include GST. Payments are processed by ${PROMISES.paymentProvider}; we never see or store your full card or bank details. A GST invoice is emailed and kept in your dashboard.`, 'Upgrades charge only the difference between plans.']],
+    ['Prices and payment', [`Prices are in Indian rupees and include GST. You pay through ${PROMISES.paymentProvider} by UPI, card, netbanking or wallet; we never see your card, UPI or bank details.`, 'A GST invoice is emailed to you after each payment and stays in My orders. Upgrades charge only the difference between plans.']],
     ['How expert orders work', [[
       `After payment, a verified expert in your field accepts the order and you answer a few intake questions.`,
       `Your first draft arrives within ${PROMISES.delivery} of completing the intake questions.`,
@@ -94,13 +100,13 @@ export function Privacy() {
       'Account details: name, email, mobile number, password (stored encrypted).',
       'Resume content you add or upload — this can include education, work history, photo, date of birth, family names and address if you choose to add them.',
       'Order details: plan, intake answers, messages with your expert, drafts and ratings.',
-      `Payment records: amount, date, ${PROMISES.paymentProvider} payment ID and GST invoice. Card, UPI and bank details are handled by ${PROMISES.paymentProvider}, not by us.`,
+      `Payment records: amount, date, ${PROMISES.paymentProvider} payment ID and GST invoice. ${PROMISES.paymentProvider} processes payments; Nm7 never sees your card, UPI or bank details.`,
       'Usage data: pages visited, device and browser type, and error logs, to keep the site working.',
     ]]],
-    ['Why we use it', [['To provide what you ask for: scans, the builder, expert orders, downloads and share links.', 'To match you with an expert and let them work on your order.', 'To take payments, send invoices and process refunds.', 'To send order updates on WhatsApp, SMS and email (you choose which in Settings; order emails stay on because they carry receipts).', 'To prevent fraud and keep accounts secure, and to meet legal and tax duties.'], 'We use your data for these purposes because you consent to them when you sign up or place an order, or because the law requires it. You can withdraw consent any time — some services may then stop working.']],
+    ['Why we use it', [['To provide what you ask for: scans, the builder, expert orders, downloads and share links.', 'To match you with an expert and let them work on your order.', 'To take payments, send invoices and process refunds.', 'To send order updates by email (order emails stay on because they carry invoices), and on WhatsApp or SMS if you turn them on in Settings.', 'To prevent fraud and keep accounts secure, and to meet legal and tax duties.'], 'We use your data for these purposes because you consent to them when you sign up or place an order, or because the law requires it. You can withdraw consent any time — some services may then stop working.']],
     ['Who we share it with', [['Your assigned expert — only for the order they work on.', `${PROMISES.paymentProvider} — to take payments and refunds.`, 'Messaging providers that deliver our WhatsApp, SMS and email.', `Cloud hosting and storage providers that run Nm7${L.hosting ? ` (${L.hosting})` : ''}.`, 'Authorities, when the law requires it.'], 'We do not sell your personal data and we do not share it for advertising.']],
     ['How long we keep it', [[`Files your expert creates: ${PROMISES.retentionDays} days after delivery, then deleted.`, 'Your own resumes, cover letters and applications: until you delete them or your account.', 'Invoices and payment records: as long as Indian tax law requires, even after you delete your account.', L.supportRetention && `Support messages: ${L.supportRetention}.`].filter(Boolean)]],
-    ['Your rights', [['See a summary of your data and download a copy (Profile & settings → Download my data).', 'Correct or update your data.', 'Erase your data (Profile & settings → Delete account).', 'Withdraw consent.', 'Nominate someone to exercise these rights if you cannot.', 'Complain to our Grievance Officer, and then to the Data Protection Board of India.']]],
+    ['Your rights', [['See a summary of your data and download a copy (Profile & settings > Download my data).', 'Correct or update your data.', 'Erase your data (Profile & settings > Delete account).', 'Withdraw consent.', 'Nominate someone to exercise these rights if you cannot.', 'Complain to our Grievance Officer, and then to the Data Protection Board of India.']]],
     ['Children', ['Nm7 is for people 18 and older. If you are under 18, we need verifiable consent from a parent or guardian before we process your data.']],
     ['Security', ['We use encryption in transit (HTTPS), encrypted passwords, two-step login for staff, access only on a need-to-know basis, and audit logs of admin actions. No system is perfectly secure; if a breach affects you, we will tell you and the authorities as the law requires.']],
     ['Cookies and local storage', ['We use essential cookies and browser storage to keep you signed in and to save drafts on your device. We do not use advertising cookies.']],
@@ -112,22 +118,21 @@ export function Privacy() {
 export function RefundPolicy() {
   return <Page title="Refund & Cancellation Policy" intro="Our promise is simple: if we don’t deliver what you paid for, you get your money back." sections={[
     ['Late delivery — automatic full refund', [`If your first draft from an expert doesn’t arrive within ${PROMISES.delivery} of completing the intake questions, you get a full refund automatically. You don’t need to ask.`]],
-    ['Not happy with the quality — re-do first', ['Tell us what is wrong from your order page. Your expert re-works it free, using your comments.', 'If the re-do still doesn’t meet the standard described for your plan, ask for a refund from the order page. Our team reviews it within 24 hours and replies by WhatsApp and email.']],
-    ['Cancelling an order', ['?? Before an expert accepts your order: cancel from your order page for a full refund.', '?? After an expert has started: please use the re-do and refund steps above.']],
-    [`${PLANS.diy.name} (${inr(PLANS.diy.price)})`, [`?? The DIY plan unlocks tools straight away, so it is refunded only if a problem on our side stops you using them and we can’t fix it${L.diyFixTime ? ` within ${L.diyFixTime}` : ''}.`]],
-    ['Add-ons and upgrades', [`?? Express delivery (${inr(ADDONS.express.price)}): refunded if your first draft misses the 24-hour promise.`, 'Upgrades and other add-ons follow the same rules as the order they were added to.']],
-    ['How and when you get the money', [`Refunds go back to the account or card you paid from, through ${PROMISES.paymentProvider}. They usually reach you in ${PROMISES.refundDays} after approval. You can see the status under Payments & refunds.`]],
-    ['Paid on WhatsApp', ['If you paid by UPI through the Nm7 WhatsApp chat, the refund goes back to the same UPI ID or bank account you paid from, within 5–7 working days after approval.', 'For WhatsApp payments, delivery times are counted from when we confirm your payment.']],
-    ['Contact', [`Write to ${L.email} with your order number, or use Help → Raise an issue in your dashboard.`, ...grievance]],
+    ['Not happy with the quality — re-do first', ['Tell us what is wrong from your order page. Your expert re-works it free, using your comments.', 'If the re-do still doesn’t meet the standard described for your plan, ask for a refund from the order page. Our team reviews it within 24 hours and replies by email.']],
+    ['Cancelling an order', ['Before an expert accepts your order: cancel from your order page for a full refund.', 'After an expert has started: please use the re-do and refund steps above.']],
+    [`${PLANS.diy.name} (${inr(PLANS.diy.price)})`, [`The DIY plan unlocks tools straight away, so it is refunded only if a problem on our side stops you using them and we can’t fix it${L.diyFixTime ? ` within ${L.diyFixTime}` : ''}.`]],
+    ['Add-ons and upgrades', [`Express delivery (${inr(ADDONS.express.price)}): refunded if your first draft misses the 24-hour promise.`, 'Upgrades and other add-ons follow the same rules as the order they were added to.']],
+    ['How and when you get the money', [`Refunds go back to your original payment method (the UPI app, card, bank account or wallet you paid with) through ${PROMISES.paymentProvider}. They usually reach you in ${PROMISES.refundDays} after approval.`, 'You can see the refund status in My orders.']],
+    ['Contact', [`Write to ${L.email} with your order number, or use Help > Raise an issue in your dashboard.`, ...grievance]],
   ]} />;
 }
 
 export function DeliveryPolicy() {
   return <Page title="Delivery Policy" intro="Nm7 sells digital services. Nothing is shipped to a physical address." sections={[
-    ['How you receive your order', ['Everything is delivered in your dashboard on Nm7, and we notify you by WhatsApp and email. Final resumes can be downloaded as PDF and Word and stay in My resumes.']],
-    ['Timelines', [[`${PLANS.diy.name}: tools unlock immediately after payment.`, `${PLANS.expert.name} and ${PLANS.launch.name}: first draft within ${PROMISES.delivery} of completing the intake questions; revisions usually within 24 hours of your comments.`, `${ADDONS.express.name}: first draft within 24 hours of buying it.`, `Mentor calls (${PLANS.launch.name}): booked at a time you pick from three your expert offers.`, 'Paid by UPI through WhatsApp: every time above is counted from when we confirm your payment.']]],
+    ['How you receive your order', ['Everything is delivered digitally: in your dashboard on Nm7, with an email when something is ready. Final resumes download as PDF and Word and stay in My resumes.']],
+    ['Timelines', [[`${PLANS.diy.name}, packs and the annual pass: unlocked as soon as the payment is confirmed.`, `${PLANS.expert.name} and ${PLANS.launch.name}: first draft within ${PROMISES.delivery} of completing the intake questions; revisions usually within 24 hours of your comments.`, `${ADDONS.express.name}: first draft within 24 hours of buying it.`, `Mentor calls (${PLANS.launch.name}): booked at a time you pick from three your expert offers.`]]],
     ['If we are late', [<>You get a full refund automatically — see our <Link key="r" to="/refund-policy">Refund &amp; Cancellation Policy</Link>.</>]],
-    ['Contact', [join(' · ', L.email, L.phone, L.hours)]],
+    ['Contact', [join(' · ', L.email, L.hours)]],
   ]} />;
 }
 
@@ -139,7 +144,7 @@ export function ExpertTerms() {
     ['Confidentiality', ['Customer resumes and messages are confidential. Do not copy, keep, share or reuse them, and do not contact customers outside Nm7.']],
     ['Fees and payouts', [[`For each order, ${L.company} keeps a platform fee of ${FEES.platformPct}% of the order price, plus GST (${FEES.gstPct}%) on that fee, plus payment transaction charges (about ${FEES.txPct}%).`, `TDS is deducted where Indian tax law requires it${L.tdsRate ? ` (${L.tdsRate})` : ''}.`, `Your earning becomes available when the customer approves the order, or automatically ${PROMISES.autoApproveDays} after delivery.`, `You can withdraw any time; money reaches your bank or UPI in ${PROMISES.withdrawalDays}.`, 'If an order is refunded because of late delivery or a quality failure on your side, you are not paid for it.']]],
     ['Ratings and removal', ['Customers rate every order. We may pause or remove experts with repeated late deliveries, low ratings or any breach of these terms.']],
-    ['Contact', [join(' · ', L.email, L.phone)]],
+    ['Contact', [L.email]],
   ]} />;
 }
 
@@ -156,14 +161,13 @@ export function Contact() {
           <section className="card stack g8" style={{ flex: '1 1 300px' }}>
             <strong>Support</strong>
             <span>Email: <a href={`mailto:${L.email}`}>{L.email}</a></span>
-            {L.phone && <span>Phone / WhatsApp: {L.phone}</span>}
             <span className="small muted">{L.hours}</span>
-            <span className="small">Have an order? The fastest way is <Link to="/me/help">Help → Raise an issue</Link> in your dashboard.</span>
+            <span className="small">Have an order? The fastest way is <Link to="/me/help">Help, then Raise an issue</Link> in your dashboard.</span>
           </section>
           <section className="card stack g8" style={{ flex: '1 1 300px' }}>
             <strong>Company</strong>
-            <span>{join(' · ', L.company, L.entity)}</span>
-            <span>{L.address || L.city}</span>
+            <span>{L.company}</span>
+            <span>{L.city}</span>
             <strong style={{ marginTop: 8 }}>{L.grievance.name ? 'Grievance Officer' : 'Complaints'}</strong>
             {L.grievance.name
               ? <span>{join(' · ', L.grievance.name, L.grievance.phone)}{(L.grievance.email || L.email) && <> · <a href={`mailto:${L.grievance.email || L.email}`}>{L.grievance.email || L.email}</a></>}</span>

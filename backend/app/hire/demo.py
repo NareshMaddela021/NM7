@@ -15,7 +15,7 @@ from datetime import timedelta
 from typing import Any
 
 from bson import ObjectId
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Response
 
 from app.admin.deps import AdminAuth
 from app.audit import audit
@@ -58,20 +58,23 @@ EDU = {"10th": "SSC (10th)", "12th": "Intermediate (12th)", "iti": "ITI", "diplo
 
 
 async def remove(db) -> None:
-    uids = [
-        u["_id"] async for u in db[USERS].find({"email": {"$regex": rf"@{DOMAIN.replace('.', r'\.')}$"}}, {"_id": 1})
-    ]
+    """Every record of the 30 made-up people, found by their fixed ids (hire-demo-01...30), so a reset is clean even
+    if another demo's reset already deleted their user records."""
+    uids = [f"hire-demo-{i:02d}" for i in range(1, 31)]
+    mine = {"$regex": "^hire-demo-"}
     for coll, field in (
         (RESUMES, "user_id"),
         (SKILL_ATTEMPTS, "user_id"),
         (HIRE_EVENTS, "user_id"),
         (APPLICATIONS, "user_id"),
     ):
-        await db[coll].delete_many({field: {"$in": uids}})
-    await db[HIRE_PROFILES].delete_many({"_id": {"$in": uids}})
+        await db[coll].delete_many({field: mine})
+    await db[HIRE_PROFILES].delete_many({"_id": mine})
     for coll in (HIRE_INVITES, HIRE_SLOTS, HIRE_OFFERS, HIRE_WALKINS):
         await db[coll].delete_many({"company_id": company_demo.COMPANY_ID})
-    await db[USERS].delete_many({"_id": {"$in": uids}, "demo": True})
+    await db[USERS].delete_many(
+        {"$or": [{"_id": {"$in": uids}}, {"email": {"$regex": r"@hire-demo\.nm7\.invalid$"}}], "demo": True}
+    )
 
 
 def _resume(name: str, city: str, tpl: dict[str, Any], years: int) -> dict[str, Any]:
@@ -192,14 +195,20 @@ async def create(db) -> dict[str, Any]:
 
 
 @router.post("/open")
-async def open_hire_demo(request: Request, db: DB, auth: AdminAuth("companies")) -> dict[str, Any]:
+async def open_hire_demo(request: Request, response: Response, db: DB, auth: AdminAuth("companies")) -> dict[str, Any]:
     from app.orgs.recruiter_account import issue_session
 
     await rate_limit.check(db, f"demo-company:{auth.user.id}", [(10, timedelta(hours=1))])
     await rate_limit.record(db, f"demo-company:{auth.user.id}")
-    out = await create(db)
+    from app.core.heavy import heavy_or_busy
+
+    async with heavy_or_busy(db):  # one heavy job at a time (app/core/heavy.py)
+        out = await create(db)
     session = await issue_session(db, company_demo.MAIN[0], company_demo.MAIN[1], request=request)
     await audit(
         db, auth.user.id, "demo_company_hire_open", target=company_demo.COMPANY_ID, data=out, ip=client_ip(request)
     )
+    from app.admin.views import company_view
+
+    await company_view(db, request, response, auth, session, "/company#hire")  # the admin stays signed in; banner on
     return {"session": session, **out}

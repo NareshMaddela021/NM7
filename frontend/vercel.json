@@ -5,6 +5,13 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "cleanUrls": false,
+  "redirects": [
+    {
+      "source": "/expert/signup",
+      "destination": "/signup?role=expert",
+      "permanent": false
+    }
+  ],
   "rewrites": [
     {
       "source": "/sitemap-jobs.xml",
@@ -84,6 +91,17 @@
     },
     {
       "source": "/jobs/:slug",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(facebookexternalhit|Facebot|Twitterbot|LinkedInBot|WhatsApp|TelegramBot|Slackbot|Discordbot|Pinterest|redditbot|SkypeUriPreview|vkShare|Embedly|Iframely|Mastodon|Snapchat|Viber|Bluesky|Cardyb).*"
+        }
+      ],
+      "destination": "https://nm7-api.onrender.com/api/jobs/:slug/preview"
+    },
+    {
+      "source": "/jobs/:slug",
       "destination": "/index.html"
     },
     {
@@ -111,7 +129,15 @@
       "destination": "/index.html"
     },
     {
-      "source": "/(scan|checkout|editor|login|signup|forgot-password|linkedin|stop-alerts|reference|checkin|status|accessibility|grievance|demo-student)",
+      "source": "/(scan|checkout|editor|login|signup|welcome|forgot-password|linkedin|stop-alerts|reference|checkin|status|accessibility|grievance|demo-student)",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/signup/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/start/:path*",
       "destination": "/index.html"
     },
     {
@@ -193,7 +219,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' https://checkout.razorpay.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://*.razorpay.com https://media.graphassets.com https://*.graphassets.com; connect-src 'self' https://ap-south-1.cdn.hygraph.com https://nm7-api.onrender.com https://nm7-api-staging.onrender.com https://api.nm7.si https://api.razorpay.com https://lumberjack.razorpay.com https://*.ingest.sentry.io https://*.ingest.de.sentry.io; frame-src https://api.razorpay.com https://checkout.razorpay.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+          "value": "default-src 'self'; script-src 'self' https://checkout.razorpay.com https://accounts.google.com/gsi/client; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://accounts.google.com/gsi/style; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https://*.razorpay.com https://media.graphassets.com https://*.graphassets.com; connect-src 'self' https://ap-south-1.cdn.hygraph.com https://nm7-api.onrender.com https://nm7-api-staging.onrender.com https://api.nm7.si https://api.razorpay.com https://lumberjack.razorpay.com https://*.ingest.sentry.io https://*.ingest.de.sentry.io https://accounts.google.com/gsi/; frame-src https://api.razorpay.com https://checkout.razorpay.com https://accounts.google.com/gsi/; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
         },
         {
           "key": "X-Frame-Options",
@@ -233,6 +259,15 @@
           "key": "Cache-Control",
           "value": "no-store"
         },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/start/(.*)",
+      "headers": [
         {
           "key": "X-Robots-Tag",
           "value": "noindex, nofollow"

@@ -321,4 +321,7 @@ async def hourly_if_due(db) -> dict[str, int]:
     d = await db[VETTING_DEMAND].find_one({"_id": "latest"}, {"at": 1})
     if d and d.get("at") and d["at"] > now() - timedelta(minutes=55):
         return {}
-    return await hourly(db)
+    from app.core.heavy import heavy_or_skip
+
+    async with heavy_or_skip(db) as ok:  # another heavy job running: try again on the next pass
+        return await hourly(db) if ok else {}

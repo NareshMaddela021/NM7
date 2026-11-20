@@ -19,7 +19,7 @@ function addSelfHosted(k) {
   el.textContent = face('normal', 400, 'normal') + face('normal', 700, 'bold') + face('italic', 400, 'italic');
   document.head.appendChild(el);
 }
-const loading = new Map(); // font key → promise that settles when its faces are ready (or failed)
+const loading = new Map(); // font key -> promise that settles when its faces are ready (or failed)
 const nameOf = (k) => SELF_HOSTED[k] || FAMILIES[k].split(':')[0].replace(/\+/g, ' ');
 const settle = (p, ms = 4000) => Promise.race([p, new Promise((r) => { setTimeout(r, ms); })]).catch(() => {});
 

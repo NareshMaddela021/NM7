@@ -4,6 +4,7 @@
 // live attendance, marking by hand, CSV; "My drive day" shows each student's own slot only.
 import { expect, test } from '@playwright/test';
 import { API, PASSWORD, adminLogin, email, login, seed } from './helpers.mjs';
+import { noSideScroll } from './college.mjs';
 
 const SIZES = [['desktop', { viewport: { width: 1280, height: 900 } }], ['phone', { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true }]];
 const call = (page, path, init = {}) => page.evaluate(async ([base, p, i]) => {
@@ -14,7 +15,6 @@ const call = (page, path, init = {}) => page.evaluate(async ([base, p, i]) => {
 }, [API, path, init]);
 const ist = (ms = 0) => new Date(Date.now() + 5.5 * 3600e3 + ms);
 const hhmm = (d) => d.toISOString().slice(11, 16);
-const noSideScroll = (page) => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1);
 
 async function student(browser, opts, code, label, i) {
   const ctx = await browser.newContext(opts);

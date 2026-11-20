@@ -109,7 +109,7 @@ export async function buildDocx({ data, design: ds, cover, photoPng }) {
   const nums = (t) => (ds.boldNumbers ? t.split(/(\s+)/).map((w) => (w ? run(w, { b: isNum(w) }) : '')).join('') : run(t));
   // **bold** words as bold runs (and numbers in templates like Impact); text without markers is unchanged
   const rich = (t) => (hasBold(t) ? parseBold(t).map((p) => (p.b ? run(p.t, { b: true }) : nums(p.t))).join('') : nums(stripBold(t)));
-  const bullet = ds.bullet === 'none' ? '' : ds.bullet === '▸' ? '›' : ds.bullet;
+  const bullet = ds.bullet === 'none' ? '' : ds.bullet === '\u25B8' ? '›' : ds.bullet;
 
   let extra = 0; // twips: the Academic template indents the bullets under each entry
   const line = (l) => {

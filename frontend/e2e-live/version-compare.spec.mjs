@@ -3,6 +3,7 @@
 // template and design changes listed on their own, "Restore this version" as before; stacked on a phone.
 import { expect, test } from '@playwright/test';
 import { API, PASSWORD, email, login, seed } from './helpers.mjs';
+import { noSideScroll } from './college.mjs';
 
 const SIZES = [['desktop', { viewport: { width: 1280, height: 900 } }], ['phone', { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true }]];
 const post = (page, path, body) => page.evaluate(async ([base, p, b]) => {
@@ -48,8 +49,8 @@ for (const [label, opts] of SIZES) {
       await expect(page.locator('#vc-left')).toHaveValue('v0');
       await expect(page.locator('#vc-right')).toHaveValue('current');
       await page.locator('#vc-left').selectOption('v1');
-      await expect(vc.getByTestId('vc-design')).toContainText('Font: source-sans-3 → lora');
-      await expect(vc.getByTestId('vc-design')).toContainText('Accent colour: #111827 → #1d4ed8');
+      await expect(vc.getByTestId('vc-design')).toContainText('Font: source-sans-3 to lora');
+      await expect(vc.getByTestId('vc-design')).toContainText('Accent colour: #111827 to #1d4ed8');
       const exp = vc.locator('[data-testid^="vc-section-"]').filter({ hasText: 'Answered support emails' });
       await expect(exp.locator('[data-change="removed"]')).toHaveText('Answered support emails');
       await expect(exp.locator('[data-change="added"]')).toHaveText('Trained 3 new interns');
@@ -65,7 +66,7 @@ for (const [label, opts] of SIZES) {
       // phone: one column, no sideways scrolling
       const cols = await vc.locator('.vc-grid').first().evaluate((el) => getComputedStyle(el).gridTemplateColumns.split(' ').length);
       expect(cols).toBe(label === 'phone' ? 1 : 2);
-      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
+      expect(await noSideScroll(page)).toBe(true);
       // restore stays as before
       await page.locator('#vc-left').selectOption('v1');
       await vc.getByRole('button', { name: 'Restore this version' }).click();

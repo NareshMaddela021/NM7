@@ -12,11 +12,12 @@ import { rich, translate } from '../../lib/i18n';
 import { ROLE_MAX, useFlow } from '../../lib/flow';
 import { ADDONS, PLANS, PROMISES, inr } from '../../lib/pricing';
 import { track } from '../../lib/track';
-import { usePayMode } from '../../lib/waPay';
+import { PAY_SOON, usePayMode } from '../../lib/payState';
 import { ORG_FAQ, PlansSkeleton, PlansTable, orgFaq, useOrgPlans } from '../org/OrgPlans';
 import { EXPERT_DEMO } from './expertDemo';
 import { EXAMPLES, bulletScore, improveBullet } from './lineFixer';
 import { TEMPLATES, TEMPLATE_COUNT } from './templateMeta';
+import { IcShield } from '../../components/icons';
 
 const MAX_MB = 5;
 /** "24–48" from "24–48 hours": the strings say "{h} hours" in each language. */
@@ -40,7 +41,7 @@ function LazyBlogStrip() {
 const reduced = () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 function Check({ color = 'var(--success)' }) { return <Icon name="check" size={16} stroke={2.6} color={color} />; }
 
-/** Tabs that work with the keyboard: ←/→ (and Home/End) move between them, the panel follows. */
+/** Tabs that work with the keyboard: <-/-> (and Home/End) move between them, the panel follows. */
 function useTabs(keys, initial) {
   const [cur, setCur] = useState(initial);
   const refs = useRef({});
@@ -98,10 +99,10 @@ function SpeakDemo({ t, lang }) {
       </div>
       <div className="hx-speak" role="img" aria-label={`Demo: the note “${note.note}” (${note.from}) becomes three English summaries to pick from`}>
         <div className="hx-note" aria-hidden="true">
-          <span className="xs muted" lang={lang}>🎙 {t('speak.note')} · {note.from}</span>
+          <span className="xs muted row g4" style={{ alignItems: 'center' }} lang={lang}><Icon name="mic" size={13} />{t('speak.note')} · {note.from}</span>
           <span className="hx-note-text">{note.note.slice(0, typed)}<i className="hx-caret" /></span>
         </div>
-        <span className="xs muted" aria-hidden="true" lang={lang}>↓ {t('speak.cards')}</span>
+        <span className="xs muted" aria-hidden="true" lang={lang}>{t('speak.cards')}</span>
         <div className="stack g8" aria-hidden="true">
           {note.cards.map(([label, text], i) => (
             <div key={label} className="hx-sum" data-on={shown > i}><span className="badge b-neutral">{label}</span><span className="small">{text}</span></div>
@@ -259,6 +260,7 @@ export function ScanBox({ scanError, t }) {
 
 function Expert({ goExpert, t }) {
   const [view, setView] = useState('before');
+  const off = usePayMode()?.mode === 'off'; // no Razorpay keys yet: no checkout
   const score = EXPERT_DEMO[view];
   return (
     <div className="hx-tool stack g12">
@@ -275,7 +277,8 @@ function Expert({ goExpert, t }) {
       <ul className="stack g4 small" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
         {[t('home.more.expert.p1'), t('home.more.expert.p2', { h: HOURS }), t('home.more.expert.p3'), t('home.more.expert.p4')].map((x) => <li key={x} className="row g8" style={{ flexWrap: 'nowrap' }}><Check />{x}</li>)}
       </ul>
-      <button type="button" className="btn btn-ink" onClick={goExpert}>{t('home.more.expert.cta', { price: inr(PLANS.expert.price) })}</button>
+      {off ? <span className="btn btn-outline" aria-disabled="true" data-testid="pay-soon" lang="en" style={{ opacity: 0.7, cursor: 'not-allowed' }}>{PAY_SOON}</span>
+        : <button type="button" className="btn btn-ink" onClick={goExpert}>{t('home.more.expert.cta', { price: inr(PLANS.expert.price) })}</button>}
     </div>
   );
 }
@@ -297,8 +300,9 @@ const FEATURES = [
 ];
 const PLAN_NAMES = { diy: 'Fix it yourself', expert: 'Expert rewrite', launch: 'Career Launch' }; // product names: not translated
 export function Pricing({ goPlan, t }) {
-  const pm = usePayMode();
   const [table, setTable] = useState(false);
+  const off = usePayMode()?.mode === 'off'; // no Razorpay keys yet: paid plans say "Payments coming soon", no checkout
+  const soon = (style) => <span className="btn btn-lg btn-outline" aria-disabled="true" data-testid="pay-soon" lang="en" style={{ ...style, opacity: 0.7, cursor: 'not-allowed' }}>{PAY_SOON}</span>;
   const plans = [
     ['diy', ['pricing.diy.1', 'pricing.diy.2', 'pricing.diy.3']],
     ['expert', ['home.more.expert.p1', 'pricing.expert.2', 'pricing.expert.3', 'pricing.expert.4']],
@@ -312,7 +316,6 @@ export function Pricing({ goPlan, t }) {
         <span className="h-eyebrow">{t('pricing.eyebrow')}</span>
         <h2 id="pricing-h" className="h-sec-title">{t('pricing.title')}</h2>
         <p className="small muted" style={{ margin: 0 }}>{t('pricing.sub')}</p>
-        {pm?.mode === 'whatsapp' && <p className="small" style={{ margin: 0 }} data-testid="home-wa-pay">{t('pricing.waPay')}</p>}
       </div>
       <div className="h-plans">
         {plans.map(([k, items]) => (
@@ -321,7 +324,8 @@ export function Pricing({ goPlan, t }) {
             <div className="stack g4"><strong style={{ fontSize: 20 }} lang="en">{PLAN_NAMES[k]}</strong><span className="small muted">{t(`pricing.${k}.tag`)}</span></div>
             <div className="row g8" style={{ alignItems: 'baseline' }}><span className="display" style={{ fontSize: 44 }}>{inr(PLANS[k].price)}</span><span className="small muted">{t('pricing.once')}</span></div>
             <ul>{items.map((x) => <li key={x}><Check />{t(x, { h: HOURS })}</li>)}</ul>
-            <button type="button" className={`btn btn-lg ${k === 'expert' ? 'btn-ink' : 'btn-outline'}`} style={{ marginTop: 'auto' }} onClick={() => goPlan(k)}>{t(`pricing.${k}.cta`)}</button>
+            {off && k !== 'diy' ? soon({ marginTop: 'auto' })
+              : <button type="button" className={`btn btn-lg ${k === 'expert' ? 'btn-ink' : 'btn-outline'}`} style={{ marginTop: 'auto' }} onClick={() => goPlan(k)}>{t(`pricing.${k}.cta`)}</button>}
           </div>
         ))}
       </div>
@@ -331,7 +335,7 @@ export function Pricing({ goPlan, t }) {
             <span className="row g8" style={{ alignItems: 'center', flexWrap: 'wrap' }}><strong>{t('pricing.pass.title', { price: inr(PLANS.annual_pass.price) })}</strong><span className="badge b-success">{t('pricing.pass.badge')}</span></span>
             <span className="small muted">{t('pricing.pass.text')}</span>
           </span>
-          <Link to="/me?pass=1" className="btn btn-ink">{t('pricing.pass.cta')}</Link>
+          {off ? soon() : <Link to="/me?pass=1" className="btn btn-ink">{t('pricing.pass.cta')}</Link>}
         </div>
       )}
       <div className="card row between g12" data-testid="home-linkedin-pack" style={{ alignItems: 'center', flexWrap: 'wrap' }}>
@@ -343,7 +347,7 @@ export function Pricing({ goPlan, t }) {
       </div>
       <div className="row between g16">
         <div className="row g12 well" style={{ flex: '1 1 420px', alignItems: 'center', flexWrap: 'nowrap', background: 'var(--successbg)' }}>
-          <span style={{ fontSize: 26 }} aria-hidden="true">🛡️</span>
+          <IcShield size={26} style={{ flex: 'none', color: 'var(--success)' }} />
           <span className="small"><strong>{t('pricing.promise.label')}</strong> {t('pricing.promise.text')} <Link to="/refund-policy" hrefLang="en">{t('pricing.refundLink')}</Link></span>
         </div>
         <button type="button" className="btn btn-ghost" aria-expanded={table} onClick={() => setTable(!table)}>{table ? t('pricing.hide') : t('pricing.compare')}</button>
@@ -413,7 +417,7 @@ export function OrgPlans({ t }) {
 }
 
 /* ---------- 12 · FAQ ---------- */
-/** The job seekers' FAQ (faq.seeker.1–8 in src/i18n/pages.json) in one language; tr = (key, values) → string. */
+/** The job seekers' FAQ (faq.seeker.1–8 in src/i18n/pages.json) in one language; tr = (key, values) -> string. */
 const SEEKER_VARS = { 1: { n: TEMPLATE_COUNT }, 6: { h: HOURS }, 7: { n: PROMISES.retentionDays }, 8: { p: PROMISES.paymentProvider } };
 export const seekerFaq = (tr) => [1, 2, 3, 4, 5, 6, 7, 8].map((i) => [tr(`faq.seeker.${i}.q`), tr(`faq.seeker.${i}.a`, SEEKER_VARS[i])]);
 export const SEEKER_FAQ = seekerFaq((k, v) => translate('en', k, v)); // English: Google's FAQ rich results

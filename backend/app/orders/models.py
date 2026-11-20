@@ -65,3 +65,8 @@ class Order(Doc):
     paid_at: datetime | None = None
     deadline_at: datetime | None = None
     delivered_at: datetime | None = None
+    # Razorpay payment link for this unpaid order (app/payments/links.py): {url, id, expires_at, sent_at}
+    payment_link: dict[str, Any] | None = None
+    moved_from: str | None = None  # "whatsapp": an old WhatsApp order that is now paid through Razorpay
+    reminders_sent: int = 0  # "Finish your payment" emails for an unpaid order (at most 2)
+    parent_id: str | None = None  # kind "addon": the paid order this add-on / upgrade is for

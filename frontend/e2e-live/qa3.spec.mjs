@@ -105,12 +105,13 @@ test('thumbnails: one label, no page-break text; job links are web links only; f
     await page.goto(path);
     await expect(page).toHaveTitle(title);
   }
-  // upgrade: real buttons when there's no order
+  // upgrade: real buttons when there's no order (the builder link; paid plans follow the payment mode)
   await expect(page.getByRole('link', { name: 'Open the builder' })).toBeVisible();
-  await page.getByRole('button', { name: /^Get Expert rewrite/ }).click();
-  await expect(page).toHaveURL(/\/checkout$/);
+  // payments are Off in the test API (no Razorpay keys): the paid plans say so, no checkout
+  await expect(page.getByTestId('up-pay-soon').first()).toHaveText('Payments coming soon');
+  await expect(page.getByRole('button', { name: /^Get Expert rewrite/ })).toHaveCount(0);
 
-  // footer: signed in → My dashboard; "Become an expert" explains separate accounts
+  // footer: signed in → My dashboard; "Become an expert" adds the expert role to the same account
   await page.goto('/contact');
   const footer = page.locator('footer.site-footer');
   await expect(footer.getByRole('link', { name: 'My dashboard' })).toHaveAttribute('href', '/me');
@@ -118,10 +119,9 @@ test('thumbnails: one label, no page-break text; job links are web links only; f
   for (const a of await page.getByRole('link', { name: 'info@nm7.si' }).all()) await expect(a).toHaveAttribute('href', 'mailto:info@nm7.si');
   expect(await page.getByRole('link', { name: 'info@nm7.si' }).count()).toBeGreaterThanOrEqual(3);
   await footer.getByRole('link', { name: 'Become an expert' }).click();
-  await expect(page.getByRole('heading', { name: 'Expert accounts are separate' })).toBeVisible();
-  await page.getByRole('button', { name: 'Sign out and create an expert account' }).click();
-  await expect(page.getByRole('radio', { name: 'Work as an expert' })).toHaveAttribute('aria-checked', 'true');
-  await expect(page.getByLabel('Full name')).toBeVisible();
+  await page.waitForURL('**/welcome?add=1&role=expert');
+  await expect(page.getByRole('heading', { name: 'Add another role' })).toBeVisible();
+  await expect(page.getByRole('checkbox', { name: /Work as an expert/ })).toBeChecked();
 
   // forgot password: a bad email is explained, not just a dead button
   await page.goto('/forgot-password');
@@ -139,7 +139,7 @@ test('home: improve demo only says IMPROVED when the score rises; samples have n
   await expect(page.getByText(/^IMPROVED/)).toHaveCount(0);
   await box.fill('made dashboards in power bi for sales team');
   await page.getByRole('button', { name: 'Improve this line' }).click();
-  await expect(page.getByText(/^IMPROVED · \d+ → \d+\/100/)).toBeVisible();
+  await expect(page.getByText(/^IMPROVED · \d+ to \d+\/100/)).toBeVisible();
 
   const text = await page.locator('main').textContent();
   expect(text).not.toMatch(/\[(Company|College)\]/);

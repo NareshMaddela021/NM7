@@ -11,6 +11,7 @@ can't sign in (no usable password), are never emailed (reminders skip them) and 
 """
 
 import random
+import re
 import secrets
 from datetime import datetime, timedelta
 from datetime import time as dtime
@@ -143,11 +144,30 @@ async def remove_demo(db: AsyncDatabase) -> int:
     from app.jobs import demo_jobs
 
     await demo_jobs.remove(db)
-    uids = [u["_id"] async for u in db[USERS].find({"demo": True}, {"_id": 1})]
+    # only this demo's own people (the college's students, coordinator, reviewer, alumni: ...@demo.nm7.invalid); the
+    # other demos' made-up people (Hire in 60 minutes, the student demos) are theirs to reset. Ids are read in small
+    # batches and deleted chunk by chunk, so a reset never holds a big list in memory (the server has 512 MB).
+    # The student demos (Meera / Arjun, the Auto Apply student, the Easy dashboard student) share the address domain
+    # but are named <first>.student@...; the college's own people never are (full site test, 19 Nov: a college reset
+    # signed those demos out and deleted their resumes).
+    mine = {
+        "demo": True,
+        "$or": [{"email": {"$regex": r"@demo\.nm7\.invalid$"}}, {"_id": COORDINATOR_ID}],
+        "email": {"$not": re.compile(r"\.student@demo\.nm7\.invalid$")},
+    }
+    n = 0
+    batch: list = []
+    async for u in db[USERS].find(mine, {"_id": 1}, batch_size=CHUNK):
+        batch.append(u["_id"])
+        if len(batch) >= CHUNK:
+            await _remove_people(db, batch)
+            n += len(batch)
+            batch = []
+    if batch:
+        await _remove_people(db, batch)
+        n += len(batch)
     for coll, q in (
-        (RESUMES, {"user_id": {"$in": uids}}),
-        (LINKEDIN, {"_id": {"$in": uids}}),
-        (MEMBERSHIPS, {"$or": [{"org_id": ORG_ID}, {"user_id": {"$in": uids}}]}),
+        (MEMBERSHIPS, {"org_id": ORG_ID}),
         (ROLL_LISTS, {"org_id": ORG_ID}),
         (DRIVES, {"org_id": ORG_ID}),
         (DRIVE_CHECKINS, {"org_id": ORG_ID}),
@@ -165,10 +185,22 @@ async def remove_demo(db: AsyncDatabase) -> int:
         (ORG_STAFF, {"org_id": ORG_ID}),
         (ORG_GROUPS, {"org_id": ORG_ID}),
         (ORGANIZATIONS, {"_id": ORG_ID}),
-        (USERS, {"demo": True}),
     ):
         await db[coll].delete_many(q)
-    return len(uids)
+    return n
+
+
+CHUNK = 200
+
+
+async def _remove_people(db: AsyncDatabase, uids: list) -> None:
+    for coll, q in (
+        (RESUMES, {"user_id": {"$in": uids}}),
+        (LINKEDIN, {"_id": {"$in": uids}}),
+        (MEMBERSHIPS, {"user_id": {"$in": uids}}),
+        (USERS, {"_id": {"$in": uids}, "demo": True}),
+    ):
+        await db[coll].delete_many(q)
 
 
 async def create_demo(db: AsyncDatabase, actor_id: str | None = None, seed: int = 2026) -> dict[str, Any]:

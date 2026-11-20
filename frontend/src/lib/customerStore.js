@@ -286,7 +286,7 @@ export async function forgetMe() {
   notify();
 }
 onSignOut(forgetMe);
-/** Profile & settings → Save. Live: saved on the server first (the email can't be changed here). */
+/** Profile & settings -> Save. Live: saved on the server first (the email can't be changed here). */
 export async function saveProfile(account) {
   if (!LIVE) { setMe(() => ({ account })); return; }
   const p = await http('/api/me/profile', { method: 'PATCH', body: { name: account.name, phone: account.phone || null, targetRole: account.targetRole || '', cities: account.cities || '', level: account.level || '' } });
@@ -392,7 +392,7 @@ export const retentionLeft = (deliveredAt) => (deliveredAt ? Math.ceil((delivere
 const STAGES = ['Paid', 'Expert assigned', 'Intake done', 'Draft 1', 'Changes', 'Final', 'Approved'];
 /** Merges the customer's order record with the live expert order (status, drafts, deadline, chat). */
 export function orderView(o) {
-  if (o.awaiting) return { ...o, x: null, label: 'Waiting for payment confirmation', tone: 'warning', steps: [], live: false };
+  if (o.unpaid) return { ...o, x: null, label: 'Waiting for payment', tone: 'warning', steps: [], live: false };
   if (o.waCancelled) return { ...o, x: null, label: 'Cancelled', tone: 'neutral', steps: [], live: false };
   const x = o.linked ? findOrder(o.id) : null;
   if (o.refund && x) return { ...o, x, sent: [], label: 'Refunded', tone: 'neutral', steps: [], live: false };
@@ -419,7 +419,9 @@ export function orderView(o) {
   return { ...o, plan: x.plan || o.plan, x, sent, steps, label, tone, live, late, action, deadline: x.deadline, deliveredAt: x.deliveredAt };
 }
 
+/** After a paid add-on (preview: made here; live: the server already added it, so the dashboard reloads). */
 export function buyAddon(orderId, addonId) {
+  if (LIVE) { reloadMe(); reloadExpertOrders(); return; }
   const a = ADDONS[addonId];
   setMe((s) => ({ orders: s.orders.map((o) => (o.id === orderId ? { ...o, addons: [...o.addons, { id: addonId, price: a.price, at: Date.now(), payId: uid('pay_') }] } : o)) }));
   const x = findOrder(orderId);
@@ -431,6 +433,7 @@ export function buyAddon(orderId, addonId) {
   }
 }
 export function upgradeOrder(orderId, to) {
+  if (LIVE) { reloadMe(); reloadExpertOrders(); return; }
   const o = get().orders.find((x) => x.id === orderId);
   const diff = PLANS[to].price - PLANS[o.plan].price;
   setMe((s) => ({ orders: s.orders.map((x) => (x.id === orderId ? { ...x, plan: to, price: PLANS[to].price, upgrades: [...(x.upgrades || []), { from: o.plan, to, price: diff, at: Date.now(), payId: uid('pay_') }] } : x)) }));
@@ -441,11 +444,11 @@ export function upgradeOrder(orderId, to) {
 export function payments(s = get()) {
   const rows = [];
   s.orders.forEach((o) => {
-    if (!o.paidAt) return; // a WhatsApp order still waiting for payment
+    if (!o.paidAt) return; // an order still waiting for payment
     const basePrice = o.price - (o.upgrades || []).reduce((t, u) => t + u.price, 0);
-    rows.push({ at: o.paidAt, what: `${PLANS[(o.upgrades?.[0]?.from) || o.plan].name} · ${o.id}`, amount: basePrice, method: o.method, payId: o.payId, invoice: o.invoice || o.receipt, receipt: !o.invoice && !!o.receipt, orderId: o.id, kind: 'payment' });
-    (o.upgrades || []).forEach((u) => rows.push({ at: u.at, what: `Upgrade to ${PLANS[u.to].name} · ${o.id}`, amount: u.price, method: o.method, payId: u.payId, invoice: `${o.invoice}-U`, orderId: o.id, kind: 'payment' }));
-    (o.addons || []).forEach((a, i) => rows.push({ at: a.at, what: `${ADDONS[a.id].name} · ${o.id}`, amount: a.price, method: o.method, payId: a.payId, invoice: `${o.invoice}-A${i + 1}`, orderId: o.id, kind: 'payment' }));
+    rows.push({ at: o.paidAt, what: `${PLANS[(o.upgrades?.[0]?.from) || o.plan].name} · ${o.id}`, amount: basePrice, method: o.method, payId: o.payId, invoice: o.invoice || o.receipt, receipt: !o.invoice && !!o.receipt, invoiceOrder: o.invoice ? o.id : null, orderId: o.id, kind: 'payment' });
+    (o.upgrades || []).forEach((u) => rows.push({ at: u.at, what: `Upgrade to ${PLANS[u.to].name} · ${o.id}`, amount: u.price, method: o.method, payId: u.payId, invoice: u.invoice || `${o.invoice}-U`, invoiceOrder: u.invoiceOrder || null, orderId: o.id, kind: 'payment' }));
+    (o.addons || []).forEach((a, i) => rows.push({ at: a.at, what: `${ADDONS[a.id].name} · ${o.id}`, amount: a.price, method: o.method, payId: a.payId, invoice: a.invoice || `${o.invoice}-A${i + 1}`, invoiceOrder: a.invoiceOrder || null, orderId: o.id, kind: 'payment' }));
     if (o.refund) rows.push({ at: o.refund.at, what: `Refund · ${o.id} · ${o.refund.reason}`, amount: -o.refund.amount, method: o.method, payId: o.refund.ref, orderId: o.id, kind: 'refund', done: o.refund.done });
   });
   return rows.sort((a, b) => b.at - a.at);
@@ -479,7 +482,7 @@ export function placeOrder({ plan, role, method, id: serverId, invoice: serverIn
   addExpertOrder({ id, customer: u?.name || s.account.name, customerId: u?.id || SAMPLE_USER_ID, plan, price: PLANS[plan].price, role: role || s.account.targetRole || 'Not set', domain: '', level: s.account.level || 'Fresher', createdAt: t, deadline: t + PROMISES.deliveryHours * H, status: 'offer', offerExpires: t + 30 * 60 * 1000, intake: {}, jd: '', original: a.data, versions: [], comments: [], messages: [], linkedin: null, call: null, rating: null });
   return id;
 }
-/** Late → refunded at once; otherwise our team reviews it within 24 hours (it shows in the admin support inbox). */
+/** Late -> refunded at once; otherwise our team reviews it within 24 hours (it shows in the admin support inbox). */
 /** `decided` (live app) is the server's answer { ref, autoApproved, amount }; without it the browser decides. */
 export function askRefund(orderId, { reason, details }, decided = null) {
   if (LIVE) { reloadMe(); reloadExpertOrders(); return decided; } // the server decided and saved it
@@ -536,7 +539,7 @@ export function decideRefund(key, orderId, approve, reply) {
   if (approve && findOrder(orderId)) updateExpertOrder(orderId, (y) => ({ status: 'cancelled', messages: [...(y.messages || []), { from: 'system', text: 'Order refunded after review.', at: Date.now() }] }));
 }
 
-/** Cancel before an expert accepts → full refund at once. */
+/** Cancel before an expert accepts -> full refund at once. */
 export function cancelOrder(orderId) {
   if (LIVE) return requestRefund(orderId, { reason: 'cancel', details: '' }).then(() => { reloadMe(); reloadExpertOrders(); return true; });
   const o = get().orders.find((x) => x.id === orderId); const x = findOrder(orderId);

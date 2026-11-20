@@ -103,7 +103,7 @@ describe('Job Profile', () => {
     const { profile, pid } = saveEntryToProfile(p, d.proj[0], 'proj');
     expect(pid).toBe(p.proj[0].pid);
     expect(profile.proj[0].tech).toBe('Power BI, DAX');
-    // a new entry the profile doesn't have yet is added (internship → internships)
+    // a new entry the profile doesn't have yet is added (internship -> internships)
     const s = saveEntryToProfile(p, { company: 'Infosys', role: 'Intern', employmentType: 'Internship' }, 'exp');
     expect(s.profile.intern.map((x) => x.company)).toContain('Infosys');
   });

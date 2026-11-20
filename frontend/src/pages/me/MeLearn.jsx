@@ -3,12 +3,17 @@
 // a small guided project (send a link or a few lines), then the role's skill check. "Skill verified" shows only when
 // the check is passed and the project is sent; companies hiring now and the public resume link see it, with the date.
 import { useVettingOn } from '../../lib/vettingAccess';
-import { useEffect, useState } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { http } from '../../services/http';
 import { MeHead } from './MeLayout';
+import { LIVE, useAuth } from '../../lib/auth';
+import ResumeCard from '../start/ResumeCard'; // profile setup P1: "Pick up where you left off"
+
+const SetupChecklist = lazy(() => import('./SetupChecklist')); // profile setup P2: the checklist, its own chunk
 import { Bar, Chip, Empty, MeCard, Skel } from './kit';
 import '../../styles/me-learn.css';
+import { IcArrowLeft, IcArrowRight, IcCap, IcCheck } from '../../components/icons';
 
 const day = (ms) => (ms ? new Date(ms).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
 
@@ -39,14 +44,14 @@ function Project({ role, p, onDone }) {
       {err && <p className="error" role="alert">{err}</p>}
       <div className="mrow">
         <button type="submit" className="btn btn-signal" disabled={busy} data-testid="lp-send">{p.sent.at ? 'Update my project' : 'Send my project'}</button>
-        {p.sent.at && <Chip tone="ok" testid="lp-sent">✓ Sent {day(p.sent.at)}</Chip>}
+        {p.sent.at && <Chip tone="ok" testid="lp-sent"><IcCheck size={14} /> Sent {day(p.sent.at)}</Chip>}
       </div>
     </form>
   );
 }
 
 function Path({ role }) {
-  const vet = useVettingOn(); // Vetting V2 wording only for people who get it (Admin → Skill checks → Launch)
+  const vet = useVettingOn(); // Vetting V2 wording only for people who get it (Admin -> Skill checks -> Launch)
   const [d, setD] = useState(null);
   const [err, setErr] = useState('');
   useEffect(() => { http(`/api/me/learn/${role}`).then(setD, (e) => setErr(e.message)); }, [role]);
@@ -66,7 +71,7 @@ function Path({ role }) {
             <span className="mkicker">Learning path</span>
             <h2 className="ml-hero-title">{d.title}</h2>
           </div>
-          {d.verified ? <Chip tone="ok" testid="lp-badge">✓ Skill verified: {d.verified.skill} · {day(d.verified.at)}</Chip> : <strong className="mserif" style={{ fontSize: 28, color: 'var(--ink)' }} data-testid="lp-pct">{d.progress}% done</strong>}
+          {d.verified ? <Chip tone="ok" testid="lp-badge"><IcCheck size={14} /> Skill verified: {d.verified.skill} · {day(d.verified.at)}</Chip> : <strong className="mserif" style={{ fontSize: 28, color: 'var(--ink)' }} data-testid="lp-pct">{d.progress}% done</strong>}
         </div>
         <Bar value={d.progress} label="Progress" showValue={false} tone="student" />
         <ol className="ml-track" aria-label="Steps">
@@ -80,7 +85,7 @@ function Path({ role }) {
       {d.started && (
         <ol className="msteps">
           <li className={state(coursesDone, !coursesDone)}>
-            <span className="msteps-dot" aria-hidden="true">{coursesDone ? '✓' : 1}</span>
+            <span className="msteps-dot" aria-hidden="true">{coursesDone ? <IcCheck size={14} /> : 1}</span>
             <section className="mcard ml-step-card" aria-label="Courses" data-testid="lp-courses">
               <span className="ml-qno">Step 1 · Free courses</span>
               <span className="xs muted">Ticking a course moves your progress. It doesn't add a skill to your resume: the skill check and the project prove it.</span>
@@ -99,11 +104,11 @@ function Path({ role }) {
             </section>
           </li>
           <li className={state(sent, coursesDone && !sent)}>
-            <span className="msteps-dot" aria-hidden="true">{sent ? '✓' : 2}</span>
+            <span className="msteps-dot" aria-hidden="true">{sent ? <IcCheck size={14} /> : 2}</span>
             <Project role={role} p={d.project} onDone={setD} />
           </li>
           <li className={state(!!d.verified, sent && !d.verified)}>
-            <span className="msteps-dot" aria-hidden="true">{d.verified ? '✓' : 3}</span>
+            <span className="msteps-dot" aria-hidden="true">{d.verified ? <IcCheck size={14} /> : 3}</span>
             <section className="mcard ml-step-card" aria-label="Skill check" data-testid="lp-check">
               <span className="ml-qno">Step 3 · Skill check</span>
               {t.skill ? (
@@ -123,7 +128,7 @@ function Path({ role }) {
           </li>
         </ol>
       )}
-      <Link to="/me/learn" className="small" style={{ minHeight: 44, display: 'inline-flex', alignItems: 'center' }}>← All learning paths</Link>
+      <Link to="/me/learn" className="small" style={{ minHeight: 44, display: 'inline-flex', alignItems: 'center' }}><IcArrowLeft size={16} /> All learning paths</Link>
     </div>
   );
 }
@@ -131,12 +136,15 @@ function Path({ role }) {
 export default function MeLearn() {
   const [q] = useSearchParams();
   const role = q.get('role');
+  const { user } = useAuth();
   const [d, setD] = useState(null);
   const [err, setErr] = useState('');
   useEffect(() => { if (!role) http('/api/me/learn').then(setD, (e) => setErr(e.message)); }, [role]);
   return (
     <div className="stack g16" data-testid="me-learn">
       <MeHead title="Learning paths" sub="Free courses, a small project, then a skill check. Pass the check and send the project to get “Skill verified”." />
+      {LIVE && !role && user?.activeRole === 'student' && <ResumeCard user={user} role="student" />}
+      {LIVE && !role && user?.activeRole === 'student' && <Suspense fallback={null}><SetupChecklist /></Suspense>}
       {role ? <Path key={role} role={role} /> : err ? <p className="error" role="alert">{err}</p> : !d ? <Skel cards={3} label="Loading learning paths" /> : (
         <>
           {d.started.length > 0 ? (
@@ -145,9 +153,9 @@ export default function MeLearn() {
               <div className="mgrid">
                 {d.started.map((p) => (
                   <Link key={p.role} to={`/me/learn?role=${p.role}`} className="mcard mcard-link">
-                    <span className="mspread"><strong className="ml-role-title" style={{ fontSize: 21 }}>{p.title}</strong>{p.verified ? <Chip tone="ok">✓ {p.verified.skill} verified</Chip> : <Chip tone="accent">In progress</Chip>}</span>
+                    <span className="mspread"><strong className="ml-role-title" style={{ fontSize: 21 }}>{p.title}</strong>{p.verified ? <Chip tone="ok"><IcCheck size={14} /> {p.verified.skill} verified</Chip> : <Chip tone="accent">In progress</Chip>}</span>
                     <Bar value={p.progress} label="Progress" tone="student" />
-                    <span className="ml-tile-go">Continue →</span>
+                    <span className="ml-tile-go">Continue <IcArrowRight size={16} /></span>
                   </Link>
                 ))}
               </div>
@@ -166,10 +174,10 @@ export default function MeLearn() {
               {d.paths.map((p) => (
                 <li key={p.role}>
                   <Link to={`/me/learn?role=${p.role}`} className="ml-tile" data-testid="lp-pick">
-                    <span className="ml-tile-ic" aria-hidden="true">🎓</span>
+                    <span className="ml-tile-ic" aria-hidden="true"><IcCap size={22} /></span>
                     <span className="ml-tile-title">{p.title}</span>
                     {(p.suggested || !p.test) && <span className="ml-tags">{p.suggested && <span className="ml-tag">From your role finder</span>}{!p.test && <span className="xs muted">No skill check yet</span>}</span>}
-                    <span className="ml-tile-go" aria-hidden="true">Open →</span>
+                    <span className="ml-tile-go" aria-hidden="true">Open <IcArrowRight size={16} /></span>
                   </Link>
                 </li>
               ))}

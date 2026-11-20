@@ -12,7 +12,7 @@ on:
 
 jobs:
   scan:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # pinned: Playwright has no Chromium for ubuntu-26.04 yet (18 Nov)
     timeout-minutes: 10
     defaults:
       run:

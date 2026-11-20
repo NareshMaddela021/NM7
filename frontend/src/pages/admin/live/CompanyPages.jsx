@@ -1,4 +1,4 @@
-// Admin → Companies: the trust queue (Phase 2, C1). Tabs by review state with counts; each company shows its automatic
+// Admin -> Companies: the trust queue (Phase 2, C1). Tabs by review state with counts; each company shows its automatic
 // flags first (duplicate registration or phone, many sign-ups from one address, new domain, no mail server, unusual
 // sign-in, individual recruiter), then the details, the registration number with a link to check it on the government
 // site (no paid registry), the team and the activity log. Approve, reject / re-verify / block with a reason (each is
@@ -7,10 +7,12 @@ import { useState } from 'react';
 import { useToast } from '../../../components/ui';
 import { PageHead, Panel, Tabs } from '../AdminUI';
 import { Loading, day, emptyIf, http, useAction, useApi } from './common';
+import { SortTh, useSort } from './sort';
 import { keepAccount } from '../../../lib/recruiterPortal';
 import { plainWords } from '../../../lib/company';
 import '../../../styles/me-kit.css';
 import '../../../styles/admin-jobs.css';
+import { IcAlert, IcExternal } from '../../../components/icons';
 
 const STATES = [['pending', 'Waiting for review'], ['approved', 'Verified'], ['rejected', 'Rejected'], ['blocked', 'Blocked'], ['draft', 'Not finished'], ['all', 'All']];
 const TRUST = { verified: ['Verified', 'b-success'], basic: ['Basic', 'b-signal'], unverified: ['Unverified', 'b-warning'], blocked: ['Blocked', 'b-danger'] };
@@ -43,25 +45,45 @@ export function LiveCompanies() {
       <DemoCompany onChanged={() => st.reload()} />
       <SupplyMap />
       <Loading st={st} empty={emptyIf((d) => !d.items.length, 'No companies here.')}>{(d) => (
-        <ul className="stack g12" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-          {d.items.map((c) => (
-            <li key={c.id} className="card stack g8 adx-row" data-status={c.trust} data-testid="admin-company">
-              <div className="row g8 adx-row-head" style={{ justifyContent: 'space-between' }}>
-                <span className="row g8" style={{ minWidth: 0, flexWrap: 'nowrap' }}><span className="mavatar adx-av" aria-hidden="true">{(c.details.legalName || '?').trim().charAt(0).toUpperCase()}</span><strong className="adx-title" style={{ overflowWrap: 'anywhere' }}>{c.details.legalName}</strong></span>
-                <span className={`badge ${TRUST[c.trust]?.[1]}`}>{TRUST[c.trust]?.[0]}</span>
-              </div>
-              <span className="small muted" style={{ overflowWrap: 'anywhere' }}>{c.kind === 'individual' ? 'Individual recruiter' : c.details.website} · {c.adminEmail} · signed up {day(c.createdAt)}</span>
-              {c.flags.length > 0 ? (
-                <ul className="stack g4" style={{ margin: 0, paddingLeft: 18 }} data-testid="company-flags">
-                  {c.flags.map((f, i) => <li key={i} className="small" style={{ color: 'var(--warning)' }}>⚠ {f.text}</li>)}
-                </ul>
-              ) : <span className="small" style={{ color: 'var(--success)' }}>No warnings</span>}
-              <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} onClick={() => setOpen(c.id)}>Review</button>
-            </li>
-          ))}
-        </ul>
+        <CompanyTable items={d.items} onOpen={setOpen} />
       )}</Loading>
       {open && <CompanyReview id={open} onClose={() => setOpen(null)} onChanged={() => st.reload()} />}
+    </div>
+  );
+}
+
+const CO_SORT = { name: (c) => c.details.legalName, joined: (c) => c.createdAt, flags: (c) => c.flags.length, trust: (c) => TRUST[c.trust]?.[0] };
+
+/** Round W: companies as a sortable table on a wide screen, cards on a phone. */
+function CompanyTable({ items, onOpen }) {
+  const { rows, sort, onSort } = useSort(items, CO_SORT);
+  return (
+    <div className="table-wrap mtable-wrap adx-table" tabIndex={0} role="region" aria-label="Companies — scroll sideways to see all columns">
+      <table className="table mtable" aria-label="Companies">
+        <thead><tr>
+          <SortTh k="name" sort={sort} onSort={onSort}>Company</SortTh>
+          <SortTh k="flags" sort={sort} onSort={onSort}>Warnings</SortTh>
+          <SortTh k="joined" sort={sort} onSort={onSort}>Signed up</SortTh>
+          <SortTh k="trust" sort={sort} onSort={onSort}>Trust</SortTh>
+          <th scope="col"><span className="sr-only">Actions</span></th>
+        </tr></thead>
+        <tbody>{rows.map((c) => (
+          <tr key={c.id} className="adx-row" data-status={c.trust} data-testid="admin-company">
+            <td className="adx-cell-job">
+              <span className="row g8" style={{ minWidth: 0, flexWrap: 'nowrap' }}><span className="mavatar adx-av" aria-hidden="true">{(c.details.legalName || '?').trim().charAt(0).toUpperCase()}</span><strong className="adx-title" style={{ overflowWrap: 'anywhere' }}>{c.details.legalName}</strong></span>
+              <span className="xs muted" style={{ display: 'block', overflowWrap: 'anywhere', marginTop: 4 }}>{c.kind === 'individual' ? 'Individual recruiter' : c.details.website} · {c.adminEmail}</span>
+            </td>
+            <td data-label="Warnings">{c.flags.length > 0 ? (
+              <ul className="stack g4" style={{ margin: 0, paddingLeft: 18 }} data-testid="company-flags">
+                {c.flags.map((f, i) => <li key={i} className="small" style={{ color: 'var(--warning)' }}><IcAlert size={14} /> {f.text}</li>)}
+              </ul>
+            ) : <span className="small" style={{ color: 'var(--success)' }}>No warnings</span>}</td>
+            <td className="xs muted" data-label="Signed up">{day(c.createdAt)}</td>
+            <td data-label="Trust"><span className={`badge ${TRUST[c.trust]?.[1]}`}>{TRUST[c.trust]?.[0]}</span></td>
+            <td><button type="button" className="btn btn-outline btn-sm" onClick={() => onOpen(c.id)}>Review</button></td>
+          </tr>
+        ))}</tbody>
+      </table>
     </div>
   );
 }
@@ -100,7 +122,7 @@ function CompanyReview({ id, onClose, onChanged }) {
             {c.flags.length > 0 && (
               <section className="card-sm stack g4" aria-label="Warnings">
                 <strong className="small">Warnings</strong>
-                {c.flags.map((f, i) => <span key={i} className="small" style={{ color: 'var(--warning)' }}>⚠ {f.text}</span>)}
+                {c.flags.map((f, i) => <span key={i} className="small" style={{ color: 'var(--warning)' }}><IcAlert size={14} /> {f.text}</span>)}
               </section>
             )}
             <dl className="co-review">
@@ -108,7 +130,7 @@ function CompanyReview({ id, onClose, onChanged }) {
               {c.kind === 'company' && <div><dt>Website</dt><dd>{c.details.website}{c.domain.ageDays != null ? ` · domain ${c.domain.ageDays} days old` : ''}{c.domain.mail === false ? ' · no mail server' : ''}</dd></div>}
               {c.registration && (
                 <div><dt>{c.registration.kind.toUpperCase()}</dt><dd><span className="mono">{c.registration.number}</span>{' '}
-                  <a href={c.checkAt} target="_blank" rel="noopener noreferrer" data-testid="check-reg">Check on {c.registration.kind === 'gstin' ? 'GST portal' : 'MCA site'} ↗</a></dd></div>
+                  <a href={c.checkAt} target="_blank" rel="noopener noreferrer" data-testid="check-reg">Check on {c.registration.kind === 'gstin' ? 'GST portal' : 'MCA site'} <IcExternal size={14} /></a></dd></div>
               )}
               {c.individual && <div><dt>LinkedIn</dt><dd><a href={c.individual.linkedin} target="_blank" rel="noopener noreferrer nofollow">{c.individual.linkedin}</a> · {c.individual.declared ? 'declaration ticked' : 'no declaration'}</dd></div>}
               <div><dt>Category</dt><dd>{plainWords(c.details.category, c.details.structure, c.details.size)}</dd></div>
@@ -150,7 +172,7 @@ function CompanyReview({ id, onClose, onChanged }) {
 
 const HIRE_FEATURES = [['instant', 'Instant shortlists beyond the free roles a month'], ['tests', 'Skill checks'], ['bulk', 'Bulk hiring mode']];
 
-/** Hire in 60 minutes: paid hiring features turned on for this one company (used when Admin → Plans → Company hiring
+/** Hire in 60 minutes: paid hiring features turned on for this one company (used when Admin -> Plans -> Company hiring
  * doesn't open a feature to every Verified company). */
 function HireFeatures({ c, onSaved }) {
   const toast = useToast();
@@ -163,7 +185,7 @@ function HireFeatures({ c, onSaved }) {
   return (
     <fieldset className="card-sm stack g4" style={{ margin: 0 }} data-testid="co-hire-features">
       <legend className="small"><strong>Hiring features for this company</strong></legend>
-      <span className="xs muted">Needed only for features Admin → Plans → Company hiring doesn’t open to every Verified company.</span>
+      <span className="xs muted">Needed only for features Admin &gt; Plans &gt; Company hiring doesn’t open to every Verified company.</span>
       {HIRE_FEATURES.map(([k, l]) => <label key={k} className="row g8 small"><input type="checkbox" disabled={busy} checked={on.includes(k)} onChange={(e) => flip(k, e.target.checked)} data-testid={`co-hf-${k}`} />{l}</label>)}
     </fieldset>
   );

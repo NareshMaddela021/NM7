@@ -20,7 +20,8 @@ Rules (each job on its own; one bad job never stops the others):
   original summary (300–900 characters) with Claude: what the role does, key skills, eligibility, place and work
   type, facts only from the page. page_text is never stored; emails and phone numbers are removed from everything
   kept. Without usable page_text, or when the summary fails a check, the job waits in Admin → Jobs for review (not
-  live) rather than being made up.
+  live) rather than being made up. A location without a city is filled from the summary or the page when they name
+  one to three Indian cities (round W), so a job held only for its city goes live on its own.
 - Shown as "Source: company careers page" with Apply to the official link; never a company logo, never "partner".
 - Source "collector" (Admin → Jobs → Job collector). Rate limited; the key is compared in constant time and never
   logged or echoed.
@@ -49,7 +50,7 @@ from app.core.time import now
 from app.jobs.ingest import BAD_KEY_RULES, _key_ok
 from app.jobs.model import JobIn, _fold, band_for_years, slug_for, to_doc
 from app.jobsearch import skills as dictionary
-from app.jobsearch.parse import CITIES
+from app.jobsearch.parse import CITIES, NOT_A_CITY, canonical_city
 
 log = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/jobs/collector", tags=["job board"])
@@ -59,7 +60,9 @@ MAX_BODY = 6_000_000
 RULES = [(240, 3600), (1500, 86400)]  # requests per hour / per day (batches of 25 → ~40 a morning)
 SUMMARY_MIN, SUMMARY_MAX = 300, 900
 PAGE_MIN = 300  # page_text shorter than this is too thin to summarise honestly
-PARALLEL = 6
+PARALLEL = 6  # summaries written at the same time
+GROUP = 25  # jobs of one upload handled together (18 Nov: the server ran out of memory during a 1,650-job intake)
+INTAKE = asyncio.Semaphore(1)  # one upload handled at a time
 # summaries a day for the collector, counted apart from people's AI use: Admin → Settings (seek.collector_ai_daily)
 
 # hosts that are never a company's own hiring page
@@ -157,6 +160,11 @@ CITY = re.compile(rf"\b({CITIES})\b", re.I)
 EMAIL = re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")
 PHONE = re.compile(r"(?<!\d)(?:\+?91[\s-]?)?(?:\d[\s-]?){10}(?!\d)|(?<!\d)\d{3,5}[\s-]\d{6,8}(?!\d)")
 WORK = {"onsite": "onsite", "hybrid": "hybrid", "remote": "remote"}
+REMOTE_PAGE = re.compile(
+    r"\b(fully remote|100% remote|remote[- ]first|remote (role|job|position|opportunity|work)|"
+    r"work from home|work-from-home|wfh)\b",
+    re.I,
+)
 
 
 def url_key(url: str) -> str:
@@ -269,12 +277,19 @@ def cities_of(location: str) -> tuple[list[str], str]:
         c = m.group(1)
         if c.lower() in ("remote", "work from home", "wfh", "hybrid", "pan india", "anywhere in india"):
             continue
-        c = c.title() if c.islower() else c
+        c = canonical_city(c)  # one spelling per city: "Bangalore" -> "Bengaluru", "PUNE" -> "Pune"
         if c.lower() not in {x.lower() for x in found}:
             found.append(c)
     low = (location or "").lower()
     work = "remote" if re.search(r"\b(remote|work from home|wfh)\b", low) else "hybrid" if "hybrid" in low else "onsite"
     return found[:10], work
+
+
+def city_from(text: str, most: int = 3) -> list[str]:
+    """Indian cities named in free text (the summary, the official page's text): an answer only when it names a few —
+    a page listing every office is no answer (round W: fill a missing city instead of holding the job)."""
+    found, _ = cities_of(text)
+    return found if 0 < len(found) <= most else []
 
 
 def posted_at(raw: str) -> datetime | None:
@@ -290,15 +305,58 @@ def posted_at(raw: str) -> datetime | None:
 # --- the summary: original words, facts only from the page -----------------------------------------------------------
 
 
-def copied(summary: str, page: str, n: int = 10) -> bool:
-    """True when the summary repeats any run of `n` words from the page (it must be written fresh)."""
+COPY_N = 10  # a "shared run" is at least this many words in a row that are also in the page
+COPY_SENTENCE = 15  # one shared run this long is a copied sentence
+COPY_SHARE = 0.20  # or shared runs covering this much of the summary
+
+
+def copied(summary: str, page: str, n: int = COPY_N, own: str = "") -> bool:
+    """True when the summary copies the page: a whole sentence (a run of COPY_SENTENCE words), or shared runs of `n`
+    words covering COPY_SHARE of the summary. The job's own title, company and place (`own`) don't count: a summary
+    has to name them, and a long title alone used to fail it. (Until 18 Nov ANY run of 10 words failed, which threw
+    away about one good summary in six and every summary of a short page.)"""
     w = lambda s: re.findall(r"[a-z0-9]+", s.lower())  # noqa: E731
     sw, pw = w(summary), w(page)
+    for phrase in {p for p in re.split(r"\s*(?:\||\n)\s*", own) if p.strip()}:  # drop the job's own words
+        ow = w(phrase)
+        if len(ow) >= 2:
+            sw, pw = _without(sw, ow), _without(pw, ow)
+    if len(sw) < n:
+        return False
     grams = {tuple(pw[i : i + n]) for i in range(len(pw) - n + 1)}
-    return any(tuple(sw[i : i + n]) in grams for i in range(len(sw) - n + 1))
+    shared = [False] * len(sw)
+    run = longest = 0
+    for i in range(len(sw) - n + 1):
+        if tuple(sw[i : i + n]) in grams:
+            for k in range(i, i + n):
+                shared[k] = True
+            run = run + 1 if run else n
+            longest = max(longest, run)
+        else:
+            run = 0
+    return longest >= COPY_SENTENCE or sum(shared) >= COPY_SHARE * len(sw)
 
 
-def check_summary(page: str):
+def _without(words: list[str], phrase: list[str]) -> list[str]:
+    """`words` with every occurrence of `phrase` removed (so it can't join two runs either)."""
+    out: list[str] = []
+    i, m = 0, len(phrase)
+    while i < len(words):
+        if words[i : i + m] == phrase:
+            out.append("\x00")  # a break: the words on either side are not one run
+            i += m
+        else:
+            out.append(words[i])
+            i += 1
+    return out
+
+
+def own_words(j: "CollectorJob") -> str:
+    """The job's own title, company and place: a summary names them, so they never count as copied."""
+    return "\n".join(x for x in (j.title, j.company, j.location) if x)
+
+
+def check_summary(page: str, own: str = ""):
     def check(raw: Any) -> dict[str, Any]:
         if not isinstance(raw, dict):
             raise claude.Unusable("not_object")
@@ -307,7 +365,7 @@ def check_summary(page: str):
             raise claude.Unusable("length")
         if EMAIL.search(s) or PHONE.search(s):
             raise claude.Unusable("contact_details")
-        if copied(s, page):
+        if copied(s, page, own=own):
             raise claude.Unusable("copied")
         skills = [dictionary.canonical(x) or " ".join(str(x).split())[:40] for x in (raw.get("skills") or [])[:12]]
         sal = raw.get("salary") or None
@@ -391,17 +449,28 @@ async def summarise(db, j: CollectorJob) -> tuple[dict[str, Any] | None, str]:
         return None, "no_page_text"
     if not get_settings().anthropic_api_key:
         return None, "summary_unavailable"
+    from app.jobs import ai_health
+
+    if ai_health.paused():  # a run of API errors just now: don't fail hundreds more calls (sent back instead)
+        return None, "ai_error"
     if not await take_budget(db):
         return None, "ai_daily_limit"
     try:
-        out = await claude.ask_models("jobs", prompt(j, page), SCHEMA, check_summary(page), **ASK,
+        out = await claude.ask_models("jobs", prompt(j, page), SCHEMA, check_summary(page, own_words(j)), **ASK,
                                       http_client=HTTP_CLIENT)  # fmt: skip
-    except Exception as e:  # noqa: BLE001  (any failure: the job waits for review instead)
+    except claude.Unusable as e:  # the AI answered, but the summary failed a check (too long, copied, contact details)
         await refund_budget(db)
         await ai_quota.note(db, "jobs", "fallback")
-        # the kind and Anthropic's own message and request id (never the prompt, the page or the key)
-        log.warning("collector summary failed: %s%s", claude.error_kind(e), claude.error_detail(e))
+        log.warning("collector summary failed a check: %s", e.reason)
         return None, "summary_failed"
+    except Exception as e:  # noqa: BLE001  (an API error: key, credit, model, timeout... the job is sent back)
+        await refund_budget(db)
+        await ai_quota.note(db, "jobs", "failed")
+        kind = await ai_health.record_error(db, e)
+        # the kind and Anthropic's own message and request id (never the prompt, the page or the key)
+        log.warning("collector summary failed: %s%s", kind, claude.error_detail(e))
+        return None, "ai_error"
+    await ai_health.record_ok(db)
     return out, ""
 
 
@@ -427,7 +496,10 @@ def prompt(j: CollectorJob, page: str) -> list[dict[str, Any]]:
 
 OUTSIDE_INDIA = "outside India"
 # held only for these: sending them again (with page text, on a day with allowance left) can put them live
-RETRY = ("no_page_text", "ai_daily_limit", "summary_failed", "summary_unavailable")
+RETRY = ("no_page_text", "ai_daily_limit", "summary_failed", "summary_unavailable", "ai_error")
+# held only because the AI couldn't be reached or was out of allowance: sent back to the collector on their own, so the
+# next morning run writes the summary (17 Nov: 1,082 jobs held for an API error and nobody had sent them back)
+AUTO_RESEND = ("ai_error", "ai_daily_limit")
 PLACEHOLDER = "Summary not written yet: this job is waiting for review. Open the official page for the details."
 
 
@@ -460,21 +532,42 @@ async def handle(db, raw: Any, dry: bool, sem: asyncio.Semaphore) -> dict[str, A
         return {**base, "result": "skipped", "reason": "removed_on_request", "id": old["_id"]}
     exp, exp_from = experience(j.exp_min, j.exp_max, j.title, j.exp_text)
     cities, work = cities_of(j.location)
-    reasons: list[str] = []  # experience not stated is no reason to wait (round J2): "Experience not stated"
-    if not cities and work != "remote":
-        reasons.append("city_not_stated")
-    if dry:
-        thin = len(scrub(j.page_text)) < PAGE_MIN and not (old and old.get("collector", {}).get("summarised"))
-        res = "review" if reasons or thin else ("updated" if old else "created")
-        return {**base, "result": res, "reasons": reasons + (["no_page_text"] if thin else []), "dryRun": True}
-    facts, wait = None, ""
+    city_src = "location" if cities else ""
+    if (
+        not cities
+        and work != "remote"
+        and j.location.strip().lower() in NOT_A_CITY
+        and REMOTE_PAGE.search(scrub(j.page_text)[:4000])
+    ):
+        work = "remote"  # "India" alone, and the page says the job is remote: Remote (India), not "city not stated"
+    # experience not stated is no reason to wait (round J2): "Experience not stated"; a missing city is filled from the
+    # summary or the page when they name one (round W), so a job held only for its city goes live on its own
+    missing_city = not cities and work != "remote"
+    reasons: list[str] = []
     has_summary = bool(old and (old.get("collector") or {}).get("summarised"))
+    if dry:
+        if missing_city and (
+            city_from(scrub(j.page_text)) or (has_summary and city_from(old.get("description") or ""))
+        ):
+            missing_city = False
+        thin = len(scrub(j.page_text)) < PAGE_MIN and not has_summary
+        reasons = (["city_not_stated"] if missing_city else []) + (["no_page_text"] if thin else [])
+        res = "review" if reasons else ("updated" if old else "created")
+        return {**base, "result": res, "reasons": reasons, "dryRun": True}
+    facts, wait = None, ""
     if not has_summary:
         async with sem:
             facts, wait = await summarise(db, j)
         if wait:
             reasons.append(wait)
     desc = facts["summary"] if facts else (old["description"] if has_summary else PLACEHOLDER)
+    if missing_city:
+        for src, text in (("summary", desc if (facts or has_summary) else ""), ("page", scrub(j.page_text))):
+            if guess := city_from(text):
+                cities, city_src, missing_city = guess, src, False
+                break
+    if missing_city:
+        reasons.insert(0, "city_not_stated")
     try:
         job = JobIn.model_validate({
             "title": j.title[:120], "company": {"name": j.company}, "locations": cities or ([] if work == "remote" else ["India"]),
@@ -489,7 +582,9 @@ async def handle(db, raw: Any, dry: bool, sem: asyncio.Semaphore) -> dict[str, A
     fields["dedupe_key"] = "collector:" + hashlib.sha256(ukey.encode()).hexdigest()[:32]
     t = now()
     meta = {"url_key": ukey, "ct_key": ckey, "system": j.system[:40], "posted_raw": j.posted[:40],
-            "exp_text": scrub(j.exp_text)[:200], "exp_from": exp_from, "location": j.location[:300], "summarised": bool(facts) or has_summary, "removed": False}  # fmt: skip
+            "exp_text": scrub(j.exp_text)[:200], "exp_from": exp_from, "location": j.location[:300], "city_from": city_src, "summarised": bool(facts) or has_summary, "removed": False}  # fmt: skip
+    if reasons and set(reasons) <= {*AUTO_RESEND, "city_not_stated"} and set(reasons) & set(AUTO_RESEND):
+        meta["resend"] = True  # the collector sends it again tomorrow (the list at GET /api/jobs/collector/resend)
     status = "review" if reasons else "active"
     review = {"reasons": reasons, "note": ""} if reasons else None
     if old:
@@ -561,7 +656,11 @@ async def collect(request: Request, db: DB, authorization: str | None = Header(N
     if len(jobs) > MAX_JOBS:
         raise ApiError(400, "too_many", f"At most {MAX_JOBS} jobs a request; split the batch.")
     sem = asyncio.Semaphore(PARALLEL)
-    results = await asyncio.gather(*(handle(db, r, dry, sem) for r in jobs))
+    results: list[dict[str, Any]] = []
+    async with INTAKE:  # one upload at a time on this server (a second one waits): memory stays flat on 512 MB
+        for i in range(0, len(jobs), GROUP):  # a small group at a time, not all 200 page texts in flight at once
+            results += await asyncio.gather(*(handle(db, r, dry, sem) for r in jobs[i : i + GROUP]))
+            jobs[i : i + GROUP] = [None] * len(jobs[i : i + GROUP])  # let the page texts go as soon as they're done
     counts = {k: 0 for k in ("created", "updated", "skipped", "review", "closed", "rejected")}
     by: dict[str, int] = {}
     for i, r in enumerate(results):

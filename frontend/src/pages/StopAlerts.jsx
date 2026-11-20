@@ -1,6 +1,6 @@
 // /stop-alerts#t=…: the "Stop these emails" link in the resume health email (no sign-in needed). The token is in the
 // address fragment, so it never reaches server logs; one tap confirms.
-import { useState } from 'react';
+import { Suspense, lazy, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import { http } from '../services/http';
@@ -14,13 +14,24 @@ const KINDS = {
   vetting: { title: 'Skill check invites', ask: 'Stop the weekly invite to get a skill verified? You can still take skill checks any time.', done: 'skill check invites', api: '/api/public/vetting/stop-invites', where: <Link to="/me/skill-checks">Skill checks</Link> },
   learn: { title: 'Learning path reminders', ask: 'Stop the weekly reminder about your unfinished learning path? Your progress stays on the Learning paths page.', done: 'learning path reminders', api: '/api/public/learn/stop-nudges', where: <Link to="/me/learn">Learning paths</Link> },
   progress: { title: 'Weekly progress and check-in emails', ask: 'Stop the weekly progress email and the day 7 / day 30 check-in emails after you join a job? You can still see everything on My progress.', done: 'progress emails', api: '/api/public/progress/stop', where: <Link to="/me/progress">My progress</Link> },
+  setup: { title: 'Profile setup reminders', ask: 'Stop the weekly reminder about the next step of your profile? Your checklist stays on your dashboard.', done: 'profile setup reminders', api: '/api/public/setup/stop-reminders', where: <Link to="/me/settings#s-notify">Profile &amp; settings</Link> },
   interviews: { title: 'Interview reminder emails', ask: 'Stop the reminder emails the day before an interview? Interview invitations and changes still come.', done: 'interview reminder emails', api: '/api/public/interviews/stop-reminders', where: <Link to="/me/drive">My drive day</Link> },
 };
-const kindOf = (hash) => ((/(?:^#|&)k=(interviews|followups|alerts|autoapply|learn|progress)(?:&|$)/.exec(hash || '') || [])[1] || 'health');
+const TrustLink = lazy(() => import('./me/trust/TrustLink')); // Vetting Trust T1: #k=consent (take back) · #k=parent
+const trustKind = (hash) => ((/(?:^#|&)k=(consent|parent|book|join|cjoin|ratt|rstay|rme)(?:&|$)/.exec(hash || '') || [])[1] || ''); // T11: book · join · cjoin · T15: ratt · rstay · rme
+// A3: an employer's one-click opt-out from Auto Apply 2.0 emails (#k=employer&t=…) has its own page, loaded only here
+const AutoApplyOptOut = lazy(() => import('./AutoApplyOptOut'));
+const kindOf = (hash) => ((/(?:^#|&)k=(interviews|followups|alerts|autoapply|learn|progress|setup)(?:&|$)/.exec(hash || '') || [])[1] || 'health');
 
 export default function StopAlerts() {
+  const employer = typeof window !== 'undefined' && /(?:^#|&)k=employer(?:&|$)/.test(window.location.hash || '');
+  return employer ? <Suspense fallback={null}><AutoApplyOptOut /></Suspense> : <StopMine />;
+}
+
+function StopMine() {
   const [token] = useState(() => tokenOf(typeof window !== 'undefined' ? window.location.hash : ''));
   const [k] = useState(() => KINDS[kindOf(typeof window !== 'undefined' ? window.location.hash : '')]);
+  const [trust] = useState(() => trustKind(typeof window !== 'undefined' ? window.location.hash : ''));
   const [st, setSt] = useState({});
   const stop = async () => {
     setSt({ busy: true });
@@ -30,6 +41,7 @@ export default function StopAlerts() {
     <>
       <Header />
       <main id="main" className="container stack g16" style={{ maxWidth: 560, padding: '48px 16px' }}>
+        {trust ? <Suspense fallback={null}><TrustLink kind={trust} token={token} /></Suspense> : <>
         <h1 className="display h2">{k.title}</h1>
         {st.done ? (
           <p data-testid="stop-done">Done — you won’t get {k.done} any more. You can turn them back on in {k.where}.</p>
@@ -42,6 +54,7 @@ export default function StopAlerts() {
             <button type="button" className="btn btn-ink" style={{ alignSelf: 'flex-start' }} disabled={st.busy} onClick={stop} data-testid="stop-confirm">Stop these emails</button>
           </>
         )}
+        </>}
       </main>
     </>
   );

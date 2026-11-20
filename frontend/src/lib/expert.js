@@ -77,12 +77,15 @@ export function useExpertReady() {
   return snap.for === uid && snap.loaded;
 }
 onSignOut(() => { live = { for: null, loaded: false, p: null, saved: '' }; liveNotify(); });
+/** Live: read this expert's profile from the server again (the quick start saved part of it there). */
+export function reloadExpert() { if (LIVE && !saveTimer) { live = { for: null, loaded: false, p: null, saved: '' }; liveNotify(); } }
 let saveTimer;
 function saveLive(p) {
   live = { ...live, p };
   if (!EDITABLE.includes(p.status) || keep(p) === live.saved) return;
   clearTimeout(saveTimer);
   saveTimer = setTimeout(async () => {
+    saveTimer = null;
     try { const r = fromServer(await http('/api/expert/profile', { method: 'PUT', body: p })); live = { ...live, saved: keep(r) }; } catch (e) { reportSaveError(e); }
   }, 800);
 }
@@ -138,7 +141,7 @@ export function suggestDomains(p) {
 }
 
 /* ---------- auto-fill ---------- */
-/** asuraa.ai public profile → expert profile (only the parts the expert ticked). */
+/** asuraa.ai public profile -> expert profile (only the parts the expert ticked). */
 export function fromAsuraaAi(base, ai, picks) {
   const p = structuredClone(base);
   if (picks.name) p.about.name = ai.name;
@@ -154,7 +157,7 @@ export function fromAsuraaAi(base, ai, picks) {
 }
 
 const years = (from, to) => { if (!from) return ''; const a = +from.slice(0, 4); const b = to ? +to.slice(0, 4) : new Date().getFullYear(); return b >= a ? `${from.slice(0, 4)}–${to ? to.slice(0, 4) : 'now'}` : ''; };
-/** Result of the resume / LinkedIn reader (lib/import) → expert profile. */
+/** Result of the resume / LinkedIn reader (lib/import) -> expert profile. */
 export function fromDocument(base, R) {
   const d = R.data;
   const p = structuredClone(base);

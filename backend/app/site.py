@@ -52,6 +52,26 @@ AUTO_APPLY = {
     "irrelevant_stop": 2,  # a company's "Not relevant" marks before one student's auto applications there stop
 }
 
+# Auto Apply 2.0 (A1 "Engine"): hidden behind its own launch switch, like the vetting engine. OFF: only admins, demo
+# accounts and the testers below get it; everyone else keeps Auto Apply exactly as it was.
+AUTO_APPLY_V2 = {
+    "public": False,
+    "testers": [],  # emails (lowercase)
+    "auto_min": 70,  # match score at or above this: may be applied to automatically
+    "suggest_min": 55,  # from here up to auto_min: "Suggested for you"; below: skipped
+    "daily_limit": 10,  # a new user's daily limit in 2.0
+    "max_daily_limit": 25,  # the most a user may choose in 2.0
+    # pricing (free for now): free applications a week (0 = no weekly limit), the paid plan's weekly limit, payments.
+    # A7: the limits are enforced by the engine only while "pricing_on" is on (OFF by default). Payments are "coming
+    # soon": payments_on stays False (Admin can't turn it on) and nothing is ever charged.
+    "pricing_on": False,
+    "free_per_week": 0,
+    "paid_limit": 0,
+    "payments_on": False,
+    # A3: while the switch is OFF, Auto Apply 2.0 emails go here (or to the tester's own inbox), never to a company
+    "test_inbox": "",
+}
+
 
 SIMPLE = {
     "on": True,  # the Easy dashboard (Phase 4) for everyone; off = everyone gets the full dashboard
@@ -91,6 +111,15 @@ VETTING = {  # the vetting engine (V1–V5): hidden while it is tested on the li
 }
 
 
+TRUST = {  # Vetting Trust (T1–T15, app/trust/): hidden while it is tested on the live site
+    "public": False,  # off: only admins, demo accounts and the testers below see it; no emails to anyone else
+    "testers": [],  # emails (lowercase) of real accounts that see it while it is off
+    "retention": {},  # data type → days, Admin-edited within each type's bounds (app/trust/retention.py)
+    # erase Trust data after inactivity: OFF by itself until the owner turns it on (app/trust/inactivity.py)
+    "inactivity": {"on": False, "months": 24, "notice_days": 30, "mode": "trust", "enabled_at": None},
+}
+
+
 def defaults() -> dict[str, Any]:
     return {
         "plans": {k: {"name": n, "amount": a, "active": True} for k, (n, a) in PLANS.items()},
@@ -112,6 +141,7 @@ def defaults() -> dict[str, Any]:
         "job_checks": {"blocked": list(BLOCKED), "scam": list(SCAM)},
         # Auto Apply (Phase 3): the off switch and every default (Admin → Auto Apply)
         "auto_apply": dict(AUTO_APPLY),
+        "auto_apply_v2": {**AUTO_APPLY_V2, "testers": []},
         # the Easy dashboard (Phase 4): on / off and which dashboard people get before they choose (Admin → Settings)
         "simple": {**SIMPLE, "weights": dict(SIMPLE["weights"])},
         # Telugu and Hindi (switches, voice, emails): hidden until a native speaker has checked them (Admin → Settings)
@@ -120,6 +150,7 @@ def defaults() -> dict[str, Any]:
         "hire": dict(HIRE),
         "seek": dict(SEEK),
         "vetting": {**VETTING, "testers": []},
+        "trust": {**TRUST, "testers": [], "retention": {}, "inactivity": dict(TRUST["inactivity"])},
     }
 
 
@@ -137,12 +168,17 @@ async def get_site(db: AsyncDatabase, session: Session = None) -> dict[str, Any]
     out["companies"] = {**out["companies"], **(stored.get("companies") or {})}
     out["job_checks"] = {**out["job_checks"], **(stored.get("job_checks") or {})}
     out["auto_apply"] = {**out["auto_apply"], **(stored.get("auto_apply") or {})}
+    out["auto_apply_v2"] = {**out["auto_apply_v2"], **(stored.get("auto_apply_v2") or {})}
     out["simple"] = {**out["simple"], **(stored.get("simple") or {})}
     out["languages"] = {**out["languages"], **(stored.get("languages") or {})}
     out["hire"] = {**out["hire"], **(stored.get("hire") or {})}
     out["hire"]["open"] = {**HIRE["open"], **(out["hire"].get("open") or {})}
     out["seek"] = {**SEEK, **(stored.get("seek") or {})}
     out["vetting"] = {**out["vetting"], **(stored.get("vetting") or {})}
+    st = stored.get("trust") or {}
+    out["trust"] = {**out["trust"], **st}
+    out["trust"]["inactivity"] = {**TRUST["inactivity"], **(st.get("inactivity") or {})}
+    out["trust"]["retention"] = dict(st.get("retention") or {})
     out["daily_summary_sent"] = stored.get("daily_summary_sent")
     out["rule_runs"] = stored.get("rule_runs", {})
     return out

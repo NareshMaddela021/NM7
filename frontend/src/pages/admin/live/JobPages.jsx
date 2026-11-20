@@ -1,4 +1,4 @@
-// Admin → Jobs (job board J1): every job on nm7.si/jobs. Search and filter, add or edit one, pause, close, reopen,
+// Admin -> Jobs (job board J1): every job on nm7.si/jobs. Search and filter, add or edit one, pause, close, reopen,
 // delete (confirmed here on the page), bulk import (JSON array or CSV, preview with per-row errors first), the jobs
 // whose apply link failed its check, who applied, and jobs students reported (3 reports pause a job). Every change is in
 // the audit log.
@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { useToast } from '../../../components/ui';
 import { Kpi, PageHead, Panel, Tabs } from '../AdminUI';
 import { Loading, day, emptyIf, http, useAction, useApi, when } from './common';
+import { SortTh, useSort } from './sort';
 import '../../../styles/me-kit.css';
 import '../../../styles/admin-jobs.css';
 
@@ -74,8 +75,8 @@ function JobList() {
   const setStatus = (j, status) => run(async () => { await http(`/api/admin/jobs/${j.id}/status`, { method: 'POST', body: { status } }); st.reload(); }, { active: 'Job is live again', paused: 'Job paused', closed: 'Job closed' }[status]);
   const remove = (j) => run(async () => { await http(`/api/admin/jobs/${j.id}`, { method: 'DELETE' }); setConfirm(null); st.reload(); }, 'Job deleted');
   return (
-    <div className="row g16" style={{ alignItems: 'flex-start', flexWrap: 'wrap' }}>
-      <div className="stack g12" style={{ flex: '3 1 520px', minWidth: 0 }}>
+    <div className="stack g12">
+      <div className="stack g12" style={{ minWidth: 0 }}>
         <form className="row g8 ad-toolbar adx-filters" style={{ flexWrap: 'wrap', alignItems: 'flex-end' }} onSubmit={(e) => { e.preventDefault(); setPage(1); setApplied(f); }} aria-label="Find jobs">
           <div className="field" style={{ flex: '2 1 200px' }}><label className="label" htmlFor="aj-q">Search</label><input id="aj-q" className="input" placeholder="Title, company, city or skill" value={f.q} onChange={(e) => setF({ ...f, q: e.target.value })} /></div>
           <div className="field" style={{ flex: '1 1 120px' }}><label className="label" htmlFor="aj-st">Status</label><select id="aj-st" className="input" value={f.status} onChange={(e) => setF({ ...f, status: e.target.value })}><option value="">All</option>{Object.entries(STATUS).map(([k, [l]]) => <option key={k} value={k}>{l}</option>)}</select></div>
@@ -86,43 +87,13 @@ function JobList() {
         </form>
         <Loading st={st} empty={emptyIf((d) => !d.items.length, 'No jobs match. Add one, or import a file.')}>{(d) => (
           <>
-            <div className="row g12 adx-kpis" style={{ flexWrap: 'wrap' }}>
+            <div className="adx-kpis ad-kpis">
               <Kpi label="Jobs" value={d.total} sub={Object.entries(d.counts.status).map(([k, n]) => `${STATUS[k]?.[0] || k} ${n}`).join(' · ')} />
               <Kpi label="By source" value={Object.values(d.counts.source).reduce((a, b) => a + b, 0)} sub={Object.entries(d.counts.source).map(([k, n]) => `${SOURCE[k] || k} ${n}`).join(' · ')} />
-              <Kpi label="By experience" value={d.counts.experience.fresher || 0} sub={Object.entries(d.counts.experience).map(([k, n]) => `${EXP[k] || EXP_OLD[k] || k} ${n}`).join(' · ')} />
+              <Kpi label="By experience" {...experienceKpi(d.counts.experience)} />
               <Kpi label="Job collector: waiting for review" value={d.counts.collectorReview ?? 0} sub={`${d.counts.removalRequests ?? 0} removal request${d.counts.removalRequests === 1 ? '' : 's'} open`} />
             </div>
-            <ul className="stack g8" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-              {d.items.map((j) => (
-                <li key={j.id} className="card stack g6 adx-row" data-status={j.status} data-testid="admin-job">
-                  <div className="row between g8 adx-row-head" style={{ flexWrap: 'wrap', alignItems: 'flex-start' }}>
-                    <span className="stack g2" style={{ minWidth: 0 }}>
-                      <strong className="small adx-title" style={{ overflowWrap: 'anywhere' }}>{j.title}</strong>
-                      <span className="xs muted">{j.company.name} · {j.remote && !j.locations.length ? 'Remote' : j.locations.join(', ')} · {EXP[j.experience] || EXP_OLD[j.experience]} · {TYPE[j.jobType]}{j.salary ? ` · ${salaryText(j.salary)}` : ''}</span>
-                      <span className="xs faint">{SOURCE[j.source]} · posted {day(j.postedAt)} · {APPLY[j.apply.method]}{j.linkCheck.at ? ` · link checked ${when(j.linkCheck.at)}${j.linkCheck.ok === false ? ' (failed)' : ''}` : ''}</span>
-                    </span>
-                    <span className="row g6" style={{ flexWrap: 'wrap' }}>{j.demo && <span className="badge b-neutral">Demo — never public</span>}<span className={`badge ${STATUS[j.status][1]}`}>{STATUS[j.status][0]}</span></span>
-                  </div>
-                  {j.closedReason && <span className="xs" style={{ color: 'var(--warning)' }}>{j.closedReason}</span>}
-                  {confirm === j.id ? (
-                    <div className="row g8 well adx-danger" role="alert" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
-                      <span className="small">Delete “{j.title}” for good? Closing keeps it for the record.</span>
-                      <button type="button" className="btn btn-ink adx-btn-danger" style={{ background: 'var(--danger)' }} disabled={busy} onClick={() => remove(j)}>Delete</button>
-                      <button type="button" className="btn btn-outline" onClick={() => setConfirm(null)}>Cancel</button>
-                    </div>
-                  ) : (
-                    j.status === 'review' ? <ReviewBox j={j} onDone={() => st.reload()} /> : <div className="row g8 adx-actions" style={{ flexWrap: 'wrap' }}>
-                      <button type="button" className="link-btn small" onClick={() => setEditing(j.id)}>Edit</button>
-                      {j.status !== 'active' && <button type="button" className="link-btn small" disabled={busy} onClick={() => setStatus(j, 'active')}>{j.status === 'closed' ? 'Reopen' : 'Make live'}</button>}
-                      {j.status === 'active' && <button type="button" className="link-btn small" disabled={busy} onClick={() => setStatus(j, 'paused')}>Pause</button>}
-                      {j.status !== 'closed' && <button type="button" className="link-btn small" disabled={busy} onClick={() => setStatus(j, 'closed')}>Close</button>}
-                      <button type="button" className="link-btn small" onClick={() => setApps(j)}>Applications</button>
-                      <button type="button" className="link-btn small" style={{ color: 'var(--danger)' }} onClick={() => setConfirm(j.id)}>Delete</button>
-                    </div>
-                  )}
-                </li>
-              ))}
-            </ul>
+            <JobTable items={d.items} confirm={confirm} setConfirm={setConfirm} busy={busy} setStatus={setStatus} remove={remove} setEditing={setEditing} setApps={setApps} reload={st.reload} />
             {d.pages > 1 && (
               <div className="row g8 adx-pager" style={{ alignItems: 'center' }}>
                 <button type="button" className="btn btn-outline" disabled={page <= 1} onClick={() => setPage(page - 1)}>Previous</button>
@@ -135,6 +106,64 @@ function JobList() {
       </div>
       {editing && <JobForm id={editing === 'new' ? null : editing} onClose={() => setEditing(null)} onSaved={() => { setEditing(null); st.reload(); }} />}
       {apps && <Applications job={apps} onClose={() => setApps(null)} />}
+    </div>
+  );
+}
+
+/** "By experience": the total as the headline and every band underneath (the headline used to be the Fresher count). */
+export function experienceKpi(counts = {}) {
+  const total = Object.values(counts).reduce((a, b) => a + b, 0);
+  return { value: total, sub: Object.entries(counts).map(([k, n]) => `${EXP[k] || EXP_OLD[k] || k} ${n}`).join(' · ') };
+}
+
+const JOB_SORT = { title: (j) => j.title, posted: (j) => j.postedAt, status: (j) => STATUS[j.status]?.[0] || j.status };
+
+/** Round W: the jobs as a table on a wide screen (click a header to sort), cards on a phone. */
+function JobTable({ items, confirm, setConfirm, busy, setStatus, remove, setEditing, setApps, reload }) {
+  const { rows, sort, onSort } = useSort(items, JOB_SORT);
+  return (
+    <div className="table-wrap mtable-wrap adx-table" tabIndex={0} role="region" aria-label="Jobs — scroll sideways to see all columns">
+      <table className="table mtable" aria-label="Jobs">
+        <thead><tr>
+          <SortTh k="title" sort={sort} onSort={onSort}>Job</SortTh>
+          <SortTh k="posted" sort={sort} onSort={onSort}>Posted</SortTh>
+          <SortTh k="status" sort={sort} onSort={onSort}>Status</SortTh>
+          <th scope="col"><span className="sr-only">Actions</span></th>
+        </tr></thead>
+        <tbody>{rows.map((j) => (
+          <tr key={j.id} className="adx-row" data-status={j.status} data-testid="admin-job">
+            <td className="adx-cell-job">
+              <span className="stack g2" style={{ minWidth: 0 }}>
+                <strong className="small adx-title" style={{ overflowWrap: 'anywhere' }}>{j.title}</strong>
+                <span className="xs muted">{j.company.name} · {j.remote && !j.locations.length ? 'Remote' : j.locations.join(', ')} · {EXP[j.experience] || EXP_OLD[j.experience]} · {TYPE[j.jobType]}{j.salary ? ` · ${salaryText(j.salary)}` : ''}</span>
+                <span className="xs faint">{SOURCE[j.source]} · {APPLY[j.apply.method]}{j.linkCheck.at ? ` · link checked ${when(j.linkCheck.at)}${j.linkCheck.ok === false ? ' (failed)' : ''}` : ''}</span>
+                {j.closedReason && <span className="xs" style={{ color: 'var(--warning)' }}>{j.closedReason}</span>}
+              </span>
+              {j.status === 'review' && confirm !== j.id && <ReviewBox j={j} onDone={reload} />}
+            </td>
+            <td className="xs muted" data-label="Posted">{day(j.postedAt)}</td>
+            <td data-label="Status"><span className="row g6" style={{ flexWrap: 'wrap' }}>{j.demo && <span className="badge b-neutral">Demo — never public</span>}<span className={`badge ${STATUS[j.status][1]}`}>{STATUS[j.status][0]}</span></span></td>
+            <td className="adx-cell-actions">
+              {confirm === j.id ? (
+                <div className="row g8 well adx-danger" role="alert" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
+                  <span className="small">Delete “{j.title}” for good? Closing keeps it for the record.</span>
+                  <button type="button" className="btn btn-ink adx-btn-danger" style={{ background: 'var(--danger)' }} disabled={busy} onClick={() => remove(j)}>Delete</button>
+                  <button type="button" className="btn btn-outline" onClick={() => setConfirm(null)}>Cancel</button>
+                </div>
+              ) : j.status !== 'review' && (
+                <div className="row g8 adx-actions" style={{ flexWrap: 'wrap' }}>
+                  <button type="button" className="link-btn small" onClick={() => setEditing(j.id)}>Edit</button>
+                  {j.status !== 'active' && <button type="button" className="link-btn small" disabled={busy} onClick={() => setStatus(j, 'active')}>{j.status === 'closed' ? 'Reopen' : 'Make live'}</button>}
+                  {j.status === 'active' && <button type="button" className="link-btn small" disabled={busy} onClick={() => setStatus(j, 'paused')}>Pause</button>}
+                  {j.status !== 'closed' && <button type="button" className="link-btn small" disabled={busy} onClick={() => setStatus(j, 'closed')}>Close</button>}
+                  <button type="button" className="link-btn small" onClick={() => setApps(j)}>Applications</button>
+                  <button type="button" className="link-btn small" style={{ color: 'var(--danger)' }} onClick={() => setConfirm(j.id)}>Delete</button>
+                </div>
+              )}
+            </td>
+          </tr>
+        ))}</tbody>
+      </table>
     </div>
   );
 }
@@ -196,7 +225,7 @@ function JobForm({ id, onClose, onSaved }) {
   );
 }
 
-const CHANNEL = { nm7: 'Applied on Nm7', link: 'Company link', email: 'By email' };
+const CHANNEL = { nm7: 'Applied on Nm7', link: 'Company link', email: 'By email', form: 'Company form (Auto Apply)' };
 const APP_STEPS = [['viewed', 'Viewed'], ['shortlisted', 'Shortlisted'], ['interview', 'Interview'], ['offer', 'Offer'], ['rejected', 'Rejected']];
 
 function AppRow({ job, a }) {
@@ -315,7 +344,7 @@ function Expired() {
 
 /** A company job waiting for review (scam signs / the AI check): why, then approve or reject with a reason typed here. */
 // round J: why a collector job waits for review
-const COLLECTOR_WHY = { no_page_text: 'No page text to summarise (the official page was empty or too short)', summary_failed: 'The summary failed a check (too long, copied the page, or had contact details)', summary_unavailable: 'AI summaries are off (no API key)', ai_daily_limit: "Today's AI summaries for the collector are used up", experience_not_stated: 'Experience not stated', city_not_stated: 'City not stated' };
+const COLLECTOR_WHY = { no_page_text: 'No page text to summarise (the official page was empty or too short)', summary_failed: 'The summary failed a check (too long, copied the page, or had contact details)', summary_unavailable: 'AI summaries are off (no API key)', ai_error: 'The AI could not be reached (an API error); sent back to the collector, so its next run writes the summary', ai_daily_limit: "Today's AI summaries for the collector are used up", experience_not_stated: 'Experience not stated', city_not_stated: 'City not stated' };
 
 function ReviewBox({ j, onDone }) {
   const toast = useToast();
@@ -343,7 +372,9 @@ function ReviewBox({ j, onDone }) {
   );
 }
 
-const REASON = { scam: 'Asks for money / scam', fake: 'Fake or misleading', unfair: 'Unfair or discriminatory', wrong_info: 'Wrong details', expired: 'Already filled or closed', other: 'Something else' };
+const REASON = { scam: 'Asks for money / scam', fake: 'Fake or misleading', unfair: 'Unfair or discriminatory', wrong_info: 'Wrong details', expired: 'Already filled or closed', other: 'Something else',
+  // Vetting Trust T4 "Report fraud" (also in Vetting Trust -> Fraud reports)
+  money: 'Asked for money', fake_company: 'Fake company', impersonation: 'Impersonation', misleading: 'Misleading job', harassment: 'Harassment' };
 
 /** Jobs students reported. Dismiss (the reports were wrong; a job they paused goes live again) or close with a note. */
 function Reports() {
@@ -407,7 +438,7 @@ function CollectorReview() {
   return (
     <Loading st={st}>{(d) => (
       <div className="stack g12" data-testid="collector-review">
-        <div className="row g12" style={{ flexWrap: 'wrap' }}>
+        <div className="ad-kpis">
           <Kpi label="Waiting for review" value={d.total} sub={`${d.sentBack} sent back to the collector`} />
         </div>
         <section className="card stack g8" aria-label="Why they wait">
@@ -432,8 +463,132 @@ function CollectorReview() {
             : <button type="button" className="btn btn-outline btn-sm" style={{ alignSelf: 'flex-start' }} onClick={() => setSure(true)} data-testid="cr-abroad">Close jobs outside India ({d.outsideIndia})</button>)
             : <span className="small">None waiting.</span>}
         </section>
+        <ReviewQueue reasons={Object.keys(d.byReason)} onChanged={st.reload} />
       </div>
     )}</Loading>
+  );
+}
+
+const FROM = { job: 'on the job', location: 'from the location', summary: 'from the summary', title: 'from the title' };
+const QUEUE_SORT = { title: (j) => j.title, company: (j) => j.company.name, city: (j) => j.cityGuess.join(', '), posted: (j) => j.postedAt };
+
+/** Round W: the waiting jobs one by one, with bulk Approve / Close (this page, or every job that matches) and
+ *  "Approve all that have a city". A job without a summary is never approved (Edit, write one, then Approve). */
+function ReviewQueue({ reasons, onChanged }) {
+  const toast = useToast();
+  const [f, setF] = useState({ reason: '', q: '' });
+  const [applied, setApplied] = useState(f);
+  const [page, setPage] = useState(1);
+  const qs = new URLSearchParams({ ...Object.fromEntries(Object.entries(applied).filter(([, v]) => v)), page: String(page) });
+  const st = useApi(`/api/admin/jobs/review?${qs}`);
+  const [picked, setPicked] = useState(() => new Set());
+  const [everything, setEverything] = useState(false); // every job that matches the filter, not just this page
+  const [closing, setClosing] = useState(false);
+  const [note, setNote] = useState('');
+  const [sureCity, setSureCity] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const [busy, run] = useAction(toast);
+  const items = st.data?.items || [];
+  const { rows, sort, onSort } = useSort(items, QUEUE_SORT);
+  const clear = () => { setPicked(new Set()); setEverything(false); setClosing(false); setNote(''); };
+  const refresh = () => { clear(); st.reload(); onChanged(); };
+  const pageAll = items.length > 0 && items.every((j) => picked.has(j.id));
+  const togglePage = () => { setEverything(false); setPicked(pageAll ? new Set() : new Set(items.map((j) => j.id))); };
+  const toggle = (id) => {
+    if (everything) { setEverything(false); setPicked(new Set(items.map((j) => j.id).filter((x) => x !== id))); return; } // all but this one, on this page
+    setPicked((p) => { const n = new Set(p); if (n.has(id)) n.delete(id); else n.add(id); return n; });
+  };
+  const count = everything ? st.data?.total || 0 : picked.size;
+  const act = (action) => run(async () => {
+    const body = everything ? { action, all: true, reason: applied.reason, q: applied.q, note } : { action, ids: [...picked], note };
+    const r = await http('/api/admin/jobs/review/bulk', { method: 'POST', body });
+    toast(`${action === 'approve' ? 'Approved' : 'Closed'} ${r.done}${r.skipped ? ` · ${r.skipped} skipped (no summary yet, or already handled)` : ''}`);
+    refresh();
+  });
+  const approveCity = () => run(async () => {
+    const r = await http('/api/admin/jobs/review/approve-with-city', { method: 'POST' });
+    setSureCity(false);
+    toast(`${r.approved} approved with their city${r.noCity ? ` · ${r.noCity} still need a city` : ''}`);
+    refresh();
+  });
+  return (
+    <section className="card stack g12" aria-label="Waiting jobs" data-testid="review-queue">
+      <div className="row between g8" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
+        <strong>Waiting jobs</strong>
+        {st.data && (st.data.cityReady > 0 ? (sureCity
+          ? <span className="row g8" style={{ flexWrap: 'wrap' }}><button type="button" className="btn btn-signal btn-sm" disabled={busy} onClick={approveCity} data-testid="rq-city-yes">Yes, approve {st.data.cityReady}</button><button type="button" className="btn btn-outline btn-sm" onClick={() => setSureCity(false)}>Not now</button></span>
+          : <button type="button" className="btn btn-outline btn-sm" onClick={() => setSureCity(true)} data-testid="rq-city">Approve all that have a city ({st.data.cityReady})</button>)
+          : <span className="xs muted">No job is held only for a city that can be filled.</span>)}
+      </div>
+      <span className="small muted">“Approve all that have a city” puts live the jobs whose only issue is a missing city, when the city is in their stored location, summary or title; the city is filled in. Jobs without a summary are never approved: Edit, write one in your own words, then Approve.</span>
+      <form className="row g8 ad-toolbar" style={{ flexWrap: 'wrap', alignItems: 'flex-end' }} aria-label="Find waiting jobs" onSubmit={(e) => { e.preventDefault(); setPage(1); clear(); setApplied(f); }}>
+        <div className="field" style={{ flex: '2 1 200px' }}><label className="label" htmlFor="rq-q">Find</label><input id="rq-q" className="input" placeholder="Title, company or place" value={f.q} onChange={(e) => setF({ ...f, q: e.target.value })} /></div>
+        <div className="field" style={{ flex: '1 1 200px' }}><label className="label" htmlFor="rq-r">Why it waits</label><select id="rq-r" className="input" value={f.reason} onChange={(e) => setF({ ...f, reason: e.target.value })}><option value="">Any reason</option>{reasons.map((r) => <option key={r} value={r}>{COLLECTOR_WHY[r] || r}</option>)}</select></div>
+        <button type="submit" className="btn btn-outline">Show</button>
+      </form>
+      {count > 0 && (
+        <div className="ad-bulk" role="region" aria-label="Bulk actions" data-testid="rq-bulk">
+          <strong className="small" aria-live="polite">{count} selected{everything ? ' (every matching job)' : ''}</strong>
+          {closing ? (
+            <form className="row g8" style={{ flexWrap: 'wrap', alignItems: 'center' }} onSubmit={(e) => { e.preventDefault(); act('close'); }}>
+              <label className="sr-only" htmlFor="rq-note">Why they are closed (optional)</label>
+              <input id="rq-note" className="input" style={{ height: 40, width: 'auto', minWidth: 200 }} maxLength={300} placeholder="Why (optional)" value={note} onChange={(e) => setNote(e.target.value)} />
+              <button type="submit" className="btn btn-ink btn-sm" disabled={busy}>Close {count}</button>
+              <button type="button" className="link-btn small" onClick={() => setClosing(false)}>Cancel</button>
+            </form>
+          ) : (
+            <>
+              <button type="button" className="btn btn-signal btn-sm" disabled={busy} onClick={() => act('approve')} data-testid="rq-approve">Approve {count}</button>
+              <button type="button" className="btn btn-outline btn-sm" disabled={busy} onClick={() => setClosing(true)} data-testid="rq-close">Close {count}…</button>
+            </>
+          )}
+          <button type="button" className="link-btn small" onClick={clear}>Clear selection</button>
+        </div>
+      )}
+      <Loading st={st} empty={emptyIf((d) => !d.items.length, 'Nothing waiting here.')}>{(d) => (
+        <>
+          <label className="row g8 small rq-pageall"><input type="checkbox" value="page" checked={pageAll || everything} onChange={togglePage} />Select all on this page ({d.items.length})</label>
+          {pageAll && d.total > d.items.length && !everything && (
+            <div className="well small row g8" style={{ flexWrap: 'wrap', alignItems: 'center' }}>
+              All {d.items.length} on this page are selected.
+              <button type="button" className="link-btn small" onClick={() => setEverything(true)} data-testid="rq-all-matching">Select all {d.total} matching</button>
+            </div>
+          )}
+          <div className="table-wrap mtable-wrap adx-table" tabIndex={0} role="region" aria-label="Waiting jobs — scroll sideways to see all columns">
+            <table className="table mtable" aria-label="Waiting jobs">
+              <thead><tr>
+                <th scope="col" style={{ width: 44 }}><span className="sr-only">Select</span></th>
+                <SortTh k="title" sort={sort} onSort={onSort}>Job</SortTh>
+                <SortTh k="company" sort={sort} onSort={onSort}>Company</SortTh>
+                <SortTh k="city" sort={sort} onSort={onSort}>City found</SortTh>
+                <th scope="col">Why it waits</th>
+                <SortTh k="posted" sort={sort} onSort={onSort}>Posted</SortTh>
+                <th scope="col"><span className="sr-only">Actions</span></th>
+              </tr></thead>
+              <tbody>{rows.map((j) => (
+                <tr key={j.id} className="adx-row" data-status="review" data-testid="rq-row">
+                  <td data-label="Select"><input type="checkbox" aria-label={`Select ${j.title}`} checked={everything || picked.has(j.id)} onChange={() => toggle(j.id)} /></td>
+                  <td className="adx-cell-job"><strong className="small adx-title" style={{ overflowWrap: 'anywhere' }}>{j.title}</strong>{!j.hasSummary && <div className="xs" style={{ color: 'var(--warning)' }}>No summary yet</div>}</td>
+                  <td className="small" data-label="Company">{j.company.name}</td>
+                  <td className="small" data-label="City found">{j.cityGuess.length ? <span>{j.cityGuess.join(', ')} <span className="xs faint">{FROM[j.cityFrom] || ''}</span></span> : <span className="xs muted">—</span>}</td>
+                  <td className="xs" data-label="Why it waits">{j.review.reasons.map((r) => COLLECTOR_WHY[r] || r).join(' · ')}</td>
+                  <td className="xs muted" data-label="Posted">{day(j.postedAt)}</td>
+                  <td><button type="button" className="link-btn small" onClick={() => setEditing(j.id)}>Edit</button></td>
+                </tr>
+              ))}</tbody>
+            </table>
+          </div>
+          {d.pages > 1 && (
+            <div className="row g8 adx-pager" style={{ alignItems: 'center' }}>
+              <button type="button" className="btn btn-outline" disabled={page <= 1} onClick={() => { clear(); setPage(page - 1); }}>Previous</button>
+              <span className="small">Page {d.page} of {d.pages}</span>
+              <button type="button" className="btn btn-outline" disabled={page >= d.pages} onClick={() => { clear(); setPage(page + 1); }}>Next</button>
+            </div>
+          )}
+        </>
+      )}</Loading>
+      {editing && <JobForm id={editing} onClose={() => setEditing(null)} onSaved={() => { setEditing(null); st.reload(); }} />}
+    </section>
   );
 }
 

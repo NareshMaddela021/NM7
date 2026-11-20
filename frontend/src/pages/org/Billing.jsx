@@ -7,16 +7,18 @@ import { LIMITS, PLAN_FEATURES, gstinProblem, limitText, periodText, rupees, usa
 import { downloadFrom } from '../../lib/fileDownload';
 import { pay } from '../../services/api';
 import { http } from '../../services/http';
-import { BUY_WA, WA_PAY_TEXT, WA_SAFETY, WA_WAITING, buyOnWhatsApp } from '../../lib/waPay';
+import { PAY_SOON, payError } from '../../lib/payMode';
+import PayRetry from '../../components/PayRetry';
 import { Loading, day, useAction, useApi } from '../admin/live/common';
 import CodeBox from '../../components/CodeBox';
 import { Chip, FieldGroup } from '../me/kit';
 import '../../styles/me-kit.css';
 import '../../styles/org-signup.css';
+import { IcAlert, IcCheck, IcDownload, IcEdit, IcPrint } from '../../components/icons';
 
 const STATE = { free: ['Free', 'neutral'], active: ['Active', 'ok'], grace: ['Ended — grace period', 'warn'], expired: ['Ended', 'neutral'] };
 const ORDER_TONE = { done: 'ok', pending_payment: 'warn', awaiting_payment: 'warn', expired: 'neutral', refunded: 'info', cancelled: 'neutral' };
-const ORDER_STATUS = { done: 'Paid', pending_payment: 'Waiting for payment', awaiting_payment: WA_WAITING, expired: 'Not paid', refunded: 'Refunded', cancelled: 'Cancelled' };
+const ORDER_STATUS = { done: 'Paid', pending_payment: 'Waiting for payment', awaiting_payment: 'Waiting for payment', expired: 'Not paid', refunded: 'Refunded', cancelled: 'Cancelled' };
 
 function Usage({ s }) {
   return (
@@ -51,7 +53,7 @@ function Details({ data, onSaved }) {
   };
   return (
     <form className="mcard ob-details" onSubmit={save} aria-label="Billing details">
-      <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">✎</span><span className="mcard-ht"><strong className="mcard-title">Billing details</strong><span className="mcard-sub">Printed on your invoices. The state decides how GST is charged.</span></span></header>
+      <header className="mcard-h"><span className="mcard-ic" aria-hidden="true"><IcEdit /></span><span className="mcard-ht"><strong className="mcard-title">Billing details</strong><span className="mcard-sub">Printed on your invoices. The state decides how GST is charged.</span></span></header>
       <FieldGroup>
         <div className="field full"><label className="label" htmlFor="bd-n">Legal name</label><input id="bd-n" className="input" required minLength={2} maxLength={150} value={f.legalName} onChange={(e) => setF({ ...f, legalName: e.target.value })} /></div>
         <div className="field full"><label className="label" htmlFor="bd-a">Address (with PIN code)</label><textarea id="bd-a" className="input" rows={2} required minLength={5} maxLength={400} value={f.address} onChange={(e) => setF({ ...f, address: e.target.value })} /></div>
@@ -69,7 +71,7 @@ function Buy({ data, plan, onPaid, onOrdered, refCode }) {
   const [q, setQ] = useState(null);
   const [st, setSt] = useState({});
   const [code, setCode] = useState(null); // typed partner code; null = the remembered one (partner link)
-  const [coupon, setCoupon] = useState(''); // a code from Admin → Codes, applied (instead of a partner discount)
+  const [coupon, setCoupon] = useState(''); // a code from Admin -> Codes, applied (instead of a partner discount)
   const s = data.summary;
   const renew = s.planId === plan.id && (s.state === 'active' || s.state === 'grace');
   const firstPayment = !data.orders.some((o) => o.paidAt);
@@ -96,19 +98,24 @@ function Buy({ data, plan, onPaid, onOrdered, refCode }) {
     try { setQ(await http(quoteUrl(typed, ''))); } catch { /* keep the old quote */ }
   };
   const open = () => quote(typed);
-  const mode = data.paymentMode || 'razorpay';
+  const mode = data.paymentMode === 'off' ? 'off' : 'razorpay';
+  const unpaid = useRef(null); // { key, order }: an order made but not paid (window closed), reused on Try again
   const go = async () => {
+    if (st.busy || st.waiting) return;
     setSt({ busy: true });
-    if (mode === 'whatsapp') {
-      try { await buyOnWhatsApp({ planId: plan.id, refCode: coupon ? null : typed || null, code: coupon || null }, `/api/org/${data.orgId}/billing/whatsapp`, { orderLink: false }); setSt({}); setQ(null); onOrdered(); } catch (err) { setSt({ error: err.message }); }
-      return;
-    }
+    const body = { planId: plan.id, refCode: coupon ? null : typed || null, code: coupon || null };
+    const key = JSON.stringify(body);
     try {
-      const order = await http(`/api/org/${data.orgId}/billing/checkout`, { method: 'POST', body: { planId: plan.id, refCode: coupon ? null : typed || null, code: coupon || null } });
+      const order = unpaid.current?.key === key ? unpaid.current.order : await http(`/api/org/${data.orgId}/billing/checkout`, { method: 'POST', body });
+      unpaid.current = { key, order };
       await pay(order);
+      unpaid.current = null;
       setSt({ waiting: true });
       onPaid(order.orderId);
-    } catch (err) { setSt(err.code === 'dismissed' ? {} : { error: err.message }); }
+    } catch (err) {
+      if (err.code === 'verify_failed') unpaid.current = null;
+      setSt({ payError: payError(err) });
+    }
   };
   return (
     <section className={`ob-buy ${s.planId === plan.id ? 'ob-buy-current' : ''}`} aria-label={`Buy ${plan.name}`}>
@@ -139,11 +146,12 @@ function Buy({ data, plan, onPaid, onOrdered, refCode }) {
           )}
           {q.partnerCode && <span className="xs muted">Referred by partner <span className="mono">{q.partnerCode}</span>.</span>}
           <div className="row g8" style={{ marginTop: 6 }}>
-            {mode === 'off' ? <button type="button" className="btn btn-outline" disabled data-testid="org-pay-soon">Coming soon</button>
-              : <button type="button" className="btn btn-signal" disabled={st.busy || st.waiting} onClick={go}>{st.busy ? 'Opening…' : mode === 'whatsapp' ? `${BUY_WA} · ${rupees(q.total)}` : `Pay ${rupees(q.total)}`}</button>}
+            {mode === 'off' ? <button type="button" className="btn btn-outline" disabled data-testid="org-pay-soon">{PAY_SOON}</button>
+              : <button type="button" className="btn btn-signal" disabled={st.busy || st.waiting} onClick={go}>{st.busy ? 'Waiting for your payment…' : `Pay ${rupees(q.total)}`}</button>}
             <button type="button" className="btn btn-outline" onClick={() => setQ(null)}>Cancel</button>
           </div>
-          {mode === 'whatsapp' && <span className="xs muted">{WA_PAY_TEXT} {WA_SAFETY}</span>}
+          <PayRetry error={st.payError} busy={st.busy} onRetry={go} />
+          {mode === 'razorpay' && <span className="xs muted">UPI, card, netbanking or wallet through Razorpay. The invoice is emailed once the payment is confirmed.</span>}
           {mode === 'off' && <span className="xs muted">Online payment opens soon. To buy now, use “Talk to us” on nm7.si/for-orgs.</span>}
           {renew && <span className="xs muted">Renewing continues from the day after your current plan ends.</span>}
           {!renew && s.state === 'active' && <span className="xs muted">A new plan starts today and replaces the current one.</span>}
@@ -175,14 +183,14 @@ function useWaitForPayment(reload) {
 
 const DOC_KIND = { invoice: 'Tax invoice', credit_note: 'Credit note', proforma: 'Proforma' };
 
-/** Billing → Invoices: every invoice, credit note and proforma of this organization, to download as PDF. */
+/** Billing -> Invoices: every invoice, credit note and proforma of this organization, to download as PDF. */
 function Invoices({ orgId }) {
   const toast = useToast();
   const st = useApi(`/api/org/${orgId}/billing/invoices`);
   const [busy, run] = useAction(toast);
   return (
     <section className="mcard" aria-label="Invoices">
-      <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">⎙</span><span className="mcard-ht"><strong className="mcard-title">Invoices</strong><span className="mcard-sub">Every invoice, credit note and proforma, as a PDF.</span></span></header>
+      <header className="mcard-h"><span className="mcard-ic" aria-hidden="true"><IcPrint /></span><span className="mcard-ht"><strong className="mcard-title">Invoices</strong><span className="mcard-sub">Every invoice, credit note and proforma, as a PDF.</span></span></header>
       <Loading st={st}>{(rows) => rows.length === 0 ? <span className="ob-empty small muted">Your invoices appear here after a payment.</span> : (
         <div className="table-wrap mtable-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table mtable ob-table">
           <thead><tr><th>Number</th><th>Date</th><th>Type</th><th>Amount</th><th /></tr></thead>
@@ -192,7 +200,7 @@ function Invoices({ orgId }) {
               <td className="small" data-label="Date">{day(d.date)}</td>
               <td className="small" data-label="Type">{d.kind === 'invoice' && !d.gstOn ? 'Invoice' : DOC_KIND[d.kind]}</td>
               <td className="small ob-amt" data-label="Amount">{d.kind === 'credit_note' ? '−' : ''}{rupees(d.total)}</td>
-              <td><button type="button" className="btn btn-outline btn-sm ob-dl" disabled={busy} aria-label={`Download ${d.number}`} onClick={() => run(() => downloadFrom(`/api/org/${orgId}/billing/invoices/${d.id}/pdf`, d.fileName))}><span aria-hidden="true">⤓ </span>Download PDF</button></td>
+              <td><button type="button" className="btn btn-outline btn-sm ob-dl" disabled={busy} aria-label={`Download ${d.number}`} onClick={() => run(() => downloadFrom(`/api/org/${orgId}/billing/invoices/${d.id}/pdf`, d.fileName))}><IcDownload size={16} /> Download PDF</button></td>
             </tr>
           ))}</tbody>
         </table></div>
@@ -213,7 +221,7 @@ export default function Billing({ orgId }) {
       const [label, tone] = STATE[s.state] || STATE.free;
       return (
         <div className="stack g16 ob-page">
-          {data.testMode && <div className="ob-note ob-note-warn small" role="note"><span aria-hidden="true">⚠ </span>Payments are in <strong>test mode</strong>: no real money is taken yet.</div>}
+          {data.testMode && <div className="ob-note ob-note-warn small" role="note"><IcAlert size={16} /> Payments are in <strong>test mode</strong>: no real money is taken yet.</div>}
           {waiting && <div className="ob-note small row g8" role="status">{waiting.slow ? 'Payment received by Razorpay — confirmation is taking longer than usual. This page updates on its own; you’ll also get an email.' : <><Spinner /> Payment done — waiting for Razorpay to confirm it…</>}</div>}
           <section className={`mcard ob-plan ob-plan-${s.state}`} aria-label="Your plan">
             <div className="ob-plan-top">
@@ -238,7 +246,7 @@ export default function Billing({ orgId }) {
           <div className="ob-two">
             <Details data={data} onSaved={st.reload} />
             <section className="mcard" aria-label="Payments">
-              <header className="mcard-h"><span className="mcard-ic" aria-hidden="true">✓</span><span className="mcard-ht"><strong className="mcard-title">Payments</strong></span></header>
+              <header className="mcard-h"><span className="mcard-ic" aria-hidden="true"><IcCheck /></span><span className="mcard-ht"><strong className="mcard-title">Payments</strong></span></header>
               {data.orders.length === 0 ? <span className="ob-empty small muted">No payments yet.</span> : (
                 <div className="table-wrap mtable-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table mtable ob-table">
                   <thead><tr><th>Date</th><th>Plan</th><th>Amount</th><th>Status</th><th>Invoice</th></tr></thead>

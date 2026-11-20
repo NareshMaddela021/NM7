@@ -29,6 +29,7 @@ EMAIL_CODES = "email_codes"
 SESSIONS = "sessions"
 ADMIN_CHALLENGES = "admin_challenges"
 TRUSTED_DEVICES = "trusted_devices"
+ADMIN_VIEWS = "admin_views"  # an admin's "Switch to" views and read-only "View as this user" (app/auth/views.py)
 RECOVERY_CODES = "recovery_codes"
 RATE_EVENTS = "rate_events"
 AUDIT_LOG = "audit_log"
@@ -74,6 +75,7 @@ ROLL_LISTS = "roll_lists"  # placement dashboard: a group's roll list (_id = gro
 LINKEDIN = "linkedin_profiles"  # LinkedIn services: the link, PDF / pasted text and the latest check, per user (_id)
 LINKEDIN_PACKS = "linkedin_packs"  # who owns the LinkedIn pack (_id = user id): the paying order or an admin grant
 HOME_EVENTS = "home_events"  # home page tap counters, per day (no personal data)
+SHARE_EVENTS = "share_events"  # Share button taps per day and channel (no personal data)
 JOB_MATCHES = "job_matches"  # job search: the pasted job post, its reading, the score, outputs (per user, never shared)
 FEATURE_GRANTS = "feature_grants"  # job search packs granted by an admin (_id = "<feature>:<user id>")
 COUPONS = "coupons"  # admin-managed codes (_id = the code, upper case, no spaces): type, value, items, limits, dates
@@ -102,6 +104,19 @@ AUTO_ITEMS = "auto_items"  # Auto Apply: one per (user, job), unique: applied / 
 AUTO_COPIES = "auto_copies"  # the tailored resume copy Auto Apply sent for one job (the version on the application)
 EMAIL_BLOCKS = "email_blocks"  # _id = an address or "@domain": no Auto Apply email after a bounce / a complaint
 AUTO_RUNS = "auto_runs"  # _id = IST day: the daily Auto Apply run log
+# Auto Apply 2.0 email applications (A3)
+AUTO_ALIASES = "auto_aliases"  # _id = the local part of a candidate's apply address (firstname.x7k2) → user_id
+AUTO_MAIL = "auto_mail"  # one row per Auto Apply 2.0 email sent (first / follow-up): to, source, day, delivery, reply
+AUTO_REPLIES = "auto_replies"  # a company's reply that came to a candidate's apply address (stored, forwarded)
+AUTO_MAIL_EVENTS = "auto_mail_events"  # _id = the webhook's message id: each Resend event handled once
+# Auto Apply 2.0 partner integrations (A4)
+ATS_CONNECTIONS = "ats_connections"  # _id = company id: its hiring system (partner, settings, the key encrypted)
+ATS_DELIVERIES = "ats_deliveries"  # one per application sent to a company's hiring system: state, tries, status
+FORM_SITES = "auto_form_sites"  # A5: _id = a company site (host, no www): form / one-tap only, robots, terms, counts
+# Auto Apply 2.0 one-tap (A6)
+AUTO_MORNINGS = "auto_mornings"  # _id = user:day: the morning "N jobs ready" list (items, count, seen, mailed)
+HELPER_CODES = "auto_helper_codes"  # _id = keyed hash of a pairing code for the Nm7 Apply helper: 10 minutes, one use
+HELPER_TOKENS = "auto_helper_tokens"  # one per paired browser: token hash, scope (kits, mark applied), expiry, revoked
 TALENT_POOL = "talent_pool"  # a company's saved applicants (company_id, user_id), kept as long as the application
 JOB_REMOVALS = "job_removals"  # round J: "remove this job" requests from companies (Admin → Jobs → Removal requests)
 JOB_REPORTS = "job_reports"  # _id = user:job: a student's report of a job (3 from different people pause it)
@@ -135,6 +150,47 @@ VETTING_INTERVIEWS = "vetting_interviews"  # Vetting V3: AI screening interviews
 VETTING_L4 = "vetting_l4"  # Vetting V4: Nm7 human check requests, results and references
 VETTING_REVIEWERS = "vetting_reviewers"  # Vetting V4: the reviewer network (roles, slots, calibration, quality)
 VETTING_PHOTOS = "vetting_photos"  # Vetting V2: optional photos of past work (proof tasks), deleted after 30 days
+# Vetting Trust (T1, app/trust/): consents, the age gate, the breach log, the retention runs. Every Trust data type is
+# in app/trust/retention.py with its retention limit; the four data collections below are filled by later items
+# (each document has user_id and created_at) and emptied by the retention job.
+TRUST_CONSENTS = "trust_consents"  # one row per consent given (purpose, text version, granted / withdrawn, channel)
+TRUST_PROFILES = "trust_profiles"  # _id = user id: the age gate (adult from, never the birth date), inactivity notice
+TRUST_PARENTS = "trust_parents"  # parental consent requests for under-18s (one-time link hash, parent's answer)
+TRUST_BREACHES = "trust_breaches"  # Admin → Vetting Trust → Breach log (72-hour incidents)
+TRUST_RUNS = "trust_runs"  # _id "retention" / "inactivity": the last automatic run and its counts
+TRUST_SELFIES = "trust_selfies"  # selfies and face-match results (selfie_face consent)
+TRUST_VOICE = "trust_voice"  # voice recordings (voice consent)
+TRUST_DOCUMENTS = "trust_documents"  # DigiLocker / KYC documents, never Aadhaar (documents consent)
+TRUST_SNAPSHOTS = "trust_snapshots"  # webcam snapshots during a test (webcam_snapshots consent)
+TRUST_DL_SESSIONS = "trust_dl_sessions"  # T2: DigiLocker requests (vendor reference, status; never document data)
+TRUST_EMPLOYER = "trust_employer"  # T4: _id = company id: the business registry check, badge, review (no personal data)
+TRUST_EMPLOYER_LOOKUPS = "trust_employer_lookups"  # T4: one row per paid registry lookup (counts; result only)
+TRUST_AGENT_PREFS = "trust_agent_prefs"  # T5: _id = user id: WhatsApp / call channels, language, quiet days, opt-outs
+TRUST_AGENT_CONVOS = "trust_agent_convos"  # T5: one per job × candidate: the WhatsApp / AI call flow, answers, slot
+TRUST_AGENT_EVENTS = "trust_agent_events"  # T5: one row per contact / reply / call / booking / opt-out (counts, caps)
+TRUST_AGENT_LOGS = "trust_agent_logs"  # T5: "What we said": message and call transcript text (consent; 90 days)
+TRUST_WORK_PREFS = "trust_work_prefs"  # T6: _id = user id: Work preferences (self-declared) and the coarse location pin
+TRUST_CRITERIA = "trust_criteria"  # T7: _id = job id: the job's requirements (extracted once per JD version, editable)
+TRUST_CRITERIA_EVALS = "trust_criteria_evals"  # T7: _id = user:criterion hash: Met / Not met / Unknown + a quote
+TRUST_CRITERIA_QUEUE = "trust_criteria_queue"  # T7: _id = user:criterion hash: waiting for the AI (capped passes)
+TRUST_CRITERIA_CLAIMS = "trust_criteria_claims"  # T7: evidence a candidate added (a certificate), checked by Nm7 first
+TRUST_INTEGRITY = "trust_integrity"  # T8: _id = user id: the integrity rating, human decisions per signal, the review
+TRUST_SPOKEN = "trust_spoken"  # T10: _id = interview id: the spoken-English score (sub-scores, band, provider refs)
+TRUST_SPOKEN_AUDIO = "trust_spoken_audio"  # T10: voice clips, only when Admin turns keeping on (off by default; days)
+TRUST_BOOK_LINKS = "trust_book_links"  # T11: signed one-tap links (interview, joining day, company confirm)
+TRUST_JOIN_EVENTS = "trust_join_events"  # T11: joining-day answers (coming, reschedule, joined) for T15
+TRUST_FAIRNESS_EVENTS = (
+    "trust_fairness_events"  # T12: unfair-filter warnings shown / overridden / refused (no candidates)
+)
+TRUST_REGRADES = "trust_regrades"  # T12: second-opinion re-grades of AI-graded answers (5% sample), human review
+TRUST_FAIRNESS = "trust_fairness"  # T12: _id = ISO week: the weekly pass-rate gap snapshot (counts per group only)
+TRUST_CODE_PROBLEMS = "trust_code_problems"  # T14: coding problems (statement, starters, samples, HIDDEN tests)
+TRUST_CODE = "trust_code"  # T14: _id = attempt id: the coding task's draft, runs, queued submission, hidden results
+TRUST_CODE_REPLAYS = "trust_code_replays"  # T14: editor keystroke replays (own consent, 90 days)
+TRUST_WORKTESTS = "trust_worktests"  # T15: typing / situational-judgement / aptitude attempts (order, answers, result)
+TRUST_RELIABILITY = "trust_reliability"  # T15: _id = kind:ref: showed up / joined / stayed 30 & 90 days (with consent)
+TRUST_HIRE_EVENTS = "trust_hire_events"  # T13: _id = job:kind: the first time a job reached a hiring step (no people)
+TRUST_FACE = "trust_face"  # T3: _id = user id: the ID + selfie result, retries, review, joining check (never photos)
 LEARN_PATHS = "learn_paths"  # Phase 6 S2, _id = role id: courses → project → skill check (Admin → Learning paths)
 OFFER_CHECKS = (
     "offer_checks"  # Phase 6 S5: saved offer-letter checks (text without ID numbers + result; never the file)
@@ -146,6 +202,8 @@ JOININGS = "joinings"  # Phase 6 S10: jobs joined (Nm7 offers or told by the stu
 JOINING_REPORTS = "joining_reports"  # Phase 6 S10: "not as promised" reports from check-ins (Admin → Joining reports)
 PRACTICE_ATTEMPTS = "practice_attempts"  # Phase 6 S3: practice tests (never a verified score; kept apart from H3)
 LEARN_PROGRESS = "learn_progress"  # Phase 6 S2, _id = user:role: courses ticked, the project sent, verified at
+DAILY_REPORTS = "daily_reports"  # Admin → Daily report: one snapshot per IST day (_id "YYYY-MM-DD"), 30-day trends
+COLLECTOR_RUNS = "collector_runs"  # the job collector's run reports (_id = its runId): counts, reasons, ok / error
 HIRE_PROFILES = "hire_profiles"  # Phase 5 H1, _id = user: "Ready to join" (join date, cities, salary), consent
 COLLECTIONS = (
     USERS,
@@ -153,6 +211,7 @@ COLLECTIONS = (
     SESSIONS,
     ADMIN_CHALLENGES,
     TRUSTED_DEVICES,
+    ADMIN_VIEWS,
     RECOVERY_CODES,
     RATE_EVENTS,
     AUDIT_LOG,
@@ -191,6 +250,7 @@ COLLECTIONS = (
     LINKEDIN,
     LINKEDIN_PACKS,
     HOME_EVENTS,
+    SHARE_EVENTS,
     JOB_MATCHES,
     FEATURE_GRANTS,
     COUPONS,
@@ -226,6 +286,16 @@ COLLECTIONS = (
     AUTO_COPIES,
     AUTO_RUNS,
     EMAIL_BLOCKS,
+    AUTO_ALIASES,
+    AUTO_MAIL,
+    AUTO_REPLIES,
+    AUTO_MAIL_EVENTS,
+    ATS_CONNECTIONS,
+    ATS_DELIVERIES,
+    FORM_SITES,
+    AUTO_MORNINGS,
+    HELPER_CODES,
+    HELPER_TOKENS,
     HIRE_PROFILES,
     HIRE_INVITES,
     HIRE_USAGE,
@@ -235,6 +305,42 @@ COLLECTIONS = (
     VETTING_VERIFIED,
     VETTING_QUEUE,
     VETTING_PHOTOS,
+    TRUST_CONSENTS,
+    TRUST_PROFILES,
+    TRUST_PARENTS,
+    TRUST_BREACHES,
+    TRUST_RUNS,
+    TRUST_SELFIES,
+    TRUST_VOICE,
+    TRUST_DOCUMENTS,
+    TRUST_SNAPSHOTS,
+    TRUST_DL_SESSIONS,
+    TRUST_FACE,
+    TRUST_EMPLOYER,
+    TRUST_EMPLOYER_LOOKUPS,
+    TRUST_AGENT_PREFS,
+    TRUST_AGENT_CONVOS,
+    TRUST_AGENT_EVENTS,
+    TRUST_AGENT_LOGS,
+    TRUST_WORK_PREFS,
+    TRUST_CRITERIA,
+    TRUST_CRITERIA_EVALS,
+    TRUST_CRITERIA_QUEUE,
+    TRUST_CRITERIA_CLAIMS,
+    TRUST_INTEGRITY,
+    TRUST_SPOKEN,
+    TRUST_SPOKEN_AUDIO,
+    TRUST_BOOK_LINKS,
+    TRUST_JOIN_EVENTS,
+    TRUST_FAIRNESS_EVENTS,
+    TRUST_REGRADES,
+    TRUST_FAIRNESS,
+    TRUST_HIRE_EVENTS,
+    TRUST_CODE_PROBLEMS,
+    TRUST_CODE,
+    TRUST_CODE_REPLAYS,
+    TRUST_WORKTESTS,
+    TRUST_RELIABILITY,
     VETTING_L4,
     VETTING_REVIEWERS,
     VETTING_INTERVIEWS,
@@ -254,6 +360,8 @@ COLLECTIONS = (
     PROGRAM_APPS,
     JOININGS,
     JOINING_REPORTS,
+    DAILY_REPORTS,
+    COLLECTOR_RUNS,
 )
 
 DAY = 86_400
@@ -286,6 +394,7 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel("unverified_expires_at", expireAfterSeconds=0),  # sign-ups never confirmed are dropped
         IndexModel("referral_code", unique=True, partialFilterExpression=_str("referral_code")),
         IndexModel("referred_by"),
+        IndexModel("google.sub", unique=True, partialFilterExpression=_str("google.sub")),  # Sign in with Google
     ],
     EMAIL_CODES: [
         IndexModel([("user_id", ASCENDING), ("purpose", ASCENDING), ("used_at", ASCENDING)]),
@@ -298,6 +407,7 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel("expires_at", expireAfterSeconds=DAY),
     ],
     ADMIN_CHALLENGES: [IndexModel("token_hash", unique=True), IndexModel("expires_at", expireAfterSeconds=DAY)],
+    ADMIN_VIEWS: [IndexModel("token_hash", unique=True), IndexModel("expires_at", expireAfterSeconds=DAY)],
     TRUSTED_DEVICES: [
         IndexModel("token_hash", unique=True),
         IndexModel("user_id"),
@@ -329,8 +439,41 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel([("user_id", ASCENDING), ("job_id", ASCENDING)], unique=True),  # never the same job twice
         IndexModel([("user_id", ASCENDING), ("state", ASCENDING)]),
         IndexModel([("state", ASCENDING), ("updated_at", DESCENDING)]),
+        # A7: the Admin numbers count 2.0 items by when they were made (aggregations, never whole collections)
+        IndexModel([("v2", ASCENDING), ("created_at", ASCENDING)], partialFilterExpression={"v2": True}),
     ],
-    AUTO_COPIES: [IndexModel([("user_id", ASCENDING), ("job_id", ASCENDING)])],
+    AUTO_COPIES: [
+        IndexModel([("user_id", ASCENDING), ("job_id", ASCENDING)]),
+        # Auto Apply 2.0: one tailored version per (candidate, job, resume version), never tailored twice
+        IndexModel("cache_key", unique=True, partialFilterExpression=_str("cache_key")),
+    ],
+    AUTO_ALIASES: [IndexModel("user_id", unique=True)],
+    AUTO_MAIL: [
+        # one first email and one follow-up per (candidate, job), ever
+        IndexModel([("user_id", ASCENDING), ("job_id", ASCENDING), ("kind", ASCENDING)], unique=True),
+        IndexModel([("user_id", ASCENDING), ("day", ASCENDING)]),
+        IndexModel([("domain", ASCENDING), ("day", ASCENDING)]),
+        IndexModel("provider_id", partialFilterExpression=_str("provider_id")),
+        IndexModel([("kind", ASCENDING), ("at", ASCENDING)]),
+    ],
+    AUTO_REPLIES: [IndexModel([("user_id", ASCENDING), ("received_at", DESCENDING)]), IndexModel("item_id")],
+    AUTO_MAIL_EVENTS: [IndexModel("at", expireAfterSeconds=30 * DAY)],
+    ATS_CONNECTIONS: [IndexModel("partner")],
+    FORM_SITES: [IndexModel([("state", ASCENDING), ("last_tried", DESCENDING)])],
+    AUTO_MORNINGS: [IndexModel([("user_id", ASCENDING), ("day", DESCENDING)])],
+    HELPER_CODES: [IndexModel("user_id"), IndexModel("expires_at", expireAfterSeconds=0)],
+    HELPER_TOKENS: [
+        IndexModel("token_hash", unique=True),
+        IndexModel([("user_id", ASCENDING), ("created_at", DESCENDING)]),
+    ],
+    ATS_DELIVERIES: [
+        IndexModel("app_id", unique=True),  # one delivery per application, ever
+        IndexModel([("state", ASCENDING), ("next_at", ASCENDING)]),
+        IndexModel([("state", ASCENDING), ("checked_at", ASCENDING)]),
+        IndexModel([("partner", ASCENDING), ("day", ASCENDING)]),
+        IndexModel([("company_id", ASCENDING), ("created_at", DESCENDING)]),
+        IndexModel("user_id"),
+    ],
     HIRE_PROFILES: [IndexModel([("on", ASCENDING), ("confirmed_at", DESCENDING)])],
     LEARN_PROGRESS: [IndexModel([("user_id", ASCENDING), ("updated_at", DESCENDING)])],
     PRACTICE_ATTEMPTS: [IndexModel([("user_id", ASCENDING), ("started_at", DESCENDING)])],
@@ -377,6 +520,108 @@ INDEXES: dict[str, list[IndexModel]] = {
     VETTING_QUEUE: [IndexModel([("kind", ASCENDING), ("status", ASCENDING), ("created_at", DESCENDING)])],
     VETTING_PHOTOS: [IndexModel("delete_at", expireAfterSeconds=0), IndexModel("attempt_id")],
     VETTING_LEVEL_LOG: [IndexModel([("user_id", ASCENDING), ("at", DESCENDING)])],
+    TRUST_CONSENTS: [IndexModel([("user_id", ASCENDING), ("purpose", ASCENDING), ("granted_at", DESCENDING)])],
+    TRUST_PARENTS: [IndexModel("token_hash", unique=True, sparse=True), IndexModel("user_id")],
+    TRUST_BREACHES: [IndexModel([("detected_at", DESCENDING)])],
+    TRUST_SELFIES: [IndexModel("user_id"), IndexModel("created_at")],
+    TRUST_VOICE: [IndexModel("user_id"), IndexModel("created_at")],
+    TRUST_DOCUMENTS: [
+        IndexModel("user_id"),
+        IndexModel("created_at"),
+        IndexModel("pan_hash", sparse=True),
+        IndexModel([("review.status", ASCENDING), ("fetched_at", DESCENDING)]),
+    ],  # fmt: skip
+    TRUST_DL_SESSIONS: [
+        IndexModel("user_id"),
+        IndexModel("created_at"),
+        IndexModel([("vendor", ASCENDING), ("vendor_ref", ASCENDING)]),
+    ],  # fmt: skip
+    TRUST_SNAPSHOTS: [
+        IndexModel("user_id"),
+        IndexModel("created_at"),
+        IndexModel([("session", ASCENDING), ("kind", ASCENDING)]),
+    ],
+    TRUST_INTEGRITY: [
+        IndexModel([("review.status", ASCENDING), ("review.opened_at", ASCENDING)]),
+        IndexModel([("level", ASCENDING), ("at", DESCENDING)]),
+        IndexModel("updated_at"),
+    ],
+    TRUST_FACE: [
+        IndexModel("process_at"),
+        IndexModel([("review.status", ASCENDING), ("updated_at", DESCENDING)]),
+        IndexModel([("continuity.review.status", ASCENDING)]),
+    ],  # fmt: skip
+    TRUST_EMPLOYER: [
+        IndexModel([("status", ASCENDING), ("next_check_at", ASCENDING)]),
+        IndexModel("number_hash"),
+        IndexModel("checked_at"),
+    ],  # fmt: skip
+    TRUST_EMPLOYER_LOOKUPS: [IndexModel("at"), IndexModel([("company_id", ASCENDING), ("at", DESCENDING)])],
+    TRUST_AGENT_PREFS: [IndexModel("wa_id"), IndexModel("updated_at")],
+    TRUST_WORK_PREFS: [IndexModel("updated_at"), IndexModel("location.at", sparse=True)],
+    TRUST_SPOKEN: [IndexModel([("user_id", ASCENDING), ("created_at", DESCENDING)]), IndexModel("created_at")],
+    TRUST_SPOKEN_AUDIO: [IndexModel("user_id"), IndexModel("created_at")],
+    TRUST_CRITERIA_EVALS: [IndexModel("user_id"), IndexModel("at")],
+    TRUST_CRITERIA_QUEUE: [IndexModel("at"), IndexModel("job_id"), IndexModel("user_id")],
+    TRUST_CRITERIA_CLAIMS: [
+        IndexModel([("user_id", ASCENDING), ("created_at", DESCENDING)]),
+        IndexModel([("status", ASCENDING), ("created_at", ASCENDING)]),
+    ],
+    TRUST_AGENT_CONVOS: [
+        IndexModel([("job_id", ASCENDING), ("user_id", ASCENDING)], unique=True),
+        IndexModel([("state", ASCENDING), ("next_at", ASCENDING)]),
+        IndexModel([("user_id", ASCENDING), ("updated_at", DESCENDING)]),
+        IndexModel("call.ref"),
+        IndexModel("created_at"),
+    ],  # fmt: skip
+    TRUST_AGENT_EVENTS: [
+        IndexModel([("user_id", ASCENDING), ("day", ASCENDING), ("kind", ASCENDING)]),
+        IndexModel([("at", DESCENDING)]),
+        IndexModel([("job_id", ASCENDING), ("kind", ASCENDING)]),
+        IndexModel("msg_id", sparse=True),
+    ],  # fmt: skip
+    TRUST_BOOK_LINKS: [
+        IndexModel("key", unique=True),
+        IndexModel([("user_id", ASCENDING), ("kind", ASCENDING)]),
+        IndexModel([("company_id", ASCENDING), ("updated_at", DESCENDING)]),
+        IndexModel("expires_at"),
+    ],  # fmt: skip
+    TRUST_JOIN_EVENTS: [
+        IndexModel([("offer_id", ASCENDING), ("at", ASCENDING)]),
+        IndexModel([("user_id", ASCENDING), ("at", DESCENDING)]),
+        IndexModel([("company_id", ASCENDING), ("at", DESCENDING)]),
+        IndexModel("at"),
+    ],  # fmt: skip
+    TRUST_FAIRNESS_EVENTS: [IndexModel("at"), IndexModel([("company_id", ASCENDING), ("at", DESCENDING)])],
+    TRUST_CODE_PROBLEMS: [IndexModel("skills")],
+    TRUST_CODE: [
+        IndexModel("user_id"),
+        IndexModel("created_at"),
+        IndexModel([("submission.status", ASCENDING), ("submission.next_at", ASCENDING)], sparse=True),
+    ],
+    TRUST_CODE_REPLAYS: [IndexModel("user_id"), IndexModel("attempt_id"), IndexModel("created_at")],
+    TRUST_WORKTESTS: [
+        IndexModel([("user_id", ASCENDING), ("key", ASCENDING), ("started_at", DESCENDING)]),
+        IndexModel([("test", ASCENDING), ("status", ASCENDING), ("submitted_at", DESCENDING)]),
+        IndexModel("started_at"),
+    ],  # fmt: skip
+    TRUST_RELIABILITY: [
+        IndexModel([("user_id", ASCENDING), ("at", DESCENDING)]),
+        IndexModel([("state", ASCENDING), ("respond_by", ASCENDING)]),
+        IndexModel("at"),
+    ],  # fmt: skip
+    TRUST_HIRE_EVENTS: [IndexModel("job_id"), IndexModel([("company_id", ASCENDING), ("at", DESCENDING)])],
+    TRUST_REGRADES: [
+        IndexModel([("kind", ASCENDING), ("ref", ASCENDING)], unique=True),
+        IndexModel([("status", ASCENDING), ("at", DESCENDING)]),
+        IndexModel([("user_id", ASCENDING)]),
+        IndexModel("at"),
+    ],  # fmt: skip
+    TRUST_AGENT_LOGS: [
+        IndexModel([("user_id", ASCENDING), ("created_at", DESCENDING)]),
+        IndexModel("convo_id"),
+        IndexModel("created_at"),
+    ],
     VETTING_L4: [
         IndexModel([("user_id", ASCENDING), ("requested_at", DESCENDING)]),
         IndexModel("referees.rid"),
@@ -399,6 +644,7 @@ INDEXES: dict[str, list[IndexModel]] = {
     JOB_REPORTS: [
         IndexModel([("job_id", ASCENDING), ("state", ASCENDING)]),
         IndexModel([("state", ASCENDING), ("at", DESCENDING)]),
+        IndexModel([("company_id", ASCENDING), ("state", ASCENDING)]),  # T4: fraud reports about a company
     ],
     COMPANIES: [
         IndexModel("slug", unique=True),
@@ -436,6 +682,7 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel("token_hash", unique=True),
         IndexModel([("org_id", ASCENDING), ("created_at", DESCENDING)]),
     ],
+    COLLECTOR_RUNS: [IndexModel([("day", ASCENDING), ("started_at", DESCENDING)])],
     AUDIT_LOG: [
         IndexModel([("at", DESCENDING)]),
         IndexModel("action"),
@@ -467,6 +714,7 @@ INDEXES: dict[str, list[IndexModel]] = {
         IndexModel("org_id"),
     ],
     HOME_EVENTS: [IndexModel("day")],
+    SHARE_EVENTS: [IndexModel("day")],
     JOB_MATCHES: [IndexModel([("user_id", ASCENDING), ("created_at", DESCENDING)])],
     COURSES: [IndexModel("skill")],
     DRIVES: [IndexModel([("org_id", ASCENDING), ("date", DESCENDING)]), IndexModel("slots.members")],
@@ -510,7 +758,13 @@ INDEXES: dict[str, list[IndexModel]] = {
     # Each item has a per-owner `key` (the id the browser uses); every lookup includes user_id.
     RESUMES: [IndexModel([("user_id", ASCENDING), ("key", ASCENDING)], unique=True)],
     COVER_LETTERS: [IndexModel([("user_id", ASCENDING), ("key", ASCENDING)], unique=True)],
-    APPLICATIONS: [IndexModel([("user_id", ASCENDING), ("key", ASCENDING)], unique=True)],
+    APPLICATIONS: [
+        IndexModel([("user_id", ASCENDING), ("key", ASCENDING)], unique=True),
+        # A7: Auto Apply 2.0's per-channel numbers (Admin → Daily report) count by sent day
+        IndexModel([("v2", ASCENDING), ("created_at", ASCENDING)], partialFilterExpression={"v2": True}),
+        # T13: time to hire reads a company's applications per job (aggregations grouped by job)
+        IndexModel([("company_id", ASCENDING), ("job_id", ASCENDING)], sparse=True),
+    ],
     ATS_CHECKS: [IndexModel([("user_id", ASCENDING), ("at", DESCENDING)])],
     # _id is the owner's user id; short is the code of the short link
     SHARES: [IndexModel("slug", unique=True), IndexModel("short", unique=True, sparse=True)],
@@ -542,7 +796,11 @@ def get_client() -> AsyncMongoClient:
 
 
 def get_database() -> AsyncDatabase:
-    return get_client().get_database(get_settings().mongodb_db, codec_options=CodecOptions(tz_aware=True, tzinfo=UTC))
+    from app.core.readonly import wrap  # a read-only admin view (app/core/readonly.py): writes are skipped
+
+    return wrap(
+        get_client().get_database(get_settings().mongodb_db, codec_options=CodecOptions(tz_aware=True, tzinfo=UTC))
+    )
 
 
 async def close_client() -> None:

@@ -11,7 +11,7 @@ from app.jobsearch import ai as job_ai
 from app.jobsearch import skills
 from app.jobsearch.parse import parse
 from app.jobsearch.score import WEIGHTS, score
-from tests.conftest import signup
+from tests.conftest import buy, signup
 from tests.jobs_helpers import POSTS, add_resume, mock_claude, reply, resume
 
 DA = POSTS["01_data_analyst_fresher"]
@@ -220,37 +220,24 @@ async def test_refused_requests_do_not_use_a_free_match(customer):
     assert (await customer.get("/api/me/jobs/access")).json()["free"]["matchesLeft"] == 3
 
 
-async def test_paid_order_unlocks_and_refund_takes_it_back(customer, owner):
-    await owner.put("/api/admin/payment-settings", json={"mode": "whatsapp", "whatsappNumber": "+91 98765 43210"})
-    o = (await customer.post("/api/orders/whatsapp", json={"planId": "tailor_pack"})).json()
-    assert o["amount"] == 49_00 and "Tailor pack" in o["message"]
+async def test_paid_order_unlocks_and_refund_takes_it_back(customer, owner, razorpay):
+    created, _ = await buy(customer, plan="tailor_pack", role=None, pay=False)
+    assert created["amount"] == 49_00 and "Tailor pack" in created["description"]
     assert (await customer.get("/api/me/jobs/access")).json()["tailor"] is False  # nothing before payment
-    body = {
-        "method": "upi",
-        "reference": "UTR-TAILOR-1",
-        "amount": 49_00,
-        "paidOn": __import__("datetime").date.today().isoformat(),
-    }  # noqa: E501
-    assert (await owner.post(f"/api/admin/whatsapp/orders/{o['orderId']}/paid", json=body)).status_code == 200
+    await buy(customer, plan="tailor_pack", role=None)
     acc = (await customer.get("/api/me/jobs/access")).json()
     assert acc["tailor"] is True and acc["tailorSource"] == "order"
-    r = await owner.post(
-        f"/api/admin/whatsapp/orders/{o['orderId']}/refund", json={"method": "upi", "reference": "RF-T-1"}
-    )
+    paid = [o for o in (await customer.get("/api/orders")).json() if o["paidAt"]]
+    r = await owner.post(f"/api/admin/orders/{paid[0]['id']}/razorpay-refund", json={"reason": "other"})
     assert r.status_code == 200, r.text
     assert (await customer.get("/api/me/jobs/access")).json()["tailor"] is False
 
 
-async def test_the_rs_99_plan_includes_the_tailor_pack_and_launch_the_interview_pack(customer, owner):
-    from tests.test_wapay import paid
-
-    await owner.put("/api/admin/payment-settings", json={"mode": "whatsapp", "whatsappNumber": "+91 98765 43210"})
-    o = (await customer.post("/api/orders/whatsapp", json={"planId": "diy"})).json()
-    await paid(owner, o["orderId"], reference="UTR-DIY-J", amount=99_00)
+async def test_the_rs_99_plan_includes_the_tailor_pack_and_launch_the_interview_pack(customer, owner, razorpay):
+    await buy(customer, plan="diy", role=None)
     acc = (await customer.get("/api/me/jobs/access")).json()
     assert acc["tailor"] and acc["tailorSource"] == "plan" and not acc["interview"]
-    o = (await customer.post("/api/orders/whatsapp", json={"planId": "launch", "role": "Analyst"})).json()
-    await paid(owner, o["orderId"], reference="UTR-LAUNCH-J", amount=2999_00)
+    await buy(customer, plan="launch", role="Analyst")
     assert (await customer.get("/api/me/jobs/access")).json()["interview"] is True
 
 

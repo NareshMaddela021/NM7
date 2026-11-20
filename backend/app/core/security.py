@@ -30,7 +30,7 @@ async def hash_password(password: str) -> str:
 async def verify_password(hash_: str | None, password: str) -> bool:
     """Checks a password. With no hash (unknown account) it still spends the same time, then fails."""
     ok = await run_in_threadpool(_verify, hash_ or _DUMMY_HASH, password)
-    return ok and hash_ is not None
+    return ok and bool(hash_)  # "" is "no password" (deleted or Google-only accounts): nothing matches it
 
 
 def needs_rehash(hash_: str) -> bool:

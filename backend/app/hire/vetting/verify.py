@@ -315,7 +315,7 @@ async def rate(
 
 async def free_slots(db, test: str | None, t: datetime) -> list[dict[str, Any]]:
     """The next 7 days of reviewer slots (weekly hours), minus booked ones, for reviewers of this role."""
-    q: dict[str, Any] = {"status": "active"}
+    q: dict[str, Any] = {"status": "active", "demo": {"$ne": True}}  # an admin's expert persona never gets a booking
     if test:
         q["roles"] = test
     booked = {r["slot_at"] async for r in db[VETTING_L4].find({"slot_at": {"$gt": t}}, {"slot_at": 1})}
@@ -470,7 +470,7 @@ async def reviewer_apply(body: ReviewerIn, auth: ReviewerAuth, db: DB) -> dict[s
         if 0 <= int(s.get("day", -1)) <= 6 and 8 <= int(s.get("hour", -1)) <= 20
     ]
     t = now()
-    await db[VETTING_REVIEWERS].update_one({"_id": auth.user.id}, {"$set": {"roles": roles, "about": body.about, "slots": slots, "updated_at": t},
+    await db[VETTING_REVIEWERS].update_one({"_id": auth.user.id}, {"$set": {"roles": roles, "about": body.about, "slots": slots, "updated_at": t, "demo": auth.user.demo},
                                                                    "$setOnInsert": {"status": "calibrating", "created_at": t, "completed": 0}}, upsert=True)  # fmt: skip
     return await reviewer_me(auth, db)
 
@@ -579,7 +579,7 @@ async def result(cid: str, body: ResultIn, auth: ReviewerAuth, db: DB) -> dict[s
     }
     if random.random() < SENIOR_SHARE:
         senior = await db[VETTING_REVIEWERS].find_one(
-            {"status": "active", "senior": True, "_id": {"$ne": auth.user.id}}
+            {"status": "active", "senior": True, "_id": {"$ne": auth.user.id}, "demo": {"$ne": True}}
         )
         if senior:
             sets["senior_for"] = senior["_id"]

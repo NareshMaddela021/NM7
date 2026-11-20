@@ -1,7 +1,7 @@
 // Admin → Organizations → Demo → "Reset and open as coordinator", on a desktop and a 390 px phone, against the real
 // API: no email code; the demo college's portal opens with the Demo banner; every college tab works (drives,
 // offers, alumni, reviewers, dashboard) and the college group roll-up; the session can't open a real organization,
-// resumes or orders; "Sign out of the demo" ends it.
+// resumes or orders; the admin is never signed out, and "Back to Admin" returns to the console.
 import { expect, test } from '@playwright/test';
 import { PASSWORD, adminLogin, seed } from './helpers.mjs';
 import { SIZES, call, json, noSideScroll } from './college.mjs';
@@ -35,11 +35,14 @@ for (const [label, opts] of SIZES) {
       expect((await call(page, `/api/org/${real.id}`)).status).toBe(403);
       expect((await call(page, '/api/me/resumes')).status).toBe(403);
       expect((await call(page, '/api/admin/orgs')).status).toBe(403);
-      // sign out
+      // opened from the admin console, it is an admin view: the admin was never signed out, and one click returns
       await page.goto('/org/demo-engineering-college');
-      await page.getByTestId('demo-signout').click();
-      await page.waitForURL('**/login**');
-      expect((await call(page, '/api/auth/me')).status).toBe(401);
+      await expect(page.getByTestId('view-banner')).toContainText('You are viewing as College (admin preview)');
+      await expect(page.getByTestId('demo-signout')).toHaveCount(0);
+      await page.getByTestId('back-to-admin').click();
+      await page.waitForURL('**/admin');
+      expect((await call(page, '/api/auth/me')).body.role).toBe('admin');
+      await expect(page.getByTestId('view-banner')).toHaveCount(0);
     });
   });
 }

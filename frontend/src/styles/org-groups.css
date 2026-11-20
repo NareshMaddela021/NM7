@@ -46,7 +46,7 @@
 
 /* ---------- group cards ---------- */
 .og-group-list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
-@media (min-width: 1440px) { .og-group-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1200px) { .og-group-list { grid-template-columns: repeat(auto-fill, minmax(min(100%, 520px), 1fr)); } } /* round W: 2–3 to a row */
 .og-gcard { gap: 16px; border-top: 4px solid #14b8a6; }
 .og-gcard-closed, .og-gcard-ended { border-top-color: #cbd5e1; }
 .og-gcard-top { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; }

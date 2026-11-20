@@ -20,6 +20,7 @@ from fastapi import APIRouter, Header, Response
 from pydantic import Field, field_validator
 
 from app.audit import audit
+from app.auth.deps import MaybeAuth
 from app.companies.limits import posting_room
 from app.companies.model import MANAGE, trust_of
 from app.companies.signup import _save, company_for
@@ -27,7 +28,7 @@ from app.core.db import APPLICATIONS, AUDIT_LOG, COMPANIES, DB, HIRE_INVITES, HI
 from app.core.errors import ApiError
 from app.core.schemas import CamelModel
 from app.hire.speed import hired_in_30
-from app.jobs.public import live_filter, public_out
+from app.jobs.public import live_filter, public_out, with_employer
 from app.me.service import ms
 
 router = APIRouter(prefix="/api/company", tags=["companies"])
@@ -117,7 +118,7 @@ def _public_ok(c: dict[str, Any] | None) -> bool:
 
 
 @public.get("/{slug}")
-async def company_page(slug: str, db: DB) -> dict[str, Any]:
+async def company_page(slug: str, db: DB, auth: MaybeAuth) -> dict[str, Any]:
     c = await db[COMPANIES].find_one({"slug": slug[:80]})
     if not _public_ok(c):
         raise ApiError(404, "not_found", "This company isn’t on Nm7.")
@@ -125,7 +126,14 @@ async def company_page(slug: str, db: DB) -> dict[str, Any]:
     jobs = await db[JOBS].find({"$and": [live_filter(), {"company_id": c["_id"]}]}, {"description": 0}).sort(
         "posted_at", -1
     ).to_list(100)  # fmt: skip
+    from app.trust.employer.router import card_badges, public_items
+
+    extra: dict[str, Any] = {}
+    if (items := await public_items(db, auth, c["_id"])) is not None:  # Vetting Trust T4 (else the page is unchanged)
+        extra["employerTrust"] = items
+    employers = await card_badges(db, auth, jobs)
     return {
+        **extra,
         "slug": c["slug"],
         "name": d["legal_name"],
         "about": d.get("about", ""),
@@ -138,7 +146,7 @@ async def company_page(slug: str, db: DB) -> dict[str, Any]:
         "score": (c.get("score") or {}).get("value"),
         "parts": (c.get("score") or {}).get("parts") or [],
         "replyDays": (c.get("score") or {}).get("replyDays"),
-        "jobs": [public_out(j) for j in jobs],
+        "jobs": [with_employer(public_out(j), j, employers) for j in jobs],
         "hiredIn30": await hired_in_30(db, c["_id"]),  # Phase 5 H9: only from real roles
     }
 

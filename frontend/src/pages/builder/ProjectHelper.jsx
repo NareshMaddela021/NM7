@@ -1,11 +1,12 @@
-// Projects → "Make this project stronger": six short questions (typed or spoken in any language), then 2-4 bullets
+// Projects -> "Make this project stronger": six short questions (typed or spoken in any language), then 2-4 bullets
 // written only from the answers (AI while today's 3 free uses last, fact-checked on the server; else made from the
-// answers by rules). Before → after with Accept / Edit / Skip. Nothing is added to the resume until Accept.
+// answers by rules). Before -> after with Accept / Edit / Skip. Nothing is added to the resume until Accept.
 import { useRef, useState } from 'react';
 import { Spinner } from '../../components/ui';
 import { http, LIVE } from '../../services/http';
 import { KEYBOARD_TIP, speechLanguages, appendSpeech, defaultSpeechLang, rememberSpeechLang, useSpeech } from '../../lib/summary/speech';
 import { localBullets } from '../../lib/projectHelper';
+import { IcMic, IcStop } from '../../components/icons';
 
 export const QUESTIONS = [
   ['built', 'What did you build?', 'e.g. a college attendance app'],
@@ -25,7 +26,7 @@ function Answer({ id, label, ph, value, onChange, speak, active }) {
         <input id={`ph-${id}`} className="input" style={{ height: 40, minWidth: 0, flex: 1 }} maxLength={short ? 60 : 300} placeholder={ph}
           inputMode={short ? 'numeric' : undefined} value={value} onChange={(e) => onChange(e.target.value)} data-testid={`ph-${id}`} />
         {speak && !short && (
-          <button type="button" className="btn btn-outline" style={{ minHeight: 40, padding: '0 10px' }} aria-pressed={active} aria-label={`${active ? 'Stop' : 'Speak'}: ${label}`} onClick={speak}>{active ? '■' : '🎤'}</button>
+          <button type="button" className="btn btn-outline" style={{ minHeight: 40, padding: '0 10px' }} aria-pressed={active} aria-label={`${active ? 'Stop' : 'Speak'}: ${label}`} onClick={speak}>{active ? <IcStop size={16} /> : <IcMic size={16} />}</button>
         )}
       </div>
     </div>
@@ -59,7 +60,7 @@ export default function ProjectHelper({ project, onAccept }) {
   };
   const before = (project?.description || '').trim();
   if (!open) {
-    return <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} onClick={() => setOpen(true)} data-testid="ph-open">✨ Make this project stronger</button>;
+    return <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} onClick={() => setOpen(true)} data-testid="ph-open">Make this project stronger</button>;
   }
   const text = (out?.bullets || []).join('\n');
   return (
@@ -104,7 +105,7 @@ export default function ProjectHelper({ project, onAccept }) {
               )}
             </div>
           </div>
-          {out.tip && <span className="xs" data-testid="ph-tip">💡 {out.tip}</span>}
+          {out.tip && <span className="xs" data-testid="ph-tip">Tip: {out.tip}</span>}
           {out.note && <span className="xs muted" data-testid="ph-note">{out.note}</span>}
           <div className="row g8" style={{ flexWrap: 'wrap' }}>
             <button type="button" className="btn btn-ink" onClick={() => { onAccept(edit ?? text); setOpen(false); setOut(null); }} data-testid="ph-accept">Accept</button>

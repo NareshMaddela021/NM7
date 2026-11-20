@@ -2,10 +2,10 @@
 // only from the student's own answers, for the preview build and whenever the server can't be reached.
 export const TIP = 'Add a number if you have one (users, accuracy, time saved).';
 const t = (s) => String(s ?? '').replace(/\s+/g, ' ').trim();
-const tidy = (b) => { const s = t(b).replace(/^[•\-*–▸ ]+/, '').replace(/[ .]+$/, ''); return s.charAt(0).toUpperCase() + s.slice(1); };
+const tidy = (b) => { const s = t(b).replace(/^[•\-*–\u25B8 ]+/, '').replace(/[ .]+$/, ''); return s.charAt(0).toUpperCase() + s.slice(1); };
 const join = (xs) => (xs.length === 1 ? xs[0] : `${xs.slice(0, -1).join(', ')} and ${xs[xs.length - 1]}`);
 const NUMBER = /\d+(?:[.,]\d+)?/;
-// the same as helper.py: a "what does it do" answer that starts with one of these verbs → "Designed it to <verb> …"
+// the same as helper.py: a "what does it do" answer that starts with one of these verbs -> "Designed it to <verb> …"
 const VERBS = new Set(['helps', 'lets', 'allows', 'shows', 'tracks', 'predicts', 'finds', 'sends', 'reads', 'makes', 'gives', 'displays',
   'stores', 'counts', 'lists', 'records', 'calculates', 'checks', 'reminds', 'notifies', 'books', 'manages',
   'collects', 'compares', 'converts', 'generates', 'sorts', 'matches', 'suggests', 'detects', 'scans', 'keeps',

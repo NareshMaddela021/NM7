@@ -119,10 +119,10 @@ export const HOBBY_IDEAS = ['Reading', 'Playing cricket', 'Listening to music', 
 export const STRENGTH_IDEAS = ['Quick learner', 'Hard working', 'Team player', 'Good communication skills', 'Positive attitude', 'Adaptable', 'Problem solving', 'Time management', 'Self-motivated', 'Leadership'];
 // the fields that print as running text and can hold **bold** words (lib/bold.js)
 export const RICH_FIELDS = { exp: 'description', proj: 'description', ach: 'description', custom: 'description' };
-/** "a, b" or one per line → ['a', 'b'] */
+/** "a, b" or one per line -> ['a', 'b'] */
 /** A typed value, or '' when it is empty or still a sample placeholder like “[College]”. */
 export const real = (v) => { const t = (v ?? '').toString().trim(); return !t || /\[[^\]]*\]/.test(t) ? '' : t; };
-export const splitList = (v) => (v || '').split(/\n|,/).map((x) => x.trim().replace(/^[•\-*▸–]\s*/, '')).filter(Boolean);
+export const splitList = (v) => (v || '').split(/\n|,/).map((x) => x.trim().replace(/^[•\-*\u25B8–]\s*/, '')).filter(Boolean);
 export const LINK_FIELDS = [
   f('linkedin', 'LinkedIn · optional', 'url', { full: true, ph: 'linkedin.com/in/yourname' }), f('github', 'GitHub · optional', 'url', { full: true, ph: 'github.com/yourusername' }),
   f('portfolio', 'Portfolio / website · optional', 'url', { full: true, ph: 'yourname.dev' }), f('twitter', 'X / Twitter · optional', 'url', { ph: 'x.com/yourhandle' }),
@@ -219,7 +219,7 @@ export const emptyResume = () => structuredClone(EMPTY);
 /** A stored or imported resume with every field present: missing fields are empty, never the sample's. */
 export const completeResume = (d) => migrateLinks({ ...emptyResume(), ...(d || {}) });
 
-/** Which sections have meaningful content (drives ✓ marks and the score). */
+/** Which sections have meaningful content (drives the tick marks and the score). */
 export function completeness(d) {
   const has = {
     personal: !!(d.personal.name && d.personal.email && d.personal.phone && d.personal.level), // the required fields

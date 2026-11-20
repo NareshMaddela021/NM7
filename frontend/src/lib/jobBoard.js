@@ -28,7 +28,7 @@ export function searchJobs(filters = {}, page = 1) {
 
 export const getJob = (slug) => http(`/api/jobs/${encodeURIComponent(slug)}`);
 
-/* ---------- filters ⇄ URL ---------- */
+/* ---------- filters <-> URL ---------- */
 
 const KEYS = ['q', 'experience', 'city', 'jobType', 'workType', 'salary', 'posted', 'support', 'sort'];
 // Phase 6 S9: returning after a break, immediate joiners, inclusive employers (declared by the company), accessible workplaces
@@ -49,7 +49,7 @@ export function fromQuery(search) {
   return Object.fromEntries(Object.entries(f).filter(([, v]) => v));
 }
 
-/** Filters → URL query values (only the ones set), in a fixed order. */
+/** Filters -> URL query values (only the ones set), in a fixed order. */
 export function toQuery(f = {}) {
   const out = {};
   for (const k of KEYS) {
@@ -100,7 +100,7 @@ const MONTHS = { '1_3': 12, '3_5': 36, '5_8': 60, '8_12': 96, '12_15': 144, '15_
 const escHtml = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 const iso = (ms) => new Date(ms).toISOString();
 
-/** Plain text with line breaks → simple HTML paragraphs (Google shows the description as HTML). */
+/** Plain text with line breaks -> simple HTML paragraphs (Google shows the description as HTML). */
 export const descriptionHtml = (text) => String(text || '').trim().split(/\n\s*\n/).map((p) => `<p>${escHtml(p).replace(/\n/g, '<br>')}</p>`).join('');
 
 /** The JobPosting for an active job; null for a closed one (Google: take the markup off a job that has ended). */
@@ -177,11 +177,17 @@ const emit = () => { savedVersion += 1; subs.forEach((f) => f()); };
 export const listSaved = () => http('/api/me/saved-jobs');
 
 /** Loads the signed-in person's saved job ids once (again after `reset`). */
+let savedLoading = null;
 export async function loadSaved(force = false) {
   if (!LIVE || (saved && !force)) return saved;
-  try { saved = new Set((await listSaved()).items.map((j) => j.id)); } catch { saved = new Set(); }
-  emit();
-  return saved;
+  if (savedLoading && !force) return savedLoading; // many cards ask at once: one request
+  savedLoading = (async () => {
+    try { saved = new Set((await listSaved()).items.map((j) => j.id)); } catch { saved = new Set(); }
+    savedLoading = null;
+    emit();
+    return saved;
+  })();
+  return savedLoading;
 }
 export function resetSaved() { saved = null; emit(); }
 
@@ -200,9 +206,39 @@ export function useSaved() {
   return { has: (id) => !!saved?.has(id), count: saved ? saved.size : 0, loaded: !!saved };
 }
 
+/* ---------- applied jobs (signed in): "Applied" on every job card ---------- */
+
+let applied = null; // Map of job id -> status, or null until loaded
+let appliedVersion = 0;
+const appliedSubs = new Set();
+const appliedEmit = () => { appliedVersion += 1; appliedSubs.forEach((f) => f()); };
+let appliedLoading = null;
+let appliedUser = null; // whose ids these are (another sign-in loads them again)
+
+/** Loads the signed-in person's applied job ids once (GET /api/me/applied-jobs; again for another person). */
+export function loadApplied(uid = '', force = false) {
+  if (!LIVE) return Promise.resolve(applied);
+  if (uid !== appliedUser) { applied = null; appliedLoading = null; appliedUser = uid; force = true; }
+  if (applied && !force) return Promise.resolve(applied);
+  if (appliedLoading && !force) return appliedLoading;
+  appliedLoading = http('/api/me/applied-jobs').then(
+    (r) => { applied = new Map((r.items || []).map((a) => [a.id, a.status || 'applied'])); },
+    () => { applied = applied || new Map(); },
+  ).then(() => { appliedLoading = null; appliedEmit(); return applied; });
+  return appliedLoading;
+}
+export function resetApplied() { applied = null; appliedEmit(); }
+/** After an application was sent: every card for this job shows "Applied" at once. */
+export function markApplied(id, status = 'applied') { applied = new Map(applied || []); applied.set(id, status); appliedEmit(); }
+/** { has(id), status(id), loaded } — re-renders when it changes. */
+export function useApplied() {
+  useSyncExternalStore((f) => { appliedSubs.add(f); return () => appliedSubs.delete(f); }, () => appliedVersion, () => 0);
+  return { has: (id) => !!applied?.has(id), status: (id) => applied?.get(id) || null, loaded: !!applied };
+}
+
 /* ---------- the match score (J4) ---------- */
 
-/** A match → { good: ["Matches 4 of 5 skills", "Fresher OK", "In Hyderabad"], gaps: ["Asks for 3+ years"] }. */
+/** A match -> { good: ["Matches 4 of 5 skills", "Fresher OK", "In Hyderabad"], gaps: ["Asks for 3+ years"] }. */
 export function matchReasons(m, t) {
   const good = []; const gaps = [];
   if (!m) return { good, gaps };
@@ -222,7 +258,7 @@ export function matchReasons(m, t) {
 
 /* ---------- Manual Apply (J5) ---------- */
 
-/** Applies (signed in). → { method, created, application, url? (link), email? {to, subject, body} } */
+/** Applies (signed in). -> { method, created, application, url? (link), email? {to, subject, body} } */
 export const applyToJob = (id, resumeId = null, extra = {}) => http(`/api/jobs/${encodeURIComponent(id)}/apply`, { method: 'POST', body: { resumeId, ...extra } }); // extra: {consent, answers} for company jobs (C5)
 
 /** The mailto: link for an email application (subject and letter filled in). */

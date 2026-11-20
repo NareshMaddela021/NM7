@@ -33,7 +33,10 @@ for (const [label, opts] of SIZES) {
       seed('company-verify', r.company.id);
       const title = `Data Analyst ${tag}`;
       const first = `Asha${tag.slice(-5)}`; // its own name: other runs' candidates may also suit
-      const job = { title, description: 'Build weekly dashboards in SQL and Power BI for our stores. Freshers welcome; training given.', locations: ['Hyderabad'], experience: 'fresher', jobType: 'full_time', workType: 'onsite', skills: ['SQL', 'Power BI'], salary: { min: 240000, max: 360000, period: 'yearly' } };
+      // its own place: the top 10 (and "Invite all") hold only this test's candidate, however many Hyderabad
+      // candidates the other specs left in the shared database
+      const city = `Hq${Math.random().toString(36).replace(/[^a-z]/g, '').slice(0, 5).padEnd(5, 'x')}pur`;
+      const job = { title, description: 'Build weekly dashboards in SQL and Power BI for our stores. Freshers welcome; training given.', locations: [city], experience: 'fresher', jobType: 'full_time', workType: 'onsite', skills: ['SQL', 'Power BI'], salary: { min: 240000, max: 360000, period: 'yearly' } };
       const posted = await (await request.post(`${API}/api/company/${r.company.id}/jobs`, { data: { job }, headers: H })).json();
       expect(posted.status).toBe('active');
       page.on('dialog', () => { throw new Error('no browser dialogs'); });
@@ -47,7 +50,7 @@ for (const [label, opts] of SIZES) {
       const rs = (await call(page, '/api/me/resumes')).body;
       if (rs.length) await call(page, `/api/me/resumes/${rs[0].id}`, json('PATCH', { data: RESUME }));
       else expect((await call(page, '/api/me/resumes', json('POST', { id: 'r1', name: 'Main', data: RESUME, active: true }))).status).toBe(201);
-      expect((await call(page, '/api/me/hire', json('PUT', { on: true, consent: true, joinDate: '2026-12-01', cities: ['Hyderabad'], salary: { amount: 25000, unit: 'month' }, noticeDays: 15, jobTypes: ['full_time'] }))).status).toBe(200);
+      expect((await call(page, '/api/me/hire', json('PUT', { on: true, consent: true, joinDate: '2026-12-01', cities: [city], salary: { amount: 25000, unit: 'month' }, noticeDays: 15, jobTypes: ['full_time'] }))).status).toBe(200);
 
       // the company: Hire now
       const co = await (await browser.newContext(opts)).newPage();

@@ -1,4 +1,4 @@
-/* Admin → Skill checks (Vetting V2): banks, rubrics, review and integrity queues, stats. Neutral Nm7 purple like the
+/* Admin -> Skill checks (Vetting V2): banks, rubrics, review and integrity queues, stats. Neutral Nm7 purple like the
    rest of admin (admin.css + admin-jobs.css); dense tables with sticky headers on a desktop, cards on a phone (.mtable
    from me-kit.css). Every control is at least 44 px tall on a phone. */
 .vt { min-width: 0; }
@@ -8,6 +8,9 @@
 .vt-wrap { flex-wrap: wrap; }
 .vt-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .vt-chips .mchip, .vt-q-tags .mchip { white-space: normal; }
+/* Vetting Trust tab: long status chips ("Test mode: only testers and …") wrap instead of widening a 390 px page */
+.tt-page { min-width: 0; }
+.tt-page .mchip { white-space: normal; max-width: 100%; }
 
 /* toolbar */
 .vt-toolbar { align-items: flex-end; }

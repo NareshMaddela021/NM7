@@ -1,8 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { BRAND } from '../lib/brand';
-import { useAuth, signOut, homeFor, LIVE } from '../lib/auth';
+import { useAuth, LIVE } from '../lib/auth';
 import { track } from '../lib/track';
+import { Icon } from './ui';
+
 
 export function Logo({ suffix }) {
   return (
@@ -18,10 +20,13 @@ export function ThemeToggle() {
   return null;
 }
 
-/** Signed in: name + menu (my home, sign out). Signed out: "Sign in". */
+// The open menu (home, settings, "Switch to: Job seeker / Student / Expert", "Add another role", sign out): its own
+// small chunk, loaded when the menu opens, so the Easy dashboard's first download stays small.
+const AccountPanel = lazy(() => import('./AccountRoles'));
+
+/** Signed in: name + menu (my home, roles, sign out). Signed out: "Sign in" and "Create free account". */
 export function AccountMenu() {
   const { user } = useAuth();
-  const nav = useNavigate();
   const [open, setOpen] = useState(false);
   const ref = useRef();
   const { pathname } = useLocation();
@@ -33,23 +38,21 @@ export function AccountMenu() {
     document.addEventListener('mousedown', close); document.addEventListener('keydown', esc);
     return () => { document.removeEventListener('mousedown', close); document.removeEventListener('keydown', esc); };
   }, [open]);
-  if (!user) return <Link to={`/login?next=${encodeURIComponent(pathname)}`} className="btn">Sign in</Link>;
-  const homeLabel = { customer: 'My dashboard', expert: 'Expert home', admin: 'Admin console' }[user.role];
+  if (!user) {
+    return (
+      <>
+        <Link to={`/login?next=${encodeURIComponent(pathname)}`} className="btn hdr-signin">Sign in</Link>
+        <Link to="/signup" className="btn btn-signal hdr-join" data-testid="hdr-join">Create free account</Link>
+      </>
+    );
+  }
   return (
     <span ref={ref} style={{ position: 'relative' }}>
       <button type="button" className="btn btn-outline" style={{ minHeight: 40, gap: 8 }} aria-expanded={open} aria-haspopup="menu" aria-label={`Account menu: ${user.name}`} onClick={() => setOpen(!open)}>
         <span aria-hidden="true" style={{ width: 24, height: 24, borderRadius: '50%', background: 'var(--ink)', color: 'var(--onink)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700 }}>{user.name.trim()[0]?.toUpperCase()}</span>
         <span className="hide-sm">{user.name.split(' ')[0]}</span>
       </button>
-      {open && (
-        <div role="menu" className="card stack g4" style={{ position: 'absolute', right: 0, top: 48, width: 230, zIndex: 30, padding: 8, boxShadow: 'var(--shadow)' }}>
-          <span className="xs muted" style={{ padding: '4px 8px' }}>{user.email}</span>
-          <Link role="menuitem" to={homeFor(user)} className="admin-link">{homeLabel}</Link>
-          {user.role === 'customer' && <Link role="menuitem" to="/me/settings" className="admin-link">Profile & settings</Link>}
-          {user.role === 'expert' && <Link role="menuitem" to="/expert/profile" className="admin-link">Expert profile</Link>}
-          <button role="menuitem" type="button" className="admin-link" style={{ border: 0, background: 'transparent', width: '100%', textAlign: 'left', cursor: 'pointer' }} onClick={async () => { const to = user.role === 'admin' ? '/admin/login' : '/'; await signOut(); nav(to); }}>Sign out</button>
-        </div>
-      )}
+      {open && <Suspense fallback={null}><AccountPanel user={user} onClose={() => setOpen(false)} /></Suspense>}
     </span>
   );
 }
@@ -87,7 +90,7 @@ function StudentsMenu({ L }) {
   return (
     <div ref={ref} className="nav-drop" data-open={open}>
       <button type="button" className="nav-drop-btn" aria-expanded={open} aria-controls="students-menu" data-here={here} onClick={() => setOpen(!open)}>
-        {L.students}<span aria-hidden="true" className="nav-drop-caret">▾</span>
+        {L.students}<Icon name="chev" size={14} className="nav-drop-caret" />
       </button>
       <div id="students-menu" className="nav-sub" hidden={!open}>
         <Link to="/?for=student">{L.studentHome}</Link>
@@ -118,7 +121,7 @@ export default function Header({ variant = 'public', right, labels, lang }) {
         {variant === 'public' && (
           <span className="row g8 hdr-quick" lang={lang}>
             <button type="button" className="btn btn-outline nav-toggle" aria-expanded={menu} aria-controls="main-nav" aria-label={L.menu} onClick={() => setMenu(!menu)}>
-              <span aria-hidden="true">{menu ? '✕' : '☰'}</span><span className="nav-toggle-text">{L.menu}</span>
+              <Icon name={menu ? 'x' : 'menu'} /><span className="nav-toggle-text">{L.menu}</span>
             </button>
           </span>
         )}
@@ -137,7 +140,7 @@ export default function Header({ variant = 'public', right, labels, lang }) {
           <ol className="steps" aria-label="Progress">
             {FLOW.map(([id, label], i) => (
               <li key={id} aria-current={i === flowIdx ? 'step' : undefined} data-state={i < flowIdx ? 'done' : undefined}>
-                <span className="mono">{i < flowIdx ? '✓' : i + 1}</span>{label}
+                <span className="mono">{i < flowIdx ? <Icon name="check" size={14} /> : i + 1}</span>{label}
               </li>
             ))}
           </ol>

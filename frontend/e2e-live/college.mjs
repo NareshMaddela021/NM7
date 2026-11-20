@@ -11,7 +11,15 @@ export const call = (page, path, init = {}) => page.evaluate(async ([base, p, i]
   return { status: r.status, body };
 }, [API, path, init]);
 export const json = (method, body) => ({ method, body: JSON.stringify(body) });
-export const noSideScroll = (page) => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1);
+// No sideways scroll: the page is no wider than the real layout width. Not window.innerWidth: on a phone (isMobile)
+// Chrome widens innerWidth to the content (and zooms the page out, so clicks land off target), so a page 443 px wide
+// on a 390 px phone would pass. The layout width is documentElement.clientWidth (the configured viewport, less a
+// desktop scrollbar), never more than the configured viewport width.
+export const noSideScroll = (page) => page.evaluate((vw) => {
+  const de = document.documentElement;
+  return de.scrollWidth <= Math.min(de.clientWidth, vw || Infinity) + 1;
+}, page.viewportSize()?.width || 0);
+export const fitsPhone = noSideScroll; // T9's name for the same check
 const FIELDS = [{ key: 'roll', label: 'Roll number', type: 'text', required: true }, { key: 'branch', label: 'Branch', type: 'select', options: ['CSE', 'ECE'], required: true }];
 
 export async function college(browser, opts, label, { plan = 'campus', students = 2, shareWithRecruiters = false, prefix = 'cl' } = {}) {

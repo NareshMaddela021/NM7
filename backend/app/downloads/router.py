@@ -9,7 +9,7 @@ Rules:
 - admins (two-step login done): always, for checking files;
 - approved experts: always (they check the files they deliver in the order workspace);
 - while payments are off (Admin → Settings → Payments: Off): every signed-in account, free;
-- once payments are on (WhatsApp or Razorpay): an account with a paid, not refunded order for any plan (Fix it
+- once payments are on (Razorpay): an account with a paid, not refunded order for any plan (Fix it
   yourself, Expert rewrite, Career Launch) — unlocked for good after the first payment;
 - a member of an active group whose organization made downloads free for its members (reason "group");
 - an annual student pass in force (reason "pass"; app/me/student_pass.py): until it ends;
@@ -57,7 +57,7 @@ class ExportIn(CamelModel):
 
 
 async def payments_on(db) -> bool:
-    """WhatsApp or Razorpay is on (Admin → Settings → Payments; see app/wapay/settings.py)."""
+    """Razorpay is on (Admin → Settings → Payments; see app/wapay/settings.py)."""
     return await _payments_on(db)
 
 

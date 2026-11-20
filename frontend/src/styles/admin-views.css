@@ -1,0 +1,25 @@
+/* Admin views (components/AdminViews.jsx): the "viewing as" banner and the Switch to list. */
+.av-banner {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px;
+  padding: 8px 16px; background: var(--warningbg); color: var(--text);
+  border-bottom: 3px solid var(--warning); font-size: 14px; line-height: 1.4;
+  position: relative; z-index: 40; /* above the sticky header's shadow, but in the page flow: it covers nothing */
+}
+.av-banner.is-ro { background: var(--dangerbg); border-bottom-color: var(--danger); }
+.av-text { flex: 1 1 260px; min-width: 0; overflow-wrap: anywhere; }
+.av-sub { color: var(--text2); }
+.av-back {
+  min-height: 44px; padding: 0 16px; border-radius: var(--r-control); border: 0; cursor: pointer;
+  background: var(--ink); color: var(--onink); font-weight: 600; font-size: 14px; white-space: nowrap;
+}
+.av-back:focus-visible { outline: 3px solid var(--signal); outline-offset: 2px; }
+.av-back:disabled { opacity: .7; cursor: progress; }
+.av-err { flex-basis: 100%; color: var(--danger); font-size: 13px; }
+.av-menu { display: flex; flex-direction: column; gap: 2px; }
+.av-menu-h { font-size: 12px; color: var(--text3); padding: 6px 10px 2px; text-transform: uppercase; letter-spacing: .04em; }
+.av-item { border: 0; background: transparent; width: 100%; text-align: left; cursor: pointer; min-height: 40px; }
+@media (max-width: 640px) {
+  .av-banner { padding: 8px 16px; }
+  .av-back { flex: 1 1 100%; }
+  .av-item { min-height: 44px; }
+}

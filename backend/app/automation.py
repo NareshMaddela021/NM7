@@ -8,6 +8,7 @@ from datetime import timedelta
 from pymongo.asynchronous.database import AsyncDatabase
 from pymongo.errors import DuplicateKeyError
 
+from app.admin import daily_report
 from app.admin.daily import send_daily
 from app.autoapply.engine import run as auto_apply_run
 from app.billing.subscription import run_reminders
@@ -34,11 +35,14 @@ from app.jobs.apply import followups as job_followups
 from app.me.delete import erase_due
 from app.me.student_pass import send_reminders as pass_reminders
 from app.orgs.interviews import send_reminders as interview_reminders
+from app.payments.admin import daily_if_due as payment_check
+from app.payments.reminders import send_reminders as payment_reminders
 from app.seek.first90 import send_checkins as joining_checkins
 from app.seek.first90 import send_weekly as weekly_progress
 from app.seek.paths import send_nudges as learn_nudges
 from app.site import get_site, save_site
 from app.wapay.service import cancel_stale
+from app.wapay.settings import forget_whatsapp_number
 
 log = logging.getLogger("nm7.automation")
 EVERY = timedelta(minutes=10)
@@ -66,10 +70,17 @@ async def release_lease(db: AsyncDatabase, name: str = "automation") -> None:
 
 
 async def _expire_unpaid(db: AsyncDatabase, hours: int, _mailer: Mailer) -> int:
+    """Unpaid checkouts expire (a late payment on an expired order still counts); their codes are released."""
+    from app.coupons.service import release
+
+    stale = [o["_id"] async for o in db[ORDERS].find(
+        {"status": "pending_payment", "created_at": {"$lt": now() - timedelta(hours=hours)}}, {"_id": 1})]  # fmt: skip
+    if not stale:
+        return 0
     r = await db[ORDERS].update_many(
-        {"status": "pending_payment", "created_at": {"$lt": now() - timedelta(hours=hours)}},
-        {"$set": {"status": "expired", "updated_at": now()}},
+        {"_id": {"$in": stale}, "status": "pending_payment"}, {"$set": {"status": "expired", "updated_at": now()}}
     )
+    await release(db, stale)
     return r.modified_count
 
 
@@ -137,16 +148,45 @@ async def run_rules(db: AsyncDatabase, mailer: Mailer | None = None) -> dict[str
             done[key] = await RUNNERS[key](db, int(rule["value"]), mailer or get_mailer())
             prev = runs.get(key, {})
             runs[key] = {"last_run": now(), "acted": prev.get("acted", 0) + done[key]}
-        done["whatsapp_cancel"] = await cancel_stale(db)  # hours from Admin → Settings → Payments
+        done["whatsapp_number_removed"] = int(await forget_whatsapp_number(db))  # WhatsApp payments are gone
+        done["whatsapp_cancel"] = await cancel_stale(db)  # old WhatsApp orders (not while a payment link is open)
+        done["payment_reminders"] = await payment_reminders(db, mailer or get_mailer())  # ≤ 2 per unpaid order
+        done["payment_check_flags"] = await payment_check(db)  # once a day: nm7.si vs Razorpay
         done["health_emails"] = await health_batch(db, mailer or get_mailer())  # once a day; each person ≤ 1 / 14 days
         done["accounts_erased"] = await erase_due(db)  # self-serve deletions whose 7-day undo window is over
         done["daily_summary"] = await send_daily(db, mailer or get_mailer())  # 8:00 IST, once a day
+        done["daily_report"] = await daily_report.daily_if_due(db)  # Admin → Daily report: 06:30 IST, once a day
+        from app.jobs import repair as job_repair
+
+        done.update({f"repair_{k}": 1 for k in await job_repair.run_once(db)})  # one-time repairs (17 Nov outage)
+        from app.jobs import ai_health
+
+        done["collector_ai_probe"] = await ai_health.probe_once(db)  # once after each start: is the AI working?
         done["job_links"] = (await job_links.run(db))["checked"]  # apply links ~daily; dead twice: closed
         done["company_scores"] = await company_scores(db)  # trust scores, once a day
         done["no_reply_closed"] = await close_silent(db, mailer or get_mailer())  # Nm7 applications silent 14 days
         done["applicants_removed"] = await company_applicants_removed(db)  # 12 months on: out of the company's view
         done["company_rechecks"] = await company_rechecks(db, mailer or get_mailer())  # 30 days before Verified ends
         done["auto_apply"] = (await auto_apply_run(db, mailer or get_mailer())).get("users", 0)  # from 07:00 IST
+        from app.autoapply import instant
+
+        got = await instant.run(db, mailer or get_mailer())  # Auto Apply 2.0: jobs just posted on Nm7 (A2)
+        done["auto_apply_instant"] = sum(
+            got.get(f"instant_{k}", 0) for k in ("applied", "sent", "waiting_approval", "suggested", "waiting")
+        )
+        from app.autoapply.ats import service as ats
+
+        got = await ats.run(db, mailer or get_mailer())  # Auto Apply 2.0: hiring-system deliveries and statuses (A4)
+        done["auto_apply_partner_sent"] = int((got.get("delivered") or {}).get("delivered", 0))
+        done["auto_apply_partner_moved"] = int((got.get("sync") or {}).get("moved", 0))
+        from app.autoapply.forms import service as forms
+
+        got = await forms.run(db)  # Auto Apply 2.0: simple forms on companies' own sites, politely (A5)
+        done["auto_apply_forms_sent"] = int(got.get("applied", 0))
+        from app.autoapply import onetap
+
+        got = await onetap.run(db)  # Auto Apply 2.0: one reminder the day after a one-tap kit (A6)
+        done["auto_apply_one_tap_reminded"] = int(got.get("reminded", 0))
         done["job_alerts"] = await job_alerts(db, mailer or get_mailer())  # daily / weekly matches; ≤ 1 email a day
         done["job_followups"] = await job_followups(db, mailer or get_mailer())  # a week on; ≤ 1 email a day
         done["pass_reminders"] = await pass_reminders(db, mailer or get_mailer())  # 7 days before a pass ends
@@ -155,14 +195,61 @@ async def run_rules(db: AsyncDatabase, mailer: Mailer | None = None) -> dict[str
         done["hire_slot_reminders"] = await slot_reminders(db, mailer or get_mailer())  # 1 day and 1 hour before
         done["hire_joining_checkins"] = await offer_checkins(db, mailer or get_mailer())  # 7 days and 1 day before
         done["learn_nudges"] = await learn_nudges(db, mailer or get_mailer())  # Phase 6 S2: ≤ 1 a week a person
+        from app.setup import checklist as setup_checklist
+
+        done["setup_reminders"] = await setup_checklist.remind(db, mailer or get_mailer())  # P2: ≤ 1 a week, capped
+        from app.setup import teams as setup_teams
+
+        done["setup_team_reminders"] = await setup_teams.remind(db, mailer or get_mailer())  # P3: companies, colleges
         done["joining_checkins"] = await joining_checkins(db, mailer or get_mailer())  # Phase 6 S10: day 7 and day 30
         done["weekly_progress"] = await weekly_progress(db, mailer or get_mailer())  # Phase 6 S10: ≤ 1 a week a person
         done["vetting_expired"] = await vetting_jobs.nightly(db)  # V2: badges past 90 days, device hashes past 30
         done["vetting_invites"] = await vetting_jobs.send_invites(db, mailer or get_mailer())  # V2: ≤ 1 a week a person
         done.update({f"vetting_{k}": v for k, v in (await vetting_ladder.hourly_if_due(db)).items()})  # V1: hourly
         done["interview_bias_alerts"] = await vetting_interview.weekly_if_due(db)  # V3: 5% re-graded weekly
+        from app.trust.fairness import regrade as trust_regrade
+        from app.trust.fairness import report as trust_fairness
+
+        done.update(
+            {f"trust_regrade_{k}": v for k, v in (await trust_regrade.run(db)).items()}
+        )  # T12: 5% weekly, capped
+        done["trust_fairness_gaps"] = await trust_fairness.weekly_if_due(db)  # T12: pass-rate gap snapshot, weekly
         trust = await vetting_trust.daily_if_due(db, mailer or get_mailer())  # V5: fraud scan, re-verify, retention
         done.update({f"trust_{k}": v for k, v in trust.items()})
+        from app.trust import inactivity as trust_inactivity
+        from app.trust import retention as trust_retention
+
+        done.update({f"trust_deleted_{k}": v for k, v in (await trust_retention.run(db)).items()})  # T1: daily, heavy
+        inactive = await trust_inactivity.run(db, mailer or get_mailer())  # T1: OFF until the owner turns it on
+        from app.trust.employer import service as trust_employer
+
+        rechecked = await trust_employer.recheck(db, mailer or get_mailer())  # T4: every 90 days, heavy
+        done.update({f"trust_employer_{k}": v for k, v in rechecked.items()})
+        done.update({f"trust_inactive_{k}": v for k, v in inactive.items()})
+        from app.trust.agent import service as trust_agent
+
+        agent = await trust_agent.run(db, mailer or get_mailer())  # T5: WhatsApp / AI calls for new jobs, heavy, capped
+        done.update({f"trust_agent_{k}": v for k, v in agent.items()})
+        from app.trust.booking import service as trust_booking
+
+        booking = await trust_booking.run(db, mailer or get_mailer())  # T11: booking links, reminders, joining day
+        done.update({f"trust_booking_{k}": v for k, v in booking.items()})
+        from app.trust.criteria import evaluate as trust_criteria
+
+        crit = await trust_criteria.pass_(db)  # T7: queued requirement checks with the AI, heavy, capped
+        done.update({f"trust_criteria_{k}": v for k, v in crit.items()})
+        from app.trust.integrity import service as trust_integrity
+
+        integ = await trust_integrity.pass_(db)  # T8: re-rate people with signals every 6 h, heavy, capped
+        done.update({f"trust_integrity_{k}": v for k, v in integ.items()})
+        from app.trust.code import service as trust_code
+
+        code = await trust_code.pass_(db)  # T14: queued coding submissions the sandbox couldn't run yet, heavy, capped
+        done.update({f"trust_code_{k}": v for k, v in code.items()})
+        from app.trust.reliability import service as trust_reliability
+
+        rel = await trust_reliability.run(db, mailer or get_mailer())  # T15: 48 h windows, day 30 / 90 asks
+        done.update({f"trust_reliability_{k}": v for k, v in rel.items()})
         done["l4_overdue"] = await vetting_verify.overdue_report(db, mailer or get_mailer())  # V4: past the 24 h SLA
         await save_site(db, {"rule_runs": runs})
         return done
@@ -170,7 +257,12 @@ async def run_rules(db: AsyncDatabase, mailer: Mailer | None = None) -> dict[str
         await release_lease(db)
 
 
-async def loop(get_db) -> None:
+START_DELAY = 45  # seconds after start before the first pass: the port is open and answering health checks first
+
+
+async def loop(get_db, first_delay: float = 0) -> None:
+    if first_delay:
+        await asyncio.sleep(first_delay)
     while True:
         try:
             await run_rules(get_db())

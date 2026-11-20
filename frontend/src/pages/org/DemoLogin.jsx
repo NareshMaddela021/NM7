@@ -1,4 +1,4 @@
-// /org/demo-login#t=… — opened from Admin → Organizations → Demo → "Reset and open as coordinator". Signs this
+// /org/demo-login#t=… — opened from Admin -> Organizations -> Demo -> "Reset and open as coordinator". Signs this
 // browser in as the demo college's made-up coordinator (the token is used once), then opens the portal.
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -24,7 +24,7 @@ export default function DemoLogin() {
       <div className={`mcard od-card ${err ? 'mcard-bad' : ''}`}>
         <span className="od-art" aria-hidden="true"><Still shape="college" className="od-still" /></span>
         {err ? (
-          <div className="stack g8" role="alert" style={{ alignItems: 'center' }}><strong className="od-title">Couldn’t open the demo</strong><span className="small muted">{err}</span><Link to="/admin/orgs" className="btn btn-outline">Back to Admin → Organizations</Link></div>
+          <div className="stack g8" role="alert" style={{ alignItems: 'center' }}><strong className="od-title">Couldn’t open the demo</strong><span className="small muted">{err}</span><Link to="/admin/orgs" className="btn btn-outline">Back to Admin &gt; Organizations</Link></div>
         ) : <div className="row g12 muted od-wait" role="status"><Spinner /> Opening the demo college as its coordinator…</div>}
       </div>
     </main>

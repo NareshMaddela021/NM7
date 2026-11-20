@@ -10,6 +10,7 @@ import { Loading, http, useAction, useApi, when } from '../admin/live/common';
 import { Empty } from '../me/kit';
 import '../../styles/me-kit.css';
 import '../../styles/org-drives.css';
+import { IcGrid } from '../../components/icons';
 
 const tone = { active: 'mchip-ok', idle: 'mchip-neutral', expired: 'mchip-neutral', revoked: 'mchip-warn' };
 
@@ -42,7 +43,7 @@ export default function Kiosks({ orgId, groups, canManage }) {
   return (
     <section className="mcard ks-admin" aria-label="Kiosks">
       <header className="mcard-h">
-        <span className="mcard-ic" aria-hidden="true">▣</span>
+        <span className="mcard-ic" aria-hidden="true"><IcGrid /></span>
         <span className="mcard-ht"><strong className="mcard-title">Kiosks</strong><span className="mcard-sub">A kiosk is a tablet or laptop at your event. Candidates sign in with a code sent to their email, agree to share, build their resume step by step and print it. The screen wipes itself after each person.</span></span>
         <span className="mcard-actions"><button type="button" className="btn btn-outline btn-sm" onClick={st.reload}>Refresh</button></span>
       </header>
@@ -51,7 +52,7 @@ export default function Kiosks({ orgId, groups, canManage }) {
           {rows.map((k) => (
             <li key={k.id} className={`ks-item ks-${k.state}`} data-testid="kiosk-row">
               <div className="ks-item-top">
-                <span className="ks-item-ic" aria-hidden="true">▣</span>
+                <span className="ks-item-ic" aria-hidden="true"><IcGrid /></span>
                 <span className="stack g4" style={{ minWidth: 0, flex: 1 }}><strong className="ks-item-name">{k.label}</strong><span className="xs muted">{k.groupName}</span></span>
                 <span className={`mchip ${tone[k.state]}`}>{KIOSK_STATE[k.state]}</span>
               </div>

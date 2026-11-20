@@ -1,5 +1,5 @@
 // Home page content you'll want to edit: numbers, reviews, expert cards, social links.
-// placeholder: true → shown with a "Sample" tag in the preview and HIDDEN in the live build until you replace it with real data.
+// placeholder: true -> shown with a "Sample" tag in the preview and HIDDEN in the live build until you replace it with real data.
 export const STATS = [
   // Only real, countable numbers. Each stays hidden on the live site until it's real (placeholder: false).
   { value: '[N]', label: 'job seekers on Nm7', placeholder: true },

@@ -2,9 +2,8 @@
 // Job links can't be opened: people paste the text, or add a screenshot (read on the server) or a PDF (read here).
 // Everything is saved on the person's account only and never shared with an organization.
 import { http, LIVE, ApiError } from '../services/http';
-import { createOrder, pay } from '../services/api';
+import { buy } from './payMode';
 import { preparePhoto } from './photoImport';
-import { buyOnWhatsApp } from './waPay';
 
 const J = '/api/me/jobs';
 const OFF = { tailor: false, interview: false, mode: 'off', onSale: { tailor: false, interview: false }, prices: { tailor_pack: 49, interview_pack: 99, diy: 99 }, free: { matchesLeft: 3, coversLeft: 1, matchesPerDay: 3, coversPerDay: 1, questions: 3 }, ai: false };
@@ -34,7 +33,7 @@ export const makeInterview = (id, useAi = true) => http(`${J}/matches/${encodeUR
 export const getInterview = (id) => http(`${J}/matches/${encodeURIComponent(id)}/interview`);
 export const practise = (id, body) => http(`${J}/matches/${encodeURIComponent(id)}/interview/practice`, { method: 'POST', body, timeout: 60_000 });
 
-/** A screenshot of a job post → its text (read on the server; the picture isn't kept). */
+/** A screenshot of a job post -> its text (read on the server; the picture isn't kept). */
 export async function readScreenshot(file) {
   const p = await preparePhoto(file);
   if (p.error) throw new ApiError(400, 'bad_image', p.error);
@@ -42,7 +41,7 @@ export async function readScreenshot(file) {
   return r.text;
 }
 
-/** A PDF of a job post → its text, read in this browser. */
+/** A PDF of a job post -> its text, read in this browser. */
 export async function readPdfText(file) {
   if (file.size > 10 * 1024 * 1024) throw new ApiError(400, 'too_large', 'This PDF is over 10 MB. Please paste the job post text instead.');
   const { loadPdfjs } = await import('./import/index');
@@ -60,16 +59,8 @@ export const PACKS = {
   interview: { plan: 'interview_pack', name: 'Interview pack', what: 'All 10 interview questions with answers from your resume, and practice with feedback.' },
 };
 
-/**
- * Buy a pack following the payment mode: WhatsApp → a pending order and the chat (call straight from the click);
- * Razorpay → its checkout. Resolves { whatsapp } or the paid order. Off: never called (the page shows Coming soon).
- */
-export async function buyPack(kind, mode, code) {
-  const planId = PACKS[kind].plan;
-  if (mode === 'whatsapp') { const r = await buyOnWhatsApp({ planId, ...(code ? { code } : {}) }); return r?.unlocked ? r : { whatsapp: true }; }
-  const order = await createOrder({ planId, code });
-  return pay(order);
-}
+/** Buy a pack with Razorpay's checkout (resolves with the paid order). Off: never called (the page shows Coming soon). */
+export const buyPack = (kind, code) => buy({ planId: PACKS[kind].plan, ...(code ? { code } : {}) });
 
 export const VERDICT_TONE = { strong: 'success', good: 'warning', stretch: 'danger' };
 export const STATUS_TEXT = { found: 'Found', weak: 'Weak', missing: 'Missing' };

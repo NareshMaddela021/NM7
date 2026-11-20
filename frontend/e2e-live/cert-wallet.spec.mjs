@@ -4,6 +4,7 @@
 //   resumes view shows no certificate until the student switches on "Share certificates", and then only the ticked one.
 import { expect, test } from '@playwright/test';
 import { API, PASSWORD, adminLogin, email, login, seed } from './helpers.mjs';
+import { noSideScroll } from './college.mjs';
 
 const SIZES = [['desktop', { viewport: { width: 1280, height: 900 } }], ['phone', { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true }]];
 const call = (page, path, init = {}) => page.evaluate(async ([base, p, i]) => {
@@ -12,7 +13,6 @@ const call = (page, path, init = {}) => page.evaluate(async ([base, p, i]) => {
 }, [API, path, init]);
 const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
 const PDF = Buffer.from('%PDF-1.4\n1 0 obj<</Type/Catalog>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF\n');
-const noSideScroll = (page) => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1);
 
 for (const [label, opts] of SIZES) {
   test.describe(label, () => {
@@ -68,7 +68,7 @@ for (const [label, opts] of SIZES) {
       await popup.close();
       // one tap into the resume's Certifications
       await py.getByTestId('cert-to-resume').click();
-      await expect(page.getByText(/Added to “.*” → Certifications/)).toBeVisible();
+      await expect(page.getByText(/Added to “.*” > Certifications/)).toBeVisible();
       await expect.poll(async () => ((await call(page, `/api/me/resumes/${r.id}`)).body.data.certs || []).map((c) => c.name)).toContain('Python for Data Science');
       expect(await noSideScroll(page)).toBe(true);
 

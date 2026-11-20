@@ -9,6 +9,7 @@ import { readAccount } from '../../lib/recruiterPortal';
 import { rq } from '../../lib/company';
 import { API_BASE } from '../../services/http';
 import '../../styles/company-hire.css';
+import { IcDownload, IcPin, IcUsers } from '../../components/icons';
 
 const STAGES = ['applied', 'viewed', 'shortlisted', 'interview', 'offer', 'rejected']; // the job-board statuses (jobs.app.*)
 const STATS = ['invited', 'accepted', 'interviewsBooked', 'attended', 'offersSent', 'offersAccepted', 'joined', 'checkedIn'];
@@ -46,7 +47,7 @@ export default function HireBulk({ t, c, job, people, canEdit, onChange }) {
   if (!b) {
     return canEdit ? (
       <section className="mcard hb-off" data-testid="co-bulk-off">
-        <header className="mcard-h"><span className="mcard-ic blue" aria-hidden="true">👥</span><span className="mcard-ht"><strong className="mcard-title">{t('co.bulk.title')}</strong><span className="mcard-sub">{t('co.bulk.offIntro')}</span></span></header>
+        <header className="mcard-h"><span className="mcard-ic blue" aria-hidden="true"><IcUsers /></span><span className="mcard-ht"><strong className="mcard-title">{t('co.bulk.title')}</strong><span className="mcard-sub">{t('co.bulk.offIntro')}</span></span></header>
         {err && <p className="error" role="alert" style={{ margin: 0 }}>{err}</p>}
         <span className="hb-off-row">
           <label className="field hb-openings"><span className="label">{t('co.bulk.openings')}</span><input className="input" inputMode="numeric" value={openings} onChange={(e) => setOpenings(e.target.value.replace(/\D/g, ''))} data-testid="co-bulk-openings" /></label>
@@ -65,7 +66,7 @@ export default function HireBulk({ t, c, job, people, canEdit, onChange }) {
   return (
     <section className="mcard hb" aria-labelledby="co-bulk-h" data-testid="co-bulk">
       <header className="hb-head">
-        <span className="mcard-ic blue" aria-hidden="true">👥</span>
+        <span className="mcard-ic blue" aria-hidden="true"><IcUsers /></span>
         <strong id="co-bulk-h" className="mcard-title">{t('co.bulk.board', { n: b.openings })}</strong>
         <span className="mchip mchip-ok" data-testid="co-bulk-filled">{t('co.bulk.filled', { pct: b.filledPct, n: b.joined })}</span>
       </header>
@@ -81,7 +82,7 @@ export default function HireBulk({ t, c, job, people, canEdit, onChange }) {
         <div className="hb-actions">
           <button type="button" className="btn btn-outline" disabled={!toInterview.length} onClick={() => act(() => rq(`/api/company/${c.id}/hire/bulk/${job}/status`, { method: 'POST', body: { people: toInterview, status: 'interview' } }), t('co.bulk.moved'))} data-testid="co-bulk-interview">{toInterview.length ? t('co.bulk.allInterview', { n: toInterview.length }) : t('co.bulk.noneInterview')}</button>
           <button type="button" className="btn btn-outline" disabled={!toOffer.length} onClick={() => setOffer({ amount: '', unit: 'month', joinDate: '' })} data-testid="co-bulk-offer">{toOffer.length ? t('co.bulk.allOffer', { n: toOffer.length }) : t('co.bulk.noneOffer')}</button>
-          <button type="button" className="btn btn-ghost" onClick={csv} data-testid="co-bulk-csv"><span aria-hidden="true">⤓ </span>{t('co.bulk.csv')}</button>
+          <button type="button" className="btn btn-ghost" onClick={csv} data-testid="co-bulk-csv"><IcDownload size={16} /> {t('co.bulk.csv')}</button>
           <button type="button" className="btn btn-ghost" onClick={() => toggle(false)}>{t('co.bulk.turnOff')}</button>
         </div>
       )}
@@ -94,7 +95,7 @@ export default function HireBulk({ t, c, job, people, canEdit, onChange }) {
         </form>
       )}
       <div className="hb-walk" data-testid="co-walkin">
-        <strong className="hb-walk-title"><span aria-hidden="true">📍 </span>{t('co.bulk.walkin')}</strong>
+        <strong className="hb-walk-title"><IcPin /> {t('co.bulk.walkin')}</strong>
         {walk ? (
           <div className="hb-walk-body">
             {qr && <span className="hb-qr"><img src={qr} alt={t('co.bulk.qrAlt')} width={160} height={160} /></span>}

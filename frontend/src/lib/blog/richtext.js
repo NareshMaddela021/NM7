@@ -1,4 +1,4 @@
-// Hygraph Rich Text (the `content { raw }` AST) → safe HTML, plain text and reading time.
+// Hygraph Rich Text (the `content { raw }` AST) -> safe HTML, plain text and reading time.
 // Used by the browser and by the build-time pre-render (plain JS, no JSX). Every piece of text is escaped and
 // only known node types become tags, so HTML typed into a post can never reach the page as HTML.
 

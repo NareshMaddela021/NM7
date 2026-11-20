@@ -4,6 +4,7 @@
       nm7    one tap: the application is saved and the company / admin sees it (Admin → Jobs → Applications)
       link   saved as "Applied (outside Nm7)" with the resume used; the page then opens the company's link
       email  saved, and the answer carries the address, a subject and a short letter for a mailto draft
+  GET /api/me/applied-jobs                       the job ids the person applied to ("Applied ✓" on every job card)
   PUT /api/me/job-followups {on}                  follow-up reminder emails on / off
   POST /api/public/jobs/stop-followups {token}    the "Stop these emails" link (no sign-in)
 
@@ -36,6 +37,7 @@ from app.core.email import Email, Mailer, send_safely
 from app.core.errors import ApiError
 from app.core.schemas import CamelModel
 from app.core.security import keyed_hash, same
+from app.core.testusers import is_test_user
 from app.core.time import IST, now
 
 log = logging.getLogger("nm7.jobs")
@@ -62,7 +64,7 @@ def job_page(j: dict[str, Any]) -> str:
 class ApplyIn(CamelModel):
     resume_id: str | None = Field(None, max_length=40)
     consent: bool = False  # company jobs on Nm7: "share my resume and answers with <company>" (C5)
-    answers: dict[str, str | int] = Field(default_factory=dict, max_length=5)
+    answers: dict[str, str | int] = Field(default_factory=dict, max_length=8)  # T6: up to 8 questions
 
 
 async def _resume(db, user_id: str, key: str | None) -> dict[str, Any] | None:
@@ -99,6 +101,10 @@ async def apply(job_id: str, body: ApplyIn, auth: CustomerAuth, db: DB) -> dict[
     t = now()
     key = app_key(job_id)
     company_job = bool(j.get("company_id")) and method == "nm7"
+    # a real company must never see a made-up applicant (test users, demo people, an admin's personas)
+    if company_job and (is_test_user(uid) or auth.user.demo):
+        raise ApiError(409, "test_user", "Test users can’t apply to a real company’s job. Try a job that applies "
+                       "on another website or by email.")  # fmt: skip
     extra: dict[str, Any] = {}
     if company_job and not await db[APPLICATIONS].find_one({"user_id": uid, "key": key}, {"_id": 1}):
         from app.companies import questions
@@ -107,13 +113,26 @@ async def apply(job_id: str, body: ApplyIn, auth: CustomerAuth, db: DB) -> dict[
             raise ApiError(400, "consent", f"Tick the box to share your resume with {j['company']['name']}.")
         if not resume:
             raise ApiError(400, "no_resume", "Make a resume first: the company sees the resume you apply with.")
+        from app.trust import access as trust_access
+
         qs = j.get("questions") or []
-        answers, problems = questions.answers_for(qs, body.answers)
+        t6 = bool(qs) and await trust_access.for_user(db, uid)  # Vetting Trust T6: saved answers, never asked twice
+        given = dict(body.answers)
+        if t6:
+            from app.trust import workprefs
+
+            known = await workprefs.known_answers(db, uid, j)
+            given = {**known, **{k: v for k, v in given.items() if v not in (None, "")}}
+        answers, problems = questions.answers_for(qs, given)
         if problems:
             raise ApiError(400, "answers", " ".join(problems), extra={"problems": problems})
         why = questions.knockout(qs, answers)
-        extra = {"consent_at": t, "answers": answers, "company_id": j["company_id"],
-                 "fit": {"ok": not why, "reasons": why}}  # fmt: skip
+        fit: dict[str, Any] = {"ok": not why, "reasons": why}
+        if t6:
+            fit["for"] = questions.not_met(qs, answers)  # "Not a fit for: <question>": a label, never a rejection
+            new = {k: v for k, v in answers.items() if k in body.answers}
+            await workprefs.remember(db, uid, qs, new)
+        extra = {"consent_at": t, "answers": answers, "company_id": j["company_id"], "fit": fit}
     doc = {
         "key": key,
         "user_id": uid,
@@ -183,6 +202,21 @@ class OnIn(CamelModel):
 
 class TokenIn(CamelModel):
     token: str = Field(min_length=10, max_length=200)
+
+
+APPLIED_MAX = 2000
+
+
+@me_router.get("/applied-jobs")
+async def applied_jobs(auth: CustomerAuth, db: DB) -> dict[str, Any]:
+    """The job ids this person applied to (newest first, ids and status only): every job card shows "Applied ✓"."""
+    rows = (
+        db[APPLICATIONS]
+        .find({"user_id": auth.user.id, "job_id": {"$type": "string"}}, {"job_id": 1, "status": 1})
+        .sort("created_at", -1)
+        .limit(APPLIED_MAX)
+    )
+    return {"items": [{"id": a["job_id"], "status": a.get("status") or "applied"} async for a in rows]}
 
 
 @me_router.get("/job-followups")

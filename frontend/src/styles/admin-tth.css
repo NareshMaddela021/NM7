@@ -1,0 +1,28 @@
+/* Vetting Trust T13: Admin -> Daily report -> "Time to hire". Step cards, a funnel, the slowest companies, a per-company
+   table that scrolls inside itself; everything wraps at 390 px (no sideways page scroll). Its own file (no shared chunk). */
+.tth-tabs { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+.tth-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr)); gap: 8px; }
+.tth-step { display: flex; flex-direction: column; gap: 3px; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--border2); background: var(--surface, #fff); min-width: 0; overflow-wrap: anywhere; }
+.tth-step-extra { background: #faf9ff; border-style: dashed; }
+.tth-step-l { font-size: 13px; font-weight: 700; color: var(--text2); }
+.tth-step-v { font-size: 22px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.tth-up { color: var(--danger); font-weight: 700; }
+.tth-down { color: #15803d; font-weight: 700; }
+.tth-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 16px; }
+.tth-h3 { margin: 0; font-size: 15px; font-weight: 800; }
+.tth-funnel { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.tth-bar-row { display: grid; grid-template-columns: minmax(0, 9.5em) 1fr auto; align-items: center; gap: 8px; font-size: 13px; }
+.tth-bar-name { overflow-wrap: anywhere; }
+.tth-bar-track { height: 10px; border-radius: 6px; background: #eef0f7; overflow: hidden; }
+.tth-bar-fill { display: block; height: 100%; background: #6d5ce7; border-radius: 6px; }
+.tth-bar-n { font-variant-numeric: tabular-nums; font-weight: 700; }
+.tth-slow { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
+.tth-slow li { overflow-wrap: anywhere; }
+.tth-slow li > * { margin-right: 8px; }
+.tth-details summary { cursor: pointer; font-weight: 700; }
+.tth-table-wrap { overflow-x: auto; max-width: 100%; margin-top: 8px; }
+.tth-table { border-collapse: collapse; font-size: 13px; min-width: 520px; }
+.tth-table th, .tth-table td { text-align: left; padding: 6px 8px; border-bottom: 1px solid #ece8fb; white-space: nowrap; }
+.tth-form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 14px; margin-top: 8px; }
+.tth-field { display: flex; flex-direction: column; gap: 4px; flex: 1 1 200px; min-width: 0; }
+.tth-field .input { max-width: 140px; }

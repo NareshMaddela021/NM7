@@ -4,13 +4,17 @@
 //          browser can't do that
 //   proof: work situations as big answer cards, then an optional photo of past work or a certificate (made smaller
 //          in the browser first)
+//   coding (Vetting Trust T14): the code editor, Run on the samples, Submit to the hidden tests (trust/Coding.jsx)
 // Pasted characters and time away from the page are counted (never blocked) and sent with the answer.
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { http } from '../../../services/http';
 import { appendSpeech, useSpeech } from '../../../lib/speechCore';
+import { lazyRetry } from '../../../lib/chunks';
 import { MeCard, Skel } from '../kit';
 import { API, SPEECH_LANG, clock, compressImage, emptySignals, useSignals, words } from './lib';
+import { IcAlert, IcCamera, IcMic, IcStop } from '../../../components/icons';
 
+const Coding = lazy(lazyRetry(() => import('../trust/Coding'))); // Vetting Trust T14: a coding task (Trust only)
 const MIN_SPEAK = 60;
 const MAX_SPEAK = 90;
 
@@ -51,7 +55,7 @@ function Voice({ lang, transcript, setTranscript, seconds, setSeconds }) {
     <div className="stack g12">
       <div className="vet-mic">
         <button type="button" className={`btn btn-lg ${sp.listening ? 'btn-outline' : 'btn-signal'}`} onClick={sp.listening ? sp.stop : sp.start} disabled={!sp.listening && seconds >= MAX_SPEAK} data-testid="vt-mic">
-          {sp.listening ? '⏹ Stop' : seconds ? '🎤 Speak more' : '🎤 Start speaking'}
+          {sp.listening ? <><IcStop size={18} /> Stop</> : <><IcMic size={18} /> {seconds ? 'Speak more' : 'Start speaking'}</>}
         </button>
         <span className="vet-clock" role="timer" aria-live="off" aria-label={`Spoken for ${seconds} seconds`}><small>Spoken</small>{clock(seconds)} / 1:30</span>
         {(transcript || seconds > 0) && !sp.listening && <button type="button" className="btn btn-ghost" onClick={() => { setTranscript(''); setSeconds(0); }}>Start again</button>}
@@ -104,7 +108,7 @@ function PhotoPick({ photo, setPhoto }) {
   return (
     <div className="stack g8" data-testid="vt-photo">
       <strong className="small">Optional: a photo of your past work or your ITI certificate</strong>
-      <span className="xs muted">⚠ Please don’t include faces (yours or anyone’s). The photo is checked once and deleted after 30 days.</span>
+      <span className="xs muted"><IcAlert size={14} /> Please don’t include faces (yours or anyone’s). The photo is checked once and deleted after 30 days.</span>
       {photo ? (
         <div className="vet-photo">
           <img src={photo.preview} alt="The photo you picked" />
@@ -112,7 +116,7 @@ function PhotoPick({ photo, setPhoto }) {
         </div>
       ) : (
         <label className="btn btn-outline vet-file">
-          {busy ? 'Getting the photo ready…' : '📷 Add a photo'}
+          {busy ? 'Getting the photo ready…' : <><IcCamera size={16} /> Add a photo</>}
           <input type="file" accept="image/*" onChange={pick} className="sr-only" aria-label="Add a photo of your past work or certificate" data-testid="vt-photo-input" />
         </label>
       )}
@@ -121,7 +125,7 @@ function PhotoPick({ photo, setPhoto }) {
   );
 }
 
-export default function Task({ attempt, onDone, onCancel }) {
+export default function Task({ attempt, pledge, onDone, onCancel }) {
   const [t, setT] = useState(null);
   const [err, setErr] = useState('');
   const [text, setText] = useState('');
@@ -136,14 +140,29 @@ export default function Task({ attempt, onDone, onCancel }) {
   useSignals(sig, { on: !!t, onPaste: (n) => { pasted.current += n; } });
 
   useEffect(() => {
-    http(`${API}/${attempt.id}/task/start`, { method: 'POST' }).then(setT, (e) => setErr(e.message));
-  }, [attempt.id]);
+    http(`${API}/${attempt.id}/task/start`, { method: 'POST', ...(pledge ? { body: { pledge } } : {}) }).then(setT, (e) => setErr(e.message)); // T9: the honesty pledge
+  }, [attempt.id]); // eslint-disable-line react-hooks/exhaustive-deps -- the pledge is ticked before the task opens
   const left = useLeft(t?.endsAt || Date.now());
   const box = useRef(null);
   useEffect(() => { if (t) box.current?.scrollIntoView?.({ block: 'start', behavior: 'smooth' }); }, [t]);
 
   if (err) return <MeCard tone="warn" title="The task didn’t open" sub={err}><button type="button" className="btn btn-outline" onClick={onCancel}>Back</button></MeCard>;
   if (!t) return <Skel cards={1} lines={4} label="Opening the task" />;
+  if (t.type === 'coding') {
+    return (
+      <section ref={box} className="mcard vet-task" aria-label={`Coding task: ${t.title}`} data-testid="vt-task">
+        <div className="vet-bar-row">
+          <span className="stack g2" style={{ minWidth: 0 }}>
+            <span className="mkicker">Coding task · about {t.minutes} min</span>
+            <h2 className="vet-h2">{t.title}</h2>
+          </span>
+          <span className={`vet-clock ${left < 120 ? 'low' : ''}`} role="timer" aria-live="off" aria-label={`${clock(left)} left for the task`}><small>Time left</small>{clock(left)}</span>
+        </div>
+        <p className="vet-brief" style={{ whiteSpace: 'pre-line' }}>{t.brief}</p>
+        <Suspense fallback={<Skel cards={1} lines={4} label="Opening the code editor" />}><Coding attempt={attempt} task={t} left={left} onDone={onDone} onCancel={onCancel} /></Suspense>
+      </section>
+    );
+  }
 
   const speechOk = typeof window !== 'undefined' && !!(window.SpeechRecognition || window.webkitSpeechRecognition);
   const voice = t.type === 'voice' && speechOk;

@@ -13,9 +13,10 @@ import { MeHead } from './MeLayout';
 import { ResumeThumb, designOf, downloadResume, fmtShort } from './shared';
 import { Chip, Empty, FieldGroup, Stat } from './kit';
 import '../../styles/me-resume.css';
-import ShareWhatsApp from '../../components/ShareWhatsApp';
+import ShareResume from '../../components/ShareResume';
 import { downloadQrPng, qrFileName } from '../../lib/qr';
 import { namedUrl, shareUrl } from '../../lib/shareLink';
+import { IcCheck } from '../../components/icons';
 
 const DAY = 864e5;
 const SLUG_RE = /^[a-z0-9](?:[a-z0-9-]{1,38}[a-z0-9])$/;
@@ -63,7 +64,7 @@ export default function MeShare() {
               <div className="mrow" style={{ gap: 8 }}>
                 <button type="button" className="btn btn-signal" onClick={() => copy(short)}>Copy</button>
                 <Link to={`/r/${sh.short || sh.slug}`} className="btn btn-outline">Open</Link>
-                <ShareWhatsApp testid="share-page-wa" />
+                <ShareResume testid="share-page-share" />
                 <button type="button" className="btn btn-outline" onClick={saveQr} data-testid="share-qr">Download QR (PNG)</button>
               </div>
               <span className="xs faint">Search engines are asked not to list this page. ID numbers are never shown.</span>
@@ -128,7 +129,7 @@ function LivePublicResume({ slug }) {
             {st.r.canDownload !== false && <button type="button" className="btn btn-ink" onClick={async () => { if (await downloadResume(st.r.data, 'pdf', undefined, slug)) toast('PDF ready'); }}>Download PDF</button>}</div>
           {st.r.verified?.length > 0 && (
             <div className="row g8" style={{ flexWrap: 'wrap' }} aria-label="Skills verified on Nm7" data-testid="pub-verified">
-              {st.r.verified.map((v) => <span key={v.skill} className="badge b-success" title="Skill check passed and project done on Nm7">✓ Skill verified: {v.skill} · {new Date(v.at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>)}
+              {st.r.verified.map((v) => <span key={v.skill} className="badge b-success" title="Skill check passed and project done on Nm7"><IcCheck size={14} /> Skill verified: {v.skill} · {new Date(v.at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>)}
             </div>
           )}
           <ResumePreview data={st.r.data} design={designOf(st.r.data)} />

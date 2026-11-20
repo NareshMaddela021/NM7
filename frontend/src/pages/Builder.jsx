@@ -5,13 +5,14 @@ import Header from '../components/Header';
 import LangSwitch from '../components/LangSwitch';
 import { rich, useLang } from '../lib/i18n';
 import { Dialog, Icon, Meter, useToast } from '../components/ui';
+import { IcArrowDown, IcArrowRight, IcArrowUp, IcCamera, IcCheck, IcEdit, IcFile, IcPlus, IcUser } from '../components/icons';
 import { getMatchedJobs } from '../services/api';
 import { flushKeepalive, onSaveState } from '../lib/meLive';
 import { syncFromBuilder, defaultResume, useMe, activeResume, addResume, openInBuilder, blankResume, updateResume, uniqueName, setResumePages, acceptGuestDraft, discardGuestDraft } from '../lib/customerStore';
 import { useJobProfile } from '../lib/profileStore';
 import { profileCompleteness, profileToResume, profileUpdates } from '../lib/jobProfile';
 import { reviewToResume } from '../lib/photoImport';
-import ShareWhatsApp from '../components/ShareWhatsApp';
+import ShareResume from '../components/ShareResume';
 import { DownloadBlocked, exportFile, forgetPendingDownload, mayFinishDownload, pendingDownload } from '../lib/downloads';
 import { lengthNote, writeSummaries } from '../lib/summary/write';
 import { charCount } from '../lib/text'; // not from me/shared: that file loads the PDF library
@@ -75,7 +76,7 @@ const DRAFT_KEY = () => draftKey(); // per signed-in customer (see lib/auth.js)
 const STYLES_KEY = 'asuraa-saved-styles';
 const loadStyles = () => { try { return JSON.parse(localStorage.getItem(STYLES_KEY) || '[]'); } catch { return []; } };
 const nextFrame = () => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(r, 40))));
-/** Live app, signed-in customer: the resume lives on the server (My resumes → the active one), not in this browser. */
+/** Live app, signed-in customer: the resume lives on the server (My resumes -> the active one), not in this browser. */
 const serverCustomer = () => LIVE && currentUser()?.role === 'customer';
 const loadDraft = (key = DRAFT_KEY(), initial = defaultResume()) => {
   if (serverCustomer() && key === DRAFT_KEY()) return completeResume(initial);
@@ -94,7 +95,7 @@ function ProfileOnly() {
 /* ---------- Start & template screens ---------- */
 /** "5 min ago" / "3 h ago" / "2 d ago" in the chosen language (lib/text ago). */
 const agoIn = (t, ts) => { const m = (Date.now() - ts) / 60000; return m < 60 ? t('builder.start.ago.min', { n: Math.max(1, Math.round(m)) }) : m < 1440 ? t('builder.start.ago.h', { n: Math.round(m / 60) }) : t('builder.start.ago.d', { n: Math.round(m / 1440) }); };
-const START_ICONS = { profile: '◉', scratch: '✎', linkedin: 'in', resume: '▤', photos: '◫' };
+const START_ICONS = { profile: <IcUser size={20} />, scratch: <IcEdit size={20} />, linkedin: 'in', resume: <IcFile size={20} />, photos: <IcCamera size={20} /> };
 /** The first screen: English, Telugu or Hindi (the switch at the top; strings builder.start.* in src/i18n/pages.json).
  * The resume itself, and every later step of the builder, stays in English. */
 function Start({ onNext, profilePct = null, resume = null, onContinue, customer = false }) {
@@ -137,7 +138,7 @@ function Start({ onNext, profilePct = null, resume = null, onContinue, customer 
             <strong className="bld-start-title">{t(`builder.start.${k}.title`)}</strong>
             <span className="bld-start-text">{t(`builder.start.${k}.text`, { n: profilePct })}</span>
             {k === 'photos' && !customer && <span className="xs muted" data-testid="start-photos-signin">{t('builder.start.photos.signin')}</span>}
-            <span className="bld-start-go" aria-hidden="true">→</span>
+            <span className="bld-start-go"><IcArrowRight size={16} /></span>
           </button>
         ))}
       </div>
@@ -158,7 +159,7 @@ function Done({ name, score, onEdit, onDownload, onCover, pdfBusy, nudge }) {
         <div className="stack g8 bld-done-actions">
           <button type="button" className="btn btn-signal btn-xl" onClick={() => onDownload('pdf')} disabled={pdfBusy}>{pdfBusy ? 'Preparing…' : 'Download PDF'}</button>
           <button type="button" className="btn btn-outline btn-lg" onClick={() => onDownload('docx')} disabled={pdfBusy}>Also download as Word (.docx)</button>
-          <ShareWhatsApp className="btn btn-outline btn-lg" testid="done-share-wa" />
+          <ShareResume className="btn btn-outline btn-lg" testid="done-share" />
           <button type="button" className="btn btn-outline btn-lg" onClick={onCover}>Write a matching cover letter</button>
           <Link to="/" className="btn btn-outline btn-lg">Scan it against a job · free</Link>
           <button type="button" className="btn btn-ghost" onClick={onEdit}>Keep editing</button>
@@ -596,7 +597,7 @@ export default function Builder({ embedded = null }) {
     setSuggest(null); setStage('templates');
     toast('New resume filled from your Job Profile — pick a look');
   };
-  // "Snap photos" → "Looks right": a new resume in the Work-first template, education off when none was found
+  // "Snap photos" -> "Looks right": a new resume in the Work-first template, education off when none was found
   const startFromPhotos = (review) => {
     const nd = migrateLinks(reviewToResume(review, blankResume()));
     const months = nd.exp.reduce((t, e) => t + monthsBetween(e.from, e.current ? '' : e.to), 0);
@@ -625,7 +626,7 @@ export default function Builder({ embedded = null }) {
       {!embedded && (
         <ol className="steps container-wide bld-steps" aria-label="Builder steps">
           {['Start', 'Template', 'Build', 'Done'].map((l, i) => (
-            <li key={l} aria-current={i === stageIdx ? 'step' : undefined} data-state={i < stageIdx ? 'done' : undefined}><span className="mono">{i < stageIdx ? '✓' : i + 1}</span>{l}</li>
+            <li key={l} aria-current={i === stageIdx ? 'step' : undefined} data-state={i < stageIdx ? 'done' : undefined}><span className="mono">{i < stageIdx ? <IcCheck size={13} label="Done" /> : i + 1}</span>{l}</li>
           ))}
         </ol>
       )}
@@ -708,8 +709,8 @@ export default function Builder({ embedded = null }) {
                   </button>
                   {printable && (
                     <span className="bld-sec-ctl">
-                      <button type="button" className="nav-ctl" aria-label={`Move ${label} up`} disabled={oi === 0} onClick={() => moveSection(s.id, -1)}>↑</button>
-                      <button type="button" className="nav-ctl" aria-label={`Move ${label} down`} disabled={oi === order.length - 1} onClick={() => moveSection(s.id, 1)}>↓</button>
+                      <button type="button" className="nav-ctl" aria-label={`Move ${label} up`} disabled={oi === 0} onClick={() => moveSection(s.id, -1)}><IcArrowUp size={15} /></button>
+                      <button type="button" className="nav-ctl" aria-label={`Move ${label} down`} disabled={oi === order.length - 1} onClick={() => moveSection(s.id, 1)}><IcArrowDown size={15} /></button>
                       <button type="button" role="switch" aria-checked={!hidden} aria-label={`Show ${label} on resume`} className="nav-ctl" onClick={() => toggleHidden(s.id)}>
                         <span aria-hidden="true" style={{ width: 26, height: 15, borderRadius: 999, background: hidden ? 'var(--border2)' : 'var(--success)', position: 'relative', display: 'block' }}>
                           <span style={{ position: 'absolute', top: 2, left: hidden ? 2 : 13, width: 11, height: 11, borderRadius: '50%', background: 'var(--surface)', transition: 'left 160ms var(--ease)' }} />
@@ -783,7 +784,7 @@ export default function Builder({ embedded = null }) {
                     {photoErr && <span role="alert" className="error">{photoErr}</span>}
                     <label className="check small" style={{ minHeight: 36 }}><input type="checkbox" checked={!!d.showPhoto} onChange={(e) => setD({ ...d, showPhoto: e.target.checked })} />Show my photo on the resume too</label>
                     {d.showPhoto && !photo && <span className="xs faint">Choose a photo above to see it on the resume.</span>}
-                    {d.showPhoto && photo && <button type="button" className="link-btn xs" style={{ alignSelf: 'flex-start', minHeight: 28 }} onClick={() => setTab('design')}>Shape, size, position and border → Design tab › Photo</button>}
+                    {d.showPhoto && photo && <button type="button" className="link-btn xs" style={{ alignSelf: 'flex-start', minHeight: 28 }} onClick={() => setTab('design')}>Shape, size, position and border: Design tab › Photo</button>}
                     <span className="xs faint">Most Indian tech and MNC recruiters prefer no photo. Some roles (aviation, hospitality, media) expect one.</span>
                   </div>
                 </div>
@@ -918,8 +919,8 @@ export default function Builder({ embedded = null }) {
                     <div key={id} className="row g8" style={{ flexWrap: 'nowrap', padding: '6px 0', borderTop: i ? '1px solid var(--border)' : 0, opacity: d.hidden?.[id] ? 0.55 : 1 }}>
                       <span className="mono faint" style={{ width: 20 }}>{i + 1}</span>
                       <span className="strong small" style={{ flex: 1 }}>{sectionLabel(d, id)}{d.hidden?.[id] && <span className="faint" style={{ fontWeight: 400 }}> · hidden</span>}</span>
-                      <button type="button" className="btn btn-icon" style={{ width: 40, minHeight: 40 }} aria-label={`Move ${sectionLabel(d, id)} up`} disabled={i === 0} onClick={() => moveSection(id, -1)}>↑</button>
-                      <button type="button" className="btn btn-icon" style={{ width: 40, minHeight: 40 }} aria-label={`Move ${sectionLabel(d, id)} down`} disabled={i === order.length - 1} onClick={() => moveSection(id, 1)}>↓</button>
+                      <button type="button" className="btn btn-icon" style={{ width: 40, minHeight: 40 }} aria-label={`Move ${sectionLabel(d, id)} up`} disabled={i === 0} onClick={() => moveSection(id, -1)}><IcArrowUp size={16} /></button>
+                      <button type="button" className="btn btn-icon" style={{ width: 40, minHeight: 40 }} aria-label={`Move ${sectionLabel(d, id)} down`} disabled={i === order.length - 1} onClick={() => moveSection(id, 1)}><IcArrowDown size={16} /></button>
                       <button type="button" className="btn btn-outline" style={{ minHeight: 40, fontSize: 13, width: 72 }} aria-pressed={!d.hidden?.[id]} onClick={() => toggleHidden(id)}>{d.hidden?.[id] ? 'Show' : 'Hide'}</button>
                     </div>
                   ))}
@@ -962,7 +963,7 @@ export default function Builder({ embedded = null }) {
                 {tab !== 'cover' && <button type="button" className="link-btn" style={{ minHeight: 32 }} onClick={() => { setChanging(true); setStage('templates'); window.scrollTo(0, 0); }}>Change template</button>}
                 {tab !== 'cover' && (pages === null
                   ? <span className="badge b-neutral" data-testid="page-count">Measuring…</span>
-                  : <span className={`badge ${pages > 1 ? 'b-warning' : 'b-success'}`} data-testid="page-count">{pages > 1 ? `${pages} pages · aim for 1` : '1 page ✓'}</span>)}
+                  : <span className={`badge ${pages > 1 ? 'b-warning' : 'b-success'}`} data-testid="page-count">{pages > 1 ? `${pages} pages · aim for 1` : <><IcCheck size={13} style={{ marginRight: 4 }} />1 page</>}</span>)}
               </span>
               <span className="bld-toolbar-actions">
                 {tab !== 'cover' && (
@@ -1015,7 +1016,7 @@ export default function Builder({ embedded = null }) {
           <div className="grid-auto g8" style={{ '--min': '220px' }}>
             {PRESET_SECTIONS.map((p) => {
               const added = d.custom.some((c) => c.title === p);
-              return <button key={p} type="button" className="btn btn-outline" style={{ justifyContent: 'flex-start' }} disabled={added} onClick={() => addSection(p)}>{added ? '✓' : '+'} {p}</button>;
+              return <button key={p} type="button" className="btn btn-outline" style={{ justifyContent: 'flex-start' }} disabled={added} onClick={() => addSection(p)}>{added ? <IcCheck size={16} label="Added" /> : <IcPlus size={16} />} {p}</button>;
             })}
           </div>
           <form onSubmit={(e) => { e.preventDefault(); if (customName.trim()) addSection(customName.trim()); }} className="field">

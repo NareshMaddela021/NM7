@@ -3,7 +3,7 @@ import { SKILL_GROUP_OF } from '../../pages/builder/schema';
 
 const norm = (s) => s.toLowerCase().replace(/[^a-z& ]/g, ' ').replace(/\s+/g, ' ').trim();
 
-// Section titles people actually use on Indian resumes → builder section id.
+// Section titles people actually use on Indian resumes -> builder section id.
 const HEADINGS = {
   summary: ['summary', 'profile', 'professional summary', 'profile summary', 'career summary', 'career objective', 'objective', 'about me', 'about', 'professional profile', 'personal summary', 'executive summary'],
   exp: ['experience', 'professional experience', 'work experience', 'employment history', 'employment', 'work history', 'internship', 'internships', 'experience & internships', 'internship experience', 'relevant experience', 'industrial experience', 'industry experience', 'career history'],

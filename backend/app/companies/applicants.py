@@ -114,7 +114,7 @@ def _row(a, job, user, r, pooled: bool) -> dict[str, Any]:
         "irrelevant": bool(a.get("irrelevant_at")),
         "match": m
         and {k: m[k] for k in ("score", "found", "missing", "experience", "level", "years", "place", "city")},
-        "fit": a.get("fit") or {"ok": True, "reasons": []},
+        "fit": {k: v for k, v in (a.get("fit") or {"ok": True, "reasons": []}).items() if k != "for"},
         "answers": [{"q": questions.get(k, k), "a": v} for k, v in (a.get("answers") or {}).items()],
         "contact": _contact(user, r) if contact else None,
         "pooled": pooled,
@@ -123,7 +123,14 @@ def _row(a, job, user, r, pooled: bool) -> dict[str, Any]:
         "timeline": [{"status": s["status"], "at": ms(s["at"])} for s in a.get("timeline") or []],
         "level": _level(user),  # Vetting V1: L0–L4 and ⚡ (never integrity details)
         "l4": l4_of(user),  # Vetting V4: "Nm7 verified" and the reference line
+        "auto": None,  # Auto Apply 2.0 (A2): "Sent by Auto Apply" with score, 3 reasons, cover note (_auto below)
     }
+
+
+def _auto(row: dict[str, Any], a: dict[str, Any], vetting_visible: bool) -> None:
+    from app.autoapply.instant import company_view
+
+    row["auto"] = company_view(a, row["level"], row["l4"], vetting_visible)
 
 
 def l4_of(user: dict[str, Any] | None) -> dict[str, Any] | None:
@@ -188,11 +195,15 @@ async def applicants(
     apps = [a for a in apps if a["user_id"] not in hidden]
     fresh = [a for a in apps if a.get("status") == "applied"]
     if fresh:  # anyone on the team opening the list counts as seen
+        from app.autoapply import sync
+
         t = now()
         for a in fresh:
             await db[APPLICATIONS].update_one({"_id": a["_id"], "status": "applied"}, status_change(a, "viewed", t))
             a["status"] = "viewed"
             a.setdefault("timeline", []).append({"status": "viewed", "at": t})
+            if a.get("origin") == "auto":
+                await sync.on_status(db, a, "viewed")  # Auto Apply 2.0: the tracker shows Viewed (in-app only)
         await audit(db, None, "company.applicants_viewed", target=cid, data={"by": acc["email_lc"], "n": len(fresh)})
     uids = list({a["user_id"] for a in apps})
     users = {
@@ -203,15 +214,29 @@ async def applicants(
     }
     pooled = {p["user_id"] async for p in db[TALENT_POOL].find({"company_id": cid, "user_id": {"$in": uids}})}
     rows = []
+    resumes: dict[str, Any] = {}
     for a in apps:
-        r = await _resume_doc(db, a)
+        r = resumes[a["user_id"]] = await _resume_doc(db, a)
         rows.append(_row(a, jobs.get(a["job_id"]), users.get(a["user_id"]), r, a["user_id"] in pooled))
     from app.hire.vetting import access
 
-    if not await access.for_company(db, c, acc):  # the vetting engine hidden from this company: no level chips
+    shown = await access.for_company(db, c, acc)
+    if not shown:  # the vetting engine hidden from this company: no level chips
         for row in rows:
             row["level"] = row["l4"] = None
+    for row, a in zip(rows, apps, strict=True):
+        _auto(row, a, shown)
+    from app.trust.digilocker.router import add_badges
+
+    await add_badges(db, rows, "userId", c, acc)  # Vetting Trust T2: verified documents (only where Trust is on)
+    await _fit_for(db, rows, apps, jobs, c, acc)
     rows.sort(key=_rank)
+    criteria = None
+    if job and job in jobs:  # Vetting Trust T7: requirements Met / Not met / Unknown (only where Trust is on)
+        from app.trust.criteria.router import attach_applicants
+
+        full = await db[JOBS].find_one({"_id": job}) or jobs[job]
+        criteria = await attach_applicants(db, rows, full, c, acc, resumes)
     counts: dict[str, int] = {}
     async for a in db[APPLICATIONS].find(_visible(cid), {"job_id": 1}):
         counts[a["job_id"]] = counts.get(a["job_id"], 0) + 1
@@ -222,7 +247,21 @@ async def applicants(
         ],
         "items": rows,
         "keepMonths": int((await get_site(db))["companies"].get("applicant_months", 12)),
+        **({"criteria": criteria} if criteria else {}),  # Vetting Trust T7
     }
+
+
+async def _fit_for(db, rows, apps, jobs, c, acc) -> None:
+    """Vetting Trust T6 (only where the switch lets the company in): "Not a fit for: <question>" on each label."""
+    from app.companies.questions import not_met
+    from app.trust import access as trust_access
+
+    if not await trust_access.for_company(db, c, acc):
+        return
+    for row, a in zip(rows, apps, strict=True):
+        if not row["fit"].get("ok"):
+            qs = (jobs.get(a["job_id"]) or {}).get("questions") or []
+            row["fit"]["for"] = (a.get("fit") or {}).get("for") or not_met(qs, a.get("answers") or {})
 
 
 @router.get("/{cid}/applicants/{app_id}")
@@ -238,8 +277,14 @@ async def applicant(cid: str, app_id: str, db: DB, x_recruiter_account: str | No
     out = _row(a, job, user, r, pooled)
     from app.hire.vetting import access
 
-    if not await access.for_company(db, c, acc):
+    shown = await access.for_company(db, c, acc)
+    if not shown:
         out["level"] = out["l4"] = None
+    _auto(out, a, shown)
+    from app.trust.digilocker.router import add_badges
+
+    await add_badges(db, [out], "userId", c, acc)  # Vetting Trust T2
+    await _fit_for(db, [out], [a], {a["job_id"]: job or {}}, c, acc)  # T6
     out["data"] = recruiter_data({"_data": r["data"]}, a.get("status") in CONTACT_STAGES) if r else None
     out["template"] = (r or {}).get("template") or "classic"
     await audit(db, None, "company.applicant_open", target=cid, data={"by": acc["email_lc"], "app": app_id})
@@ -252,7 +297,7 @@ class StageIn(CamelModel):
 
 @router.post("/{cid}/applicants/{app_id}/status")
 async def set_stage(
-    cid: str, app_id: str, body: StageIn, db: DB, x_recruiter_account: str | None = Header(None)
+    cid: str, app_id: str, body: StageIn, db: DB, mailer: MailerDep, x_recruiter_account: str | None = Header(None)
 ) -> dict[str, Any]:
     acc, _, _ = await company_for(db, cid, x_recruiter_account, POST)
     a = await _app(db, cid, app_id)
@@ -266,9 +311,15 @@ async def set_stage(
             target=cid,
             data={"by": acc["email_lc"], "app": app_id, "from": a.get("status"), "to": body.status},
         )
+        from app.autoapply import sync
         from app.companies.trust import refresh
 
+        await sync.on_status(db, a, body.status, mailer)  # Auto Apply 2.0: the tracker and a notice (A2)
         await refresh(db, cid)  # replies count towards the score and the response badge
+        if body.status in CONTACT_STAGES:
+            from app.trust.tth.service import mark as tth_mark  # Vetting Trust T13: the first shortlist of this job
+
+            await tth_mark(db, a.get("job_id"), "shortlist", company_id=cid, user_id=a.get("user_id"), via="stage")
     return {"status": body.status}
 
 
@@ -398,6 +449,14 @@ async def schedule(
     if u and not u.get("email_bounced"):
         mail = interview_email(c["details"]["legal_name"], a.get("role", ""), iv, u["email"], u.get("name", ""), app_id)
         sent = await send_safely(mailer, mail)
+    if change:
+        from app.autoapply import sync
+
+        await sync.on_status(db, a, "interview", mailer, emailed=bool(sent))  # the invitation above was the email
+    from app.trust.tth.service import mark as tth_mark  # Vetting Trust T13: the interview and its invitation email
+
+    for kind in ("interview", "contact", "shortlist"):
+        await tth_mark(db, a.get("job_id"), kind, company_id=cid, user_id=a.get("user_id"), via="schedule")
     await audit(
         db,
         None,

@@ -1,8 +1,7 @@
 // The LinkedIn pack (Rs 149) in the browser: who owns it, buying it (only when payments are on), and its contents
 // from the server (which writes them for owners only). The banner image is drawn here from the pack's text.
 import { http, LIVE } from '../../services/http';
-import { createOrder, pay } from '../../services/api';
-import { buyOnWhatsApp } from '../waPay';
+import { PAY_SOON, buy, payMode } from '../payMode';
 import { canvasToPng } from '../qr';
 import { saveBlob } from '../fileDownload';
 import { fileName, fileSlug } from '../fileName';
@@ -18,27 +17,23 @@ export const PACK_ITEMS = [
   '3 custom profile URL ideas',
   'Copy buttons and a where-to-paste guide (English, తెలుగు, हिन्दी)',
 ];
-export const COMING_SOON = 'Coming soon';
+export const COMING_SOON = PAY_SOON;
 export const SECTION_TITLE = { headline: 'Headline', about: 'About', experience: 'Experience', education: 'Education', skills: 'Skills', featured: 'Featured', banner: 'Banner', urls: 'Custom URL' };
 export const REGEN_SECTIONS = ['headline', 'about', 'experience', 'education'];
 export const LIMITS = { headline: 220, about: 2600, experience: 2000 };
 
 const OFF = { owned: false, source: '', orderId: null, purchasedAt: null, paymentsOn: false, onSale: false, price: 149, mode: 'off' };
-/** { owned, source, orderId, purchasedAt, paymentsOn, onSale, price, mode (off | whatsapp | razorpay) }. Never throws (shows "Coming soon" on error). */
+/** { owned, source, orderId, purchasedAt, paymentsOn, onSale, price, mode (off | razorpay) }. Never throws: signed out (or on an error) it follows the public payment mode, so "Sign in to buy" or "Payments coming soon". */
 export async function packStatus() {
   if (!LIVE) return OFF;
-  try { return await http('/api/me/linkedin/pack/status'); } catch { return OFF; }
+  try { return await http('/api/me/linkedin/pack/status'); } catch {
+    const { mode } = await payMode();
+    return { ...OFF, mode, paymentsOn: mode === 'razorpay', onSale: mode === 'razorpay' };
+  }
 }
 
-/**
- * Pay for the pack: the server prices the order (503 while payments are off), Razorpay's window, server check.
- * WhatsApp mode: a pending order and the chat instead; resolves { whatsapp: true } (nothing unlocks until Nm7 confirms).
- */
-export async function buyPack(mode, code) {
-  if (mode === 'whatsapp') { const r = await buyOnWhatsApp({ planId: 'linkedin_pack', ...(code ? { code } : {}) }); return r?.unlocked ? r : { whatsapp: true }; }
-  const order = await createOrder({ planId: 'linkedin_pack', code });
-  return pay(order);
-}
+/** Pay for the pack: the server prices the order (503 while payments are off), Razorpay's window, server check. */
+export const buyPack = (code) => buy({ planId: 'linkedin_pack', ...(code ? { code } : {}) });
 
 export const getPack = () => http('/api/me/linkedin/pack');
 export const generatePack = (body) => http('/api/me/linkedin/pack/generate', { method: 'POST', body, timeout: 120_000 });
@@ -50,7 +45,7 @@ export const editSection = (section, value) => http('/api/me/linkedin/pack/edit'
 export const BANNER_W = 1584;
 export const BANNER_H = 396;
 
-/** '#2E46D8' → a light tint of it for the banner background. */
+/** '#2E46D8' -> a light tint of it for the banner background. */
 export function tint(hex, amount = 0.88) {
   const m = /^#?([0-9a-f]{6})$/i.exec(hex || '');
   const [r, g, b] = m ? [0, 2, 4].map((i) => parseInt(m[1].slice(i, i + 2), 16)) : [17, 24, 39];

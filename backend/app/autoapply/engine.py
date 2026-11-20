@@ -21,6 +21,7 @@ index), so a re-run never applies twice; each student is locked while their part
 an interrupted run resumes where it stopped. The run log (auto_runs) counts what happened and keeps errors.
 """
 
+import asyncio
 import logging
 import re
 from datetime import datetime, time, timedelta
@@ -323,11 +324,26 @@ async def deliver(
     site = site or await get_site(db)
     if await company_count(db, u["_id"], j, t) >= int(site["auto_apply"]["company_cap"]):
         return {"state": "skipped", "reason": "company_cap"}
+    if j.get("auto_controls"):  # Auto Apply 2.0 (A2): a company that set its job's controls is obeyed by every engine
+        from app.autoapply import instant
+
+        if "vetting" not in u:
+            u = {**u, **(await db[USERS].find_one({"_id": u["_id"]}, {"vetting": 1}) or {})}
+        if why := await instant.company_check(db, j, u):
+            return {"state": "skipped", "reason": why}
     if j["apply"]["method"] == "email":
         from app.autoapply import emailing
         from app.core.email import get_mailer
 
         day = today(t)
+        if item.get("v2"):  # Auto Apply 2.0 (A3): the candidate's own apply address, its sources, limits and switch
+            got = await emailing.send_v2(db, mailer or get_mailer(), item, j, u, copy, site)
+            if got["state"] != "sent":
+                return got
+            extra = {"sent_email": got["sent"], "v2": True, "channel_v2": "email",
+                     "cover_note": copy.get("cover_note") or []}  # fmt: skip
+            app = await apply_nm7(db, item, j, u, copy, answers, channel="email", extra=extra)
+            return got if app else {"state": "skipped", "reason": "already"}
         if await emailing.sent_today(db, day) >= int(site["auto_apply"]["email_daily_cap"]):
             return {"state": "queued", "reason": "email_cap"}  # the site's daily email cap: the next run sends it
         sent = await emailing.send(db, mailer or get_mailer(), item, j, u, copy, item.get("found") or [])
@@ -339,6 +355,10 @@ async def deliver(
             if app
             else {"state": "skipped", "reason": "already"}
         )
+    if j["apply"]["method"] == "link" and item.get("v2"):  # Auto Apply 2.0 (A5): the company's own simple form
+        from app.autoapply.forms import service as forms
+
+        return await forms.enqueue(db, item, j, u, site)  # filled and sent politely by the background form pass
     app = await apply_nm7(db, item, j, u, copy, answers)
     return {"state": "applied", "applied_at": t} if app else {"state": "skipped", "reason": "already"}
 
@@ -580,41 +600,69 @@ async def run(db, mailer=None, force: bool = False, limit: int = PAGE) -> dict[s
                 "disabled_at": None,
                 "demo": {"$ne": True},  # demo students never run (their jobs are demo-only; no email to them)
             },
-            {"auto_apply": 1, "email": 1, "name": 1},
+            {"auto_apply": 1, "email": 1, "email_lc": 1, "name": 1, "role": 1, "demo": 1},
         )
         .limit(limit)
     )
-    async for u in users:
-        got = await db[USERS].find_one_and_update(  # the per-student lock
-            {
-                "_id": u["_id"],
-                "auto_apply.run_day": {"$ne": day},
-                "$or": [{"auto_apply.lock_until": None}, {"auto_apply.lock_until": {"$lt": now()}}],
-            },
-            {"$set": {"auto_apply.lock_until": now() + LOCK}},
-        )
-        if not got:
-            continue
-        try:
-            await run_user(db, got, site, day, counts, mailer)
-            from app.autoapply.summary import after_run
+    from app.autoapply import access, v2engine
+    from app.core.heavy import heavy_or_skip
 
-            sent = await after_run(db, mailer, got, day)  # the daily summary / weekly report, when there is news
-            counts["summary_emails"] = counts.get("summary_emails", 0) + sent["daily"] + sent["weekly"]
-        except Exception as e:  # noqa: BLE001 — one student's problem never stops the others
-            log.exception("auto apply: run failed for one student")
-            await db[AUTO_RUNS].update_one(
-                {"_id": day},
+    v2 = site["auto_apply_v2"]
+    async with heavy_or_skip(db) as heavy:  # 2.0 tailors: a heavy job; another heavy job running → 2.0 waits a pass
+        async for u in users:
+            await asyncio.sleep(0)  # let the server answer requests between students (never hold the event loop)
+            is_v2 = bool((u.get("auto_apply") or {}).get("v2_consent_at")) and access.allowed(u, v2)
+            if is_v2 and not heavy:
+                counts["v2_waiting_heavy"] = counts.get("v2_waiting_heavy", 0) + 1
+                continue
+            got = await db[USERS].find_one_and_update(  # the per-student lock
                 {
-                    "$push": {
-                        "errors": {"$each": [{"user": u["_id"], "error": str(e)[:200], "at": now()}], "$slice": -50}
-                    }
+                    "_id": u["_id"],
+                    "auto_apply.run_day": {"$ne": day},
+                    "$or": [{"auto_apply.lock_until": None}, {"auto_apply.lock_until": {"$lt": now()}}],
                 },
+                {"$set": {"auto_apply.lock_until": now() + LOCK}},
             )
-        await db[USERS].update_one(
-            {"_id": u["_id"]}, {"$set": {"auto_apply.run_day": day, "auto_apply.lock_until": None}}
-        )
-        done += 1
+            if not got:
+                continue
+            try:
+                if is_v2:
+                    await v2engine.run_user(db, got, site, day, counts, mailer)
+                    from app.autoapply import weekly
+
+                    # A6's "N jobs ready" list (in-app, once a day) and A7's rule: at most one routine email a day
+                    # (the weekly summary on Mondays, else the morning email or today's summary), only via may_mail
+                    r = await weekly.routine(db, got, site, day, mailer)
+                    counts["v2_morning_listed"] = counts.get("v2_morning_listed", 0) + r["listed"]
+                    counts["summary_emails"] = counts.get("summary_emails", 0) + r["weekly"] + r["daily"]
+                    counts["v2_weekly_emails"] = counts.get("v2_weekly_emails", 0) + r["weekly"]
+                else:
+                    await run_user(db, got, site, day, counts, mailer)
+                    from app.autoapply.summary import after_run
+
+                    sent = await after_run(db, mailer, got, day)  # the daily summary / weekly report, when news
+                    counts["summary_emails"] = counts.get("summary_emails", 0) + sent["daily"] + sent["weekly"]
+            except Exception as e:  # noqa: BLE001 — one student's problem never stops the others
+                log.exception("auto apply: run failed for one student")
+                await db[AUTO_RUNS].update_one(
+                    {"_id": day},
+                    {
+                        "$push": {
+                            "errors": {
+                                "$each": [{"user": u["_id"], "error": str(e)[:200], "at": now()}],
+                                "$slice": -50,
+                            }
+                        }
+                    },
+                )
+            await db[USERS].update_one(
+                {"_id": u["_id"]}, {"$set": {"auto_apply.run_day": day, "auto_apply.lock_until": None}}
+            )
+            done += 1
+    from app.autoapply.emailing import follow_ups
+    from app.core.email import get_mailer
+
+    counts["v2_follow_ups"] = await follow_ups(db, mailer or get_mailer(), site)  # A3: opted-in, 7 days, no reply
     inc = {f"counts.{k}": v for k, v in counts.items() if v}
     await db[AUTO_RUNS].update_one(
         {"_id": day},

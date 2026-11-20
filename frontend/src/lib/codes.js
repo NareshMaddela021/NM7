@@ -1,4 +1,4 @@
-// Codes (Admin → Codes and "Have a code?" at every pay step). The server decides everything (app/coupons); this only
+// Codes (Admin -> Codes and "Have a code?" at every pay step). The server decides everything (app/coupons); this only
 // shapes forms, labels, CSV files and the ?code= link that fills in the code at the pay step.
 import { fileName } from './fileName';
 
@@ -14,10 +14,10 @@ export const STATUS = {
   scheduled: ['Scheduled', 'b-warning'], used_up: ['Used up', 'b-neutral'],
 };
 
-/** "save 50" → "SAVE50": what the server stores (case and spaces don't matter). */
+/** "save 50" -> "SAVE50": what the server stores (case and spaces don't matter). */
 export { normCode } from './codeLink';
 
-/** Paise → "99" / "74.50" (the server's own "Rs" texts use the same). */
+/** Paise -> "99" / "74.50" (the server's own "Rs" texts use the same). */
 export const rs = (paise) => {
   const r = (paise || 0) / 100;
   return Number.isInteger(r) ? r.toLocaleString('en-IN') : r.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -35,7 +35,7 @@ export const blankForm = () => ({
   validFrom: '', validUntil: '', onlyKind: '', onlyId: '', note: '',
 });
 
-/** A list row → the edit form. */
+/** A list row -> the edit form. */
 export const formOf = (c) => ({
   code: c.code, type: c.type, value: c.type === 'flat' ? String(c.value / 100) : c.type === 'percent' ? String(c.value) : '',
   items: c.items, unlimited: c.totalLimit == null, totalLimit: c.totalLimit == null ? '' : String(c.totalLimit),
@@ -43,7 +43,7 @@ export const formOf = (c) => ({
   onlyKind: c.only?.kind || '', onlyId: c.only?.id || '', note: c.note || '',
 });
 
-/** The form → the API body ({error} when something is missing). Flat amounts are typed in rupees, sent in paise. */
+/** The form -> the API body ({error} when something is missing). Flat amounts are typed in rupees, sent in paise. */
 export function bodyOf(f) {
   const value = f.type === 'flat' ? Math.round(Number(f.value) * 100) : f.type === 'percent' ? Math.round(Number(f.value)) : 0;
   if (f.type === 'percent' && !(value >= 1 && value <= 99)) return { error: 'Percent off is 1 to 99. Use Free unlock for 100%.' };
@@ -74,7 +74,7 @@ const cell = (v) => {
   if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`; // a spreadsheet must never run a cell
   return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 };
-/** Rows → CSV text (with a BOM so Excel reads it as UTF-8). */
+/** Rows -> CSV text (with a BOM so Excel reads it as UTF-8). */
 export const toCsv = (rows) => `﻿${rows.map((r) => r.map(cell).join(',')).join('\r\n')}\r\n`;
 
 /** The bulk codes as a CSV: one code a line, with what it is. */

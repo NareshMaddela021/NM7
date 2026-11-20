@@ -3,10 +3,15 @@
 // that break the company's rules add a "Not a fit" label with the reasons: the person is never hidden or deleted.
 // Contact details show once shortlisted. Stages (the student sees each one), compare up to 3 side by side, schedule an
 // interview (the student gets a calendar file), the talent pool, the resume they applied with. No pop-up dialogs.
-// English, Telugu and Hindi (co.ap.*). Vetting V1: the level chip and ⚡ Ready now on each card and in the profile.
+// English, Telugu and Hindi (co.ap.*). Vetting V1: the level chip and Ready now on each card and in the profile.
 // Vetting V3: the profile of someone at L3+ opens their screening interview (ScreeningInterview.jsx).
 // Vetting V4: and can ask for the Nm7 human check (NmCheck.jsx).
-import { useCallback, useEffect, useState } from 'react';
+// Vetting Trust T2: "Verified via DigiLocker" document badges (DocBadges.jsx; only where the Trust switch allows).
+// Auto Apply 2.0 (A2): "Sent by Auto Apply" with the score, 3 reasons, badges, notice, salary and cover note.
+// Vetting Trust T7 (only when the list carries `criteria`: one job picked and the Trust switch lets the company in): the
+// job's requirements (CriteriaEditor) and on each card Met / Not met / Unknown with the quoted evidence; the server
+// sorts by must-haves met, then nice-to-haves met, then the match score; an edit reloads the list at once.
+import { Suspense, lazy, useCallback, useEffect, useState } from 'react';
 import { rq } from '../../lib/company';
 import { matchReasons } from '../../lib/jobBoard';
 import ResumePreview from '../builder/ResumePreview';
@@ -19,12 +24,19 @@ import '../../styles/company-jobs.css';
 import ApplicantFeedback from './ApplicantFeedback';
 import SkillBadge from './SkillBadge';
 import ScreeningInterview from './ScreeningInterview';
+import { lazyRetry } from '../../lib/chunks';
 import NmCheck from './NmCheck';
+
+const CompanyCode = lazy(lazyRetry(() => import('./CompanyCode'))); // Vetting Trust T14: coding result + editor replay
+import DocBadges from './DocBadges';
+import { AutoBlock, AutoChip } from './AutoApplyBits';
+import { CriteriaEditor, CriteriaStrip, useEvaluating } from './CriteriaBits';
 import LevelBadge from '../../components/LevelBadge';
 import { lt } from '../../components/levelStrings';
 import { useLang } from '../../lib/i18n';
+import { IcCalendar, IcGrid, IcLock, IcMail, IcMenu } from '../../components/icons';
 
-/** The level chip and ⚡ for an applicant row (`level` is null for people without a level yet). */
+/** The level chip and the Ready now mark for an applicant row (`level` is null for people without a level yet). */
 function ApLevel({ lv }) {
   const [, lang] = useLang();
   if (!lv) return null;
@@ -39,6 +51,9 @@ const initial = (n) => (n || '?').trim().charAt(0).toUpperCase();
 const day = (ms) => (ms ? new Date(ms).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '');
 
 /** "Matches 3 of 4 skills · Fresher OK · In Hyderabad" (the job board's own words). */
+/** "Not a fit", or with Vetting Trust T6 (only where the switch lets the company in) "Not a fit for: <question>". */
+const notFitFor = (fit, t) => (fit.for?.length ? `${t('co.ap.notFit')} for: ${fit.for.join('; ')}` : t('co.ap.notFit'));
+
 export function reasons(m, t) {
   if (!m) return [t('co.ap.noResume')];
   const { good, gaps } = matchReasons(m, t);
@@ -59,6 +74,7 @@ export default function CompanyApplicants({ t, c }) {
     rq(`/api/company/${c.id}/applicants${job ? `?job=${encodeURIComponent(job)}` : ''}`).then((x) => { setD(x); setErr(''); }, (x) => setErr(x.message));
   }, [c.id, job]);
   useEffect(() => { load(); }, [load]);
+  useEvaluating(c, d?.criteria ? job : '', !!d?.items?.some((x) => x.criteria?.pending), load); // T7: "evaluating…"
   if (err && !d) return <p className="error" role="alert">{err}</p>;
   if (!d) return <Skel cards={3} lines={3} label={t('co.loading')} />;
   const chosen = d.items.filter((x) => pick.includes(x.id));
@@ -80,14 +96,15 @@ export default function CompanyApplicants({ t, c }) {
           </div>
           {d.items.length > 0 && (
             <div className="ca-view" role="group" aria-label={t('co.ap.view')}>
-              <button type="button" aria-pressed={view === 'list'} onClick={() => setView('list')}><span aria-hidden="true">☰ </span>{t('co.ap.viewList')}</button>
-              <button type="button" aria-pressed={view === 'board'} onClick={() => { setView('board'); setStage(null); }}><span aria-hidden="true">▥ </span>{t('co.ap.viewBoard')}</button>
+              <button type="button" aria-pressed={view === 'list'} onClick={() => setView('list')}><IcMenu size={16} /> {t('co.ap.viewList')}</button>
+              <button type="button" aria-pressed={view === 'board'} onClick={() => { setView('board'); setStage(null); }}><IcGrid size={16} /> {t('co.ap.viewBoard')}</button>
             </div>
           )}
         </div>
         {d.items.length > 0 && <Pipeline steps={counts} label={t('co.ap.cStage')} active={view === 'list' ? stage : null} onPick={view === 'list' ? setStage : undefined} />}
         <span className="xs muted">{t('co.ap.keep', { n: d.keepMonths })}</span>
       </div>
+      {job && d.criteria && <CriteriaEditor key={job} c={c} jobId={job} criteria={d.criteria} can={can} onSaved={load} />}
       {d.items.length === 0 && <Empty shape="magnifier" tint="company" compact>{t('co.ap.none')}</Empty>}
       {view === 'list' ? (
         <ul className="ca-list">
@@ -131,7 +148,7 @@ function Board({ t, items, onProfile }) {
                 <li key={a.id}>
                   <button type="button" className="ca-mini" onClick={() => onProfile(a.id)}>
                     <span className="mavatar ca-av-sm" aria-hidden="true">{initial(a.name)}</span>
-                    <span className="ca-mini-main"><strong>{a.name}</strong><span className="xs muted">{a.job}</span>{a.level && <span className="xs ca-mini-lv" data-testid="co-ap-mini-level">L{a.level.level} · {lv(`lv.${a.level.level}`)}{a.level.readyNow ? <> · <span aria-hidden="true">⚡</span>{lv('lv.ready')}</> : ''}</span>}</span>
+                    <span className="ca-mini-main"><strong>{a.name}</strong><span className="xs muted">{a.job}</span>{a.level && <span className="xs ca-mini-lv" data-testid="co-ap-mini-level">L{a.level.level} · {lv(`lv.${a.level.level}`)}{a.level.readyNow ? <> · {lv('lv.ready')}</> : ''}</span>}</span>
                     {a.match && <span className="ca-mini-score">{a.match.score}</span>}
                   </button>
                 </li>
@@ -145,7 +162,8 @@ function Board({ t, items, onProfile }) {
   );
 }
 
-/** The candidate's profile in a side panel: only what the list already loaded (no extra calls). */
+/** The candidate's profile in a side panel: only what the list already loaded (no extra calls), except the T14 coding
+ * card (one call when the profile opens; nothing shows unless Vetting Trust is on for the company). */
 function Profile({ t, c, can, a, rank, onClose, onChanged }) {
   return (
     <Dialog title={a.name} onClose={onClose} showTitle overlayStyle={{ justifyContent: 'flex-end', alignItems: 'stretch', padding: 0 }}
@@ -156,20 +174,24 @@ function Profile({ t, c, can, a, rank, onClose, onChanged }) {
           <div className="stack g4" style={{ minWidth: 0 }}>
             <span className="small muted">#{rank} · {a.job}</span>
             <span className="xs muted">{t('co.ap.applied', { date: day(a.appliedAt) })}</span>
-            <span className="ca-chips"><Chip tone={TONE[a.status] || 'neutral'}>{t(`jobs.app.${a.status}`)}</Chip><Chip tone={a.origin === 'auto' ? 'accent' : 'neutral'}>{t(`aa.badge.${a.origin === 'auto' ? 'auto' : 'manual'}`)}</Chip>{a.pooled && <Chip tone="info">{t('co.ap.inPool')}</Chip>}</span>
+            <span className="ca-chips"><Chip tone={TONE[a.status] || 'neutral'}>{t(`jobs.app.${a.status}`)}</Chip>{a.auto ? <AutoChip a={a} /> : <Chip tone={a.origin === 'auto' ? 'accent' : 'neutral'}>{t(`aa.badge.${a.origin === 'auto' ? 'auto' : 'manual'}`)}</Chip>}{a.pooled && <Chip tone="info">{t('co.ap.inPool')}</Chip>}</span>
           </div>
         </div>
         <ApLevel lv={a.level} />
         <SkillBadge sv={a.skillVerified} t={t} />
         {a.level?.level >= 3 && <div className="row g8"><ScreeningInterview c={c} uid={a.userId} name={a.name} level={a.level.level} job={a.jobId} appId={a.id} top
           canInvite={can && !['interview', 'offer', 'rejected'].includes(a.status)} onInvited={onChanged} /></div>}
+        <DocBadges docs={a.docs} face={a.face} integrity={a.integrity} />
+        <Suspense fallback={null}><CompanyCode c={c} uid={a.userId} /></Suspense>
+        <CriteriaStrip cr={a.criteria} testid="crit-strip-profile" />
         <NmCheck c={c} uid={a.userId} name={a.name} level={a.level?.level} row={a} canRequest={can} />
+        <AutoBlock a={a} open />
         <ul className="ca-reasons">{reasons(a.match, t).map((r) => <li key={r}>{r}</li>)}</ul>
         {a.match?.found.length > 0 && <div className="stack g4"><span className="mkicker">{t('co.ap.cFound')}</span><span className="ca-skills">{a.match.found.map((x) => <span key={x} className="ca-skill ok">{x}</span>)}</span></div>}
         {a.match?.missing.length > 0 && <div className="stack g4"><span className="mkicker">{t('co.ap.cMissing')}</span><span className="ca-skills">{a.match.missing.map((x) => <span key={x} className="ca-skill">{x}</span>)}</span></div>}
         {a.match && <div className="stack g4"><span className="mkicker">{t('co.ap.cYears')}</span><span className="small">{yearsText(a.match.years, t)}</span></div>}
         <div className={`mcard mcard-tight ${a.fit.ok ? 'mcard-ok' : 'mcard-warn'}`}>
-          <strong className="small">{t('co.ap.cFit')}: {a.fit.ok ? t('co.ap.fitOk') : t('co.ap.notFit')}</strong>
+          <strong className="small">{t('co.ap.cFit')}: {a.fit.ok ? t('co.ap.fitOk') : notFitFor(a.fit, t)}</strong>
           {!a.fit.ok && <ul className="xs" style={{ margin: 0, paddingLeft: 18 }}>{a.fit.reasons.map((r, i) => <li key={i}>{r}</li>)}</ul>}
         </div>
         {a.answers.length > 0 && (
@@ -202,12 +224,15 @@ function Applicant({ t, c, a, rank, can, picked, canPick, onPick, open, onOpen, 
         </div>
         <div className="ca-chips">
           {a.match && <Chip tone={a.match.score >= 70 ? 'ok' : a.match.score >= 40 ? 'info' : 'neutral'} testid="co-ap-score">{t('jobs.match.pct', { n: a.match.score })}</Chip>}
-          <Chip tone={a.origin === 'auto' ? 'accent' : 'neutral'} testid="co-ap-origin" title={t(`aa.badge.${a.origin === 'auto' ? 'autoHint' : 'manualHint'}`)}>{t(`aa.badge.${a.origin === 'auto' ? 'auto' : 'manual'}`)}</Chip>
+          {a.auto ? <AutoChip a={a} /> : <Chip tone={a.origin === 'auto' ? 'accent' : 'neutral'} testid="co-ap-origin" title={t(`aa.badge.${a.origin === 'auto' ? 'autoHint' : 'manualHint'}`)}>{t(`aa.badge.${a.origin === 'auto' ? 'auto' : 'manual'}`)}</Chip>}
           <Chip tone={TONE[a.status] || 'neutral'} testid="co-ap-stage">{t(`jobs.app.${a.status}`)}</Chip>
         </div>
       </div>
       <ApLevel lv={a.level} />
+      <DocBadges docs={a.docs} face={a.face} integrity={a.integrity} compact />
+      <CriteriaStrip cr={a.criteria} />
       <p className="ca-why">{reasons(a.match, t).join(' · ')}</p>
+      <AutoBlock a={a} />
       {(a.match?.found.length > 0 || a.match?.missing.length > 0) && (
         <div className="ca-skillrow">
           {a.match.found.length > 0 && <span className="xs ca-found">{t('jobs.match.found', { list: a.match.found.join(', ') })}</span>}
@@ -216,7 +241,7 @@ function Applicant({ t, c, a, rank, can, picked, canPick, onPick, open, onOpen, 
       )}
       {!a.fit.ok && (
         <div className="ca-notfit" data-testid="co-ap-notfit">
-          <Chip tone="warn">{t('co.ap.notFit')}</Chip>
+          <Chip tone="warn" testid="co-ap-notfit-chip" style={{ whiteSpace: 'normal', overflowWrap: 'anywhere', maxWidth: '100%' }}>{notFitFor(a.fit, t)}</Chip>
           <ul className="xs" style={{ margin: 0, paddingLeft: 18 }}>{a.fit.reasons.map((r, i) => <li key={i}>{r}</li>)}</ul>
         </div>
       )}
@@ -227,10 +252,10 @@ function Applicant({ t, c, a, rank, can, picked, canPick, onPick, open, onOpen, 
       )}
       <div className="ca-info">
         {a.contact ? (
-          <span className="xs" data-testid="co-ap-contact"><span aria-hidden="true">✉ </span><a href={`mailto:${a.contact.email}`}>{a.contact.email}</a>{a.contact.phone ? ` · ${a.contact.phone}` : ''}</span>
-        ) : <span className="xs muted"><span aria-hidden="true">🔒 </span>{t('co.ap.contactLater')}</span>}
-        {a.interview && <span className="xs" data-testid="co-ap-interview"><span aria-hidden="true">📅 </span>{t('co.ap.ivOn', { when: new Date(a.interview.at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) })}{[a.interview.round, a.interview.interviewer].filter(Boolean).map((x) => ` · ${x}`).join('')}</span>}
-        {a.pooled && <span className="xs">☆ {t('co.ap.inPool')}</span>}
+          <span className="xs" data-testid="co-ap-contact"><IcMail size={14} /> <a href={`mailto:${a.contact.email}`}>{a.contact.email}</a>{a.contact.phone ? ` · ${a.contact.phone}` : ''}</span>
+        ) : <span className="xs muted"><IcLock size={14} /> {t('co.ap.contactLater')}</span>}
+        {a.interview && <span className="xs" data-testid="co-ap-interview"><IcCalendar size={14} /> {t('co.ap.ivOn', { when: new Date(a.interview.at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) })}{[a.interview.round, a.interview.interviewer].filter(Boolean).map((x) => ` · ${x}`).join('')}</span>}
+        {a.pooled && <span className="xs">{t('co.ap.inPool')}</span>}
         {a.irrelevant && <span className="xs muted" data-testid="co-ap-marked">{t('aa.co.marked')}</span>}
       </div>
       <div className="ca-tools">
@@ -261,7 +286,7 @@ function InterviewForm({ t, iv, setIv, busy, onSend }) {
   const set = (k) => (e) => setIv({ ...iv, [k]: e.target.value });
   return (
     <form className="stack g8 ca-ivform" onSubmit={(e) => { e.preventDefault(); onSend(); }} data-testid="co-ap-ivform">
-      <strong className="ca-iv-title"><span aria-hidden="true">📅 </span>{t('co.ap.ivTitle')}</strong>
+      <strong className="ca-iv-title"><IcCalendar /> {t('co.ap.ivTitle')}</strong>
       <div className="cj-grid">
         <div className="field"><label className="label" htmlFor="iv-d">{t('co.ap.ivDate')}</label><input id="iv-d" type="date" className="input" required value={iv.date} onChange={set('date')} /></div>
         <div className="field"><label className="label" htmlFor="iv-t">{t('co.ap.ivTime')}</label><input id="iv-t" type="time" className="input" required value={iv.time} onChange={set('time')} /></div>

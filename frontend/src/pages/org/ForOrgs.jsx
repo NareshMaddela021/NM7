@@ -1,5 +1,5 @@
 // /for-orgs — Nm7 for Organizations: the plans table (prices and limits come from the server, so Naresh can
-// change them in Admin → Plans), a short FAQ, "Start free" (creates an organization with you as its Owner) and
+// change them in Admin -> Plans), a short FAQ, "Start free" (creates an organization with you as its Owner) and
 // "Talk to us" (a support ticket). A ?ref=CODE link from a partner is remembered (Phase 4C). Readable in English,
 // Telugu or Hindi (the language switch at the top; strings orgs.* in src/i18n/pages.json); messages from the server and
 // the students' stories stay as they are.
@@ -19,6 +19,7 @@ import DemoVideo from './DemoVideo';
 import { http } from '../../services/http';
 import '../../styles/me-kit.css';
 import '../../styles/org-signup.css';
+import { IcCheck, IcMail } from '../../components/icons';
 
 const ORG_TYPES = ['college', 'institute', 'job_fair', 'skill_centre', 'ngo', 'agency', 'company', 'other']; // names: orgs.type.<k>
 const EMAIL = 'info@nm7.si';
@@ -37,14 +38,14 @@ function useRef90() {
   return ref;
 }
 
-/** Round P, Phase 4: the three steps of starting free (account → organization → groups), shown beside the form. */
+/** Round P, Phase 4: the three steps of starting free (account -> organization -> groups), shown beside the form. */
 function StartSteps({ step, t }) {
   const steps = [t('orgs.start.signup'), t('orgs.start.create'), t('orgs.table.l.groups')];
   return (
     <ol className="msteps fo-steps" aria-hidden="true">
       {steps.map((l, i) => (
         <li key={l} className={i < step ? 'done' : i === step ? 'now' : ''}>
-          <span className="msteps-dot">{i < step ? '✓' : i + 1}</span>
+          <span className="msteps-dot">{i < step ? <IcCheck size={14} /> : i + 1}</span>
           <span className="fo-step-l">{l}</span>
         </li>
       ))}
@@ -56,7 +57,7 @@ function StartSteps({ step, t }) {
 function StartSide({ t }) {
   return (
     <aside className="fo-side">
-      <span className="fo-side-ic" aria-hidden="true">✓</span>
+      <span className="fo-side-ic" aria-hidden="true"><IcCheck /></span>
       <strong className="fo-side-title">{t('orgs.faq.2.q')}</strong>
       <p className="fo-side-text">{t('orgs.faq.2.a')}</p>
       <p className="fo-side-text fo-side-note">{t('orgs.start.owner')}</p>
@@ -133,7 +134,7 @@ function TalkToUs({ refCode, t }) {
     } catch (err) { setState({ error: err.message }); }
   };
   return state.sent
-    ? <p className="small fo-thanks" role="status"><span aria-hidden="true">✓ </span>{t('orgs.talk.thanks')}</p>
+    ? <p className="small fo-thanks" role="status"><IcCheck size={16} /> {t('orgs.talk.thanks')}</p>
     : (
       <form className="stack g8 fo-talk-form" onSubmit={send} aria-label={t('orgs.talk.title')}>
         <label className="label" htmlFor="tt-x">{t('orgs.talk.label')}</label>
@@ -166,7 +167,7 @@ export default function ForOrgs() {
           <h1 id="orgs-h" className="display" style={{ fontSize: 'clamp(28px, 6vw, 40px)' }}>{t('orgs.hero.title')}</h1>
           <p className="muted" style={{ maxWidth: 640 }}>{t('orgs.hero.lead')}</p>
           <ul className="fo-feats">
-            {['drives', 'offers', 'placementInsights'].map((k) => <li key={k}><span aria-hidden="true">✓</span>{t(`orgs.table.f.${k}`)}</li>)}
+            {['drives', 'offers', 'placementInsights'].map((k) => <li key={k}><span aria-hidden="true"><IcCheck /></span>{t(`orgs.table.f.${k}`)}</li>)}
           </ul>
           <div className="row g8" style={{ flexWrap: 'wrap' }}>
             <button type="button" className="btn btn-signal btn-lg" onClick={() => setStart(true)}>{t('org.start')}</button>
@@ -197,7 +198,7 @@ export default function ForOrgs() {
         <p className="small muted fo-partner" lang={lang}>{rich(t('orgs.partner'), { link: <Link to="/partners">{t('orgs.partner.link')}</Link> })}</p>
         <section id="talk" className="fo-card fo-talk" aria-labelledby="talk-h" lang={lang}>
           <div className="fo-talk-intro">
-            <span className="fo-card-ic" aria-hidden="true">✉</span>
+            <span className="fo-card-ic" aria-hidden="true"><IcMail /></span>
             <h2 id="talk-h" className="display h3">{t('orgs.talk.title')}</h2>
             <p className="small muted">{t('orgs.faq.5.a')}</p>
           </div>

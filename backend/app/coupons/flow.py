@@ -1,9 +1,8 @@
 """Using a code at the pay step: checking it (with a limit on wrong tries), quoting the new price, unlocking at once
-with a free code (an order at Rs 0, no WhatsApp step), and taking the discount off a WhatsApp / Razorpay order or
+with a free code (an order at Rs 0, no WhatsApp step), and taking the discount off a Razorpay order or
 an organization's plan.
 
-Payment modes: Off → only free codes work (nothing can be paid); WhatsApp → free codes unlock, a discount lowers
-the WhatsApp order; Razorpay → a discount lowers the amount charged (the same order hook)."""
+Payment modes: Off → only free codes work (nothing can be paid); Razorpay → a discount lowers the amount charged."""
 
 from collections.abc import Awaitable, Callable
 from typing import Any, TypeVar
@@ -191,7 +190,7 @@ def discounted(items: list[tuple[str, str, str, int]], c: dict[str, Any]) -> tup
 
 
 async def order_code(db: AsyncDatabase, user_id: str, code: str | None, plan: str, ip: str | None) -> dict | None:
-    """The code for a new WhatsApp / Razorpay order (checked; None without one)."""
+    """The code for a new Razorpay order (checked; None without one)."""
     if not code or not code.strip():
         return None
     item = next(k for k, (_, p) in ITEMS.items() if p == plan)

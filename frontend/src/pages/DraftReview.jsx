@@ -8,6 +8,7 @@ import { DEFAULT_DESIGN, TEMPLATE_PRESETS } from './builder/design';
 import { PRINTABLE, resolveOrder, sectionLabel } from './builder/schema';
 import { atsScore } from '../lib/atsScore';
 import { useExpertOrders, updateOrder } from '../lib/expertStore';
+import { IcStar } from '../components/icons';
 
 export default function DraftReviewRoute() {
   const { id } = useParams();
@@ -35,7 +36,7 @@ function DraftReview({ id }) {
       <Header variant="flow" />
       <main className="container-wide row g24" style={{ padding: '24px 24px 64px', alignItems: 'flex-start' }}>
         <section className="stack g12" style={{ flex: '3 1 520px', minWidth: 0 }}>
-          <div className="row between g8"><h1 className="display" style={{ fontSize: 30 }}>{v.label} of your resume</h1><span className="badge b-success">ATS {before} → {after}</span></div>
+          <div className="row between g8"><h1 className="display" style={{ fontSize: 30 }}>{v.label} of your resume</h1><span className="badge b-success">ATS {before} to {after}</span></div>
           {v.note && <p className="well small" style={{ margin: 0 }}><strong>From your expert:</strong> {v.note}</p>}
           <ResumePreview data={v.data} design={ds} />
         </section>
@@ -62,11 +63,11 @@ function DraftReview({ id }) {
               {o.status !== 'approved' ? (
                 <div className="stack g8">
                   <span className="label">Rate your expert</span>
-                  <div className="row g4" role="radiogroup" aria-label="Rating">{[1, 2, 3, 4, 5].map((n) => <button key={n} type="button" role="radio" aria-checked={rating === n} aria-label={`${n} star${n > 1 ? 's' : ''}`} className="btn btn-icon" style={{ fontSize: 22, color: n <= rating ? 'var(--warning)' : 'var(--text3)' }} onClick={() => setRating(n)}>★</button>)}</div>
+                  <div className="row g4" role="radiogroup" aria-label="Rating">{[1, 2, 3, 4, 5].map((n) => <button key={n} type="button" role="radio" aria-checked={rating === n} aria-label={`${n} star${n > 1 ? 's' : ''}`} className="btn btn-icon" style={{ fontSize: 22, color: n <= rating ? 'var(--warning)' : 'var(--text3)' }} onClick={() => setRating(n)}><IcStar size={22} fill={n <= rating ? 'currentColor' : 'none'} /></button>)}</div>
                   <textarea aria-label="Review" className="input" rows={2} value={review} onChange={(e) => setReview(e.target.value)} placeholder="What did you like? (optional)" />
                   <button type="button" className="btn btn-outline" disabled={!rating} onClick={() => { updateOrder(o.id, () => ({ status: 'approved', rating, review: review.trim() || null })); toast('Thanks! Order approved'); }}>Approve & rate</button>
                 </div>
-              ) : <span className="badge b-success" style={{ alignSelf: 'flex-start' }}>Approved · ★ {o.rating}</span>}
+              ) : <span className="badge b-success" style={{ alignSelf: 'flex-start' }}>Approved · rated {o.rating} of 5</span>}
             </div>
           )}
         </aside>

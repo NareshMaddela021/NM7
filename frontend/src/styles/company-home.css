@@ -42,6 +42,7 @@
 .ch-room-no { background: #fff4e0; color: #92400e; }
 .ch-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 @media (min-width: 720px) { .ch-tiles { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 1500px) { .ch-tiles { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); } } /* round W: one row on a wide screen */
 .ch-tiles .mstat { background: rgba(255, 255, 255, .88); box-shadow: 0 10px 28px -20px rgba(29, 78, 216, .45); border-color: #dfe7f8; min-height: 104px; }
 .ch-tiles .mstat-v { color: #1e3a8a; }
 .ch-allow .mbar { margin-top: 6px; }
@@ -121,3 +122,11 @@ img.cpub-logo { background: #fff; }
   .cpub-body { padding: 16px; }
   .ch-hero-top { align-items: flex-start; }
 }
+
+/* Auto Apply 2.0 (A4): "Connect your hiring system" */
+.ats-facts { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: 10px; margin: 0; }
+.ats-facts > div { min-width: 0; }
+.ats-facts dt { font-size: 12px; font-weight: 700; color: var(--text2); text-transform: capitalize; }
+.ats-facts dd { margin: 2px 0 0; font-size: 14px; overflow-wrap: anywhere; }
+.ats-job { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid var(--border2); min-width: 0; }
+.ats-select { max-width: 100%; min-width: 0; width: auto; flex: 1 1 200px; }

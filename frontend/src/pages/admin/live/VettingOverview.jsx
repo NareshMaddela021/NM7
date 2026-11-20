@@ -1,4 +1,4 @@
-// Admin → Skill checks → Overview (Vetting V1): how many people are at each level (L0–L4), how many are ⚡ ready now
+// Admin -> Skill checks -> Overview (Vetting V1): how many people are at each level (L0–L4), how many are ready now
 // and visible in Hire now; the hot roles (role × city × open jobs); the health of the ready shortlists (a row with
 // fewer than 5 ready people is red, with the words saying so); the ready-now reminder reply rate; and the success
 // measures against their targets (met / not met / no data yet). From GET /api/admin/vetting/overview; nothing is made up.
@@ -37,7 +37,7 @@ export default function VettingOverview() {
                 </div>
               ))}
               <div className="mstat vo-tile vo-tile-ready" data-testid="vo-ready">
-                <span className="mstat-l"><span aria-hidden="true">⚡ </span>Ready now</span>
+                <span className="mstat-l">Ready now</span>
                 <span className="mstat-v">{d.readyNow.toLocaleString('en-IN')}</span>
                 <span className="xs muted">Confirmed in the last 7 days</span>
               </div>

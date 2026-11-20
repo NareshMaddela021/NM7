@@ -9,11 +9,15 @@ import { pageQuery, placeText, postedAgo, salaryText, searchJobs } from '../../l
 import { translate } from '../../lib/i18n';
 import Header from '../../components/Header';
 import SiteFooter from '../../components/SiteFooter';
+import JobActions from '../../components/JobActions';
 import { usePageMeta } from '../../lib/meta';
+import { useAuth } from '../../lib/auth';
+import { joinLink } from '../../lib/signupRoles';
 import ParticleStage from './ParticleStage';
 import GlassWidget, { reducedMotion } from './GlassWidget';
 import { AUDIENCES, EXPERIENCE_TEXT, FAQ, HERO_HEADLINE, HERO_HIGHLIGHT, HIRE_MINUTES, JOB_CHIPS, META, SECTIONS, TAGLINE, TRUST, audienceFor, structuredData, widgetFor } from './content';
 import './newhome.css';
+import { IcArrowRight } from '../../components/icons';
 
 const en = (k, v) => translate('en', k, v);
 
@@ -163,6 +167,14 @@ function JobSearch({ cities }) {
   );
 }
 
+/** "Create free account" (signed out only): companies and colleges go to their own sign-up, job seekers and students
+ * to /signup with their role in the link; without an audience, plain /signup. */
+function JoinLink({ who, className = 'nh-btn nh-btn-line', testId }) {
+  const { user } = useAuth();
+  if (user) return null;
+  return <Link to={joinLink(who)} className={className} data-testid={testId}>Create free account</Link>;
+}
+
 function Hero({ aud, onPick, live }) {
   const w = widgetFor(aud.key, live);
   return (
@@ -177,7 +189,10 @@ function Hero({ aud, onPick, live }) {
           <div className="nh-panel-text">
             <h2 className="nh-headline" data-testid="nh-headline">{aud.headline}</h2>
             <p className="nh-sub">{aud.sub}</p>
-            <Link to={aud.cta.to} className="nh-btn nh-btn-solid nh-btn-big" data-testid="nh-cta">{aud.cta.label}</Link>
+            <div className="nh-cta-row">
+              <Link to={aud.cta.to} className="nh-btn nh-btn-solid nh-btn-big" data-testid="nh-cta">{aud.cta.label}</Link>
+              <JoinLink who={aud.key} className="nh-btn nh-btn-line nh-btn-big" testId="nh-join" />
+            </div>
           </div>
           <GlassWidget w={w} audience={aud.key} />
         </div>
@@ -194,7 +209,7 @@ function Cards({ cards }) {
         <article key={c.title} className="nh-card nh-reveal" style={{ '--i': i }}>
           <h3>{c.title}</h3>
           <p>{c.text}</p>
-          {c.to && <Link to={c.to} className="nh-card-link">{c.link} <span aria-hidden="true">→</span></Link>}
+          {c.to && <Link to={c.to} className="nh-card-link">{c.link} <IcArrowRight size={16} /></Link>}
         </article>
       ))}
     </div>
@@ -276,12 +291,13 @@ function LiveJobs({ live }) {
                 {!list && [0, 1, 2, 3].map((i) => <li key={i} className="nh-live-skel" aria-hidden="true"><i /><i /></li>)}
                 {list && !rows.length && <li className="nh-muted">No jobs for this filter right now. <Link to="/jobs">See all jobs</Link></li>}
                 {rows.map((j) => (
-                  <li key={j.id}>
+                  <li key={j.id} className="nh-live-item" data-testid="job-card">
                     <Link to={`/jobs/${j.slug}`} className="nh-live-row" data-testid="nh-live-row" onMouseEnter={() => setHover(j.id)} onFocus={() => setHover(j.id)}>
                       <span className="nh-live-title">{j.title}</span>
                       <span className="nh-live-meta">{[j.company?.name, placeText(j, en), EXPERIENCE_TEXT[j.experience]].filter(Boolean).join(' · ')}</span>
                       <span className="nh-live-when">{postedAgo(j.postedAt, en)}</span>
                     </Link>
+                    <JobActions job={j} />
                   </li>
                 ))}
               </ul>
@@ -296,7 +312,7 @@ function LiveJobs({ live }) {
                     {!!shown.skills?.length && <><dt>Skills</dt><dd>{shown.skills.slice(0, 6).join(', ')}</dd></>}
                     {shown.fromCareersPage && <><dt>Source</dt><dd>Company careers page</dd></>}
                   </dl>
-                  <Link to={`/jobs/${shown.slug}`} className="nh-card-link">View this job <span aria-hidden="true">→</span></Link>
+                  <Link to={`/jobs/${shown.slug}`} className="nh-card-link">View this job <IcArrowRight size={16} /></Link>
                 </aside>
               )}
             </div>
@@ -375,6 +391,18 @@ function Faq() {
   );
 }
 
+/** The last call to action above the footer (signed out only). */
+function FinalJoin() {
+  const { user } = useAuth();
+  if (user) return null;
+  return (
+    <div className="nh-final-join">
+      <p className="nh-sub">New here? It takes a minute.</p>
+      <JoinLink className="nh-btn nh-btn-ink nh-btn-big" testId="nh-final-join" />
+    </div>
+  );
+}
+
 function FinalCall() {
   return (
     <section className="nh-final" aria-labelledby="final-h" data-shape="sphere" data-side="0" data-spot="final">
@@ -393,6 +421,7 @@ function FinalCall() {
         <div className="nh-final-btns">
           {AUDIENCES.map((a) => <Link key={a.key} to={a.cta.to} className="nh-btn nh-btn-solid">{a.cta.label}<span className="nh-btn-who">{a.who}</span></Link>)}
         </div>
+        <FinalJoin />
       </div>
     </section>
   );

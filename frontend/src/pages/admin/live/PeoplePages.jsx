@@ -9,7 +9,11 @@ import { Chip, MeCard } from '../../me/kit';
 import { Hero, Initial } from './SetupKit';
 import { API_BASE } from '../../../services/http';
 import { Loading, STATUS_LABEL, day, emptyIf, http, rupees, useAction, useApi, when } from './common';
-import { WaReport } from './WaPages';
+import { SortTh, useSort } from './sort';
+import { useAuth } from '../../../lib/auth';
+import { viewAsUser } from '../../../lib/adminViews';
+import { WaReport } from './PaymentsSettings';
+import { IcChart, IcStar, IcThumb, IcTrash, IcUsers } from '../../../components/icons';
 
 /* ---------- experts and applications ---------- */
 const EXPERT_STATUS = { draft: 'Filling in profile', review: 'To review', changes: 'Asked for changes', test: 'Doing test task', testReview: 'Test to score', approved: 'Approved', rejected: 'Not approved' };
@@ -30,9 +34,9 @@ export function LiveExperts() {
   ] : null;
   return (
     <>
-      <Hero icon="✦" title="Experts" sub="Approve applications, score test tasks and pause experts." stats={stats} />
+      <Hero icon={<IcStar />} title="Experts" sub="Approve applications, score test tasks and pause experts." stats={stats} />
       <div className="as-bar"><Tabs label="View" tabs={[['applications', 'Applications'], ['experts', 'Approved experts'], ['all', 'Everyone']]} value={tab} onChange={(v) => setParams({ tab: v })} /></div>
-      <div className={`as-split${open ? ' has-panel' : ''}`}>
+      <div className="as-split">
         <div style={{ minWidth: 0 }}>
           <Loading st={st} empty={emptyIf((d) => !d.filter(show).length, tab === 'applications' ? 'No applications waiting.' : tab === 'experts' ? 'No approved experts yet.' : 'No expert accounts yet.')}>{(d) => (
             <div className="mcard as-tcard">
@@ -135,7 +139,7 @@ export function LiveCustomers() {
   const tab = params.get('tab') || 'customers';
   return (
     <>
-      <Hero icon="☺" title="Customers & support" sub="Accounts, their orders, and support tickets from “Raise an issue”." />
+      <Hero icon={<IcUsers />} title="Customers & support" sub="Accounts, their orders, and support tickets from “Raise an issue”." />
       <div className="as-bar"><Tabs label="View" tabs={[['customers', 'Customers'], ['tickets', 'Support tickets'], ['deletions', 'Deletion requests']]} value={tab} onChange={(v) => setParams({ tab: v })} /></div>
       {tab === 'customers' ? <CustomerList initial={params.get('id')} /> : tab === 'tickets' ? <Tickets /> : <Deletions />}
     </>
@@ -147,7 +151,7 @@ const DELETION = { pending: ['Waiting 7 days', 'b-warning'], undone: ['Undone', 
 function Deletions() {
   const st = useApi('/api/admin/deletion-requests');
   return (
-    <MeCard as="section" icon="⌫" title="Deletion requests" label="Deletion requests" sub="People who chose Delete account. Erased automatically 7 days after they confirm with an email code, unless they undo it. Paid orders and invoices are kept for GST, without their name or email.">
+    <MeCard as="section" icon={<IcTrash />} title="Deletion requests" label="Deletion requests" sub="People who chose Delete account. Erased automatically 7 days after they confirm with an email code, unless they undo it. Paid orders and invoices are kept for GST, without their name or email.">
       <Loading st={st} empty={emptyIf((d) => !d.length, 'No deletion requests.')}>{(rows) => (
         <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table mtable" data-testid="deletions">
           <thead><tr><th>Who</th><th>Asked</th><th>Erase on</th><th>Status</th></tr></thead>
@@ -181,19 +185,12 @@ function CustomerList({ initial }) {
         <button type="submit" className="btn btn-outline" style={{ minHeight: 40 }}>Search</button>
         {search && <span className="xs muted">Showing results for “{search}”</span>}
       </form>
-      <div className={`as-split${open ? ' has-panel' : ''}`}>
+      <div className="as-split">
         <div style={{ minWidth: 0 }}>
           <Loading st={st} failText={search ? 'Search couldn’t run — try different words.' : undefined} empty={emptyIf((d) => !d.items.length, search ? 'No customers match.' : 'No customers yet.')}>{(d) => (
             <div className="mcard as-tcard">
               <div className="table-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns">
-                <table className="table mtable"><thead><tr><th>Name</th><th>Joined</th><th>Orders</th><th>Spent</th><th /></tr></thead>
-                  <tbody>{d.items.map((c) => (
-                    <tr key={c.id} onClick={() => setOpen(c.id)} className={open === c.id ? 'as-row-on' : undefined} style={{ cursor: 'pointer' }}>
-                      <td className="small"><span className="as-name"><Initial name={c.name} /><span><button type="button" className="link-btn small" onClick={() => setOpen(c.id)}>{c.name}</button><div className="xs faint">{c.email}</div></span></span></td>
-                      <td className="small" data-label="Joined">{day(c.joined)}</td><td className="small as-num" data-label="Orders">{c.orders}</td><td className="small as-num" data-label="Spent">{rupees(c.spent)}</td>
-                      <td>{c.blocked ? <Chip tone="bad">Blocked</Chip> : !c.verified ? <Chip>Email not confirmed</Chip> : null}</td>
-                    </tr>
-                  ))}</tbody></table>
+                <CustomersTable items={d.items} open={open} setOpen={setOpen} />
               </div>
               <div className="xs faint as-tcard-f">{d.total} customer(s)</div>
             </div>
@@ -202,6 +199,23 @@ function CustomerList({ initial }) {
         {open && <CustomerPanel id={open} onClose={() => setOpen(null)} onChanged={st.reload} />}
       </div>
     </>
+  );
+}
+
+const CUSTOMER_SORT = { name: (c) => c.name, joined: (c) => c.joined, orders: (c) => c.orders, spent: (c) => c.spent };
+
+function CustomersTable({ items, open, setOpen }) {
+  const { rows, sort, onSort } = useSort(items, CUSTOMER_SORT);
+  const th = (k, l) => <SortTh k={k} sort={sort} onSort={onSort}>{l}</SortTh>;
+  return (
+                <table className="table mtable"><thead><tr>{th('name', 'Name')}{th('joined', 'Joined')}{th('orders', 'Orders')}{th('spent', 'Spent')}<th scope="col"><span className="sr-only">Account</span></th></tr></thead>
+                  <tbody>{rows.map((c) => (
+                    <tr key={c.id} onClick={() => setOpen(c.id)} className={open === c.id ? 'as-row-on' : undefined} style={{ cursor: 'pointer' }}>
+                      <td className="small"><span className="as-name"><Initial name={c.name} /><span><button type="button" className="link-btn small" onClick={() => setOpen(c.id)}>{c.name}</button><div className="xs faint">{c.email}</div></span></span></td>
+                      <td className="small" data-label="Joined">{day(c.joined)}</td><td className="small as-num" data-label="Orders">{c.orders}</td><td className="small as-num" data-label="Spent">{rupees(c.spent)}</td>
+                      <td>{c.blocked ? <Chip tone="bad">Blocked</Chip> : !c.verified ? <Chip>Email not confirmed</Chip> : null}</td>
+                    </tr>
+                  ))}</tbody></table>
   );
 }
 
@@ -260,6 +274,7 @@ function CustomerPanel({ id, onClose, onChanged }) {
           <strong className="small">Support tickets</strong>
           {c.tickets.length ? c.tickets.map((t) => <span key={t.id} className="small as-line">{t.id} · {t.topic} · {t.status} — {t.text.slice(0, 80)}</span>) : <span className="xs muted">No tickets.</span>}
           </div>
+          <ViewAsUser id={id} name={c.name} />
           <div className="field"><label className="label" htmlFor="c-notes">Private notes (team only)</label><textarea id="c-notes" className="input" rows={3} value={notes ?? c.notes} onChange={(e) => setNotes(e.target.value)} /></div>
           <div className="as-actions">
             <button type="button" className="btn btn-outline" disabled={busy || notes == null} onClick={() => run(async () => { await http(`/api/admin/customers/${id}/notes`, { method: 'PUT', body: { notes } }); }, 'Notes saved')}>Save notes</button>
@@ -268,6 +283,38 @@ function CustomerPanel({ id, onClose, onChanged }) {
         </div>
       )}</Loading>
     </Panel>
+  );
+}
+
+/** Support (owner only): see this person's screens read-only. The server refuses every change while it is open,
+ *  sends nothing, hides private details and writes the reason to the audit log. */
+function ViewAsUser({ id, name }) {
+  const { user } = useAuth();
+  const [open, setOpen] = useState(false);
+  const [reason, setReason] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  if (user?.adminRole !== 'owner') return null;
+  const start = async (e) => {
+    e.preventDefault(); setBusy(true); setErr('');
+    try { await viewAsUser(id, reason.trim()); } catch (x) { setErr(x?.message || 'Couldn’t open the view.'); setBusy(false); }
+  };
+  return (
+    <div className="as-block" data-testid="view-as-user">
+      <strong className="small">See their screens</strong>
+      {!open ? (
+        <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start', minHeight: 44 }} onClick={() => setOpen(true)}>View as this user (read-only)</button>
+      ) : (
+        <form className="stack g8" onSubmit={start}>
+          <div className="field"><label className="label" htmlFor="va-reason">Why do you need to see {name}’s screens?</label>
+            <textarea id="va-reason" className="input" rows={2} maxLength={300} required value={reason} onChange={(e) => setReason(e.target.value)} placeholder="For example: ticket T-41, resume not saving" />
+            <span className="xs faint">Saved in the audit log with your name and the time. Nothing can be changed or sent while you look, and private details stay hidden.</span></div>
+          {err && <span className="small" role="alert" style={{ color: 'var(--danger)' }}>{err}</span>}
+          <div className="row g8"><button type="submit" className="btn btn-signal" style={{ minHeight: 44 }} disabled={busy || reason.trim().length < 5}>{busy ? 'Opening…' : 'Open read-only view'}</button>
+            <button type="button" className="btn btn-ghost" style={{ minHeight: 44 }} onClick={() => { setOpen(false); setErr(''); }}>Cancel</button></div>
+        </form>
+      )}
+    </div>
   );
 }
 
@@ -308,7 +355,7 @@ export function LiveQuality() {
   const [edit, setEdit] = useState({});
   return (
     <>
-      <Hero icon="✓" title="Quality" sub="Score delivered resumes against the five checks. Scores are saved with who scored them."
+      <Hero icon={<IcThumb />} title="Quality" sub="Score delivered resumes against the five checks. Scores are saved with who scored them."
         stats={st.data?.orders?.length ? [['Delivered orders', st.data.orders.length], ['Scored', st.data.orders.filter((o) => o.scores).length, 'ok'], ['Not scored yet', st.data.orders.filter((o) => !o.scores).length, 'warn']] : null} />
       <Loading st={st} empty={emptyIf((d) => !d.orders.length, 'No delivered orders to audit yet.')}>{(d) => (
         <div className="mcard as-tcard">
@@ -319,7 +366,7 @@ export function LiveQuality() {
               const cur = edit[o.orderId] || o.scores || d.checks.map(() => 0);
               return (
                 <tr key={o.orderId}>
-                  <td className="mono small">{o.orderId}</td><td className="small">{day(o.deliveredAt)}</td><td className="small">{o.rating ? `${o.rating}★` : '—'}</td>
+                  <td className="mono small">{o.orderId}</td><td className="small">{day(o.deliveredAt)}</td><td className="small">{o.rating ? `${o.rating}/5` : '—'}</td>
                   {d.checks.map((c, i) => <td key={c}><input type="checkbox" aria-label={`${o.orderId}: ${c}`} checked={!!cur[i]} onChange={(e) => setEdit({ ...edit, [o.orderId]: cur.map((v, j) => (j === i ? (e.target.checked ? 1 : 0) : v)) })} /></td>)}
                   <td><button type="button" className="btn btn-outline" style={{ minHeight: 34 }} disabled={busy || !edit[o.orderId]} onClick={() => run(async () => { await http(`/api/admin/quality/${o.orderId}`, { method: 'PUT', body: { scores: cur } }); setEdit({ ...edit, [o.orderId]: undefined }); st.reload(); }, 'Audit saved')}>{o.scores ? 'Update' : 'Save'}</button></td>
                 </tr>
@@ -345,7 +392,7 @@ export function LiveReports() {
   }, 'CSV downloaded');
   return (
     <>
-      <Hero icon="⇩" title="Reports" sub="Paid orders and money in, by day (India time)." right={
+      <Hero icon={<IcChart />} title="Reports" sub="Paid orders and money in, by day (India time)." right={
         <span className="row g8">
           <select aria-label="Period" className="input" style={{ height: 40, width: 'auto' }} value={days} onChange={(e) => setDays(+e.target.value)}><option value={7}>Last 7 days</option><option value={30}>Last 30 days</option><option value={90}>Last 90 days</option><option value={365}>Last 12 months</option></select>
           <button type="button" className="btn btn-outline" disabled={busy} onClick={csv}>Download orders CSV</button>

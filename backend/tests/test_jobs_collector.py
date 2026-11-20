@@ -180,10 +180,13 @@ async def test_review_instead_of_guessing(client, db, key, ai, monkeypatch):
     # later the page text arrives: summarised and live
     out = await post(client, key, [JOB])
     assert out["updated"] == 1 and (await db[JOBS].find_one({}))["status"] == "active"
-    # city unknown: review (experience not stated is no reason to wait, round J2); a summary that copies the page: review
+    # no city in the location: filled from the summary (round W), so it goes live (experience not stated is no reason
+    # to wait, round J2); with no city anywhere it waits (tests/test_jobs_review_bulk.py); a summary that copies the
+    # page: review
     out = await post(client, key, [{**JOB, "title": "Plant Operator", "exp_min": None, "exp_max": None, "exp_text": "", "location": "",
                                     "apply_url": "https://careers.acme-industries.com/jobs/11"}])  # fmt: skip
-    assert out["results"][0]["reasons"] == ["city_not_stated"]
+    assert out["results"][0]["result"] == "created" and out["results"][0]["reasons"] == []
+    assert (await db[JOBS].find_one({"title": "Plant Operator"}))["locations"] == ["Pune"]
 
     async def copy_cat(feature, content, schema, check, **kw):
         return check({"summary": PAGE[:600], "skills": [], "work_type": "onsite"})
@@ -412,7 +415,7 @@ async def test_an_api_error_is_logged_with_its_message_never_the_key(client, db,
     anthropic_api(status=400, error="Your credit balance is too low to access the Anthropic API.")
     with caplog.at_level("WARNING"):
         out = await post(client, key, [JOB])
-    assert out["results"][0]["reasons"] == ["summary_failed"]
+    assert out["results"][0]["reasons"] == ["ai_error"]  # an API error, not "failed a check" (17 Nov)
     line = next(r.getMessage() for r in caplog.records if "collector summary failed" in r.getMessage())
     assert "bad_request" in line and "credit balance is too low" in line and "req_test123" in line
     assert "sk-ant-test" not in caplog.text
@@ -436,10 +439,13 @@ async def test_only_successful_summaries_use_the_allowance(client, db, key, ai, 
         for i in range(5)
     ]
     out = await post(client, key, jobs)
-    assert [r["reasons"] for r in out["results"]] == [["summary_failed"]] * 5  # never "ai_daily_limit"
+    assert [r["reasons"] for r in out["results"]] == [["ai_error"]] * 5  # never "ai_daily_limit"
     assert (await owner.get("/api/admin/settings")).json()["collectorAiToday"] == 0
     # the AI works again: two succeed (the allowance), the third waits for tomorrow's
     monkeypatch.undo()
+    from app.jobs import ai_health
+
+    ai_health.reset()  # five API errors in a row paused the calls for 10 minutes
     monkeypatch.setattr(get_settings(), "job_ingest_key", KEY)
     monkeypatch.setattr(get_settings(), "anthropic_api_key", "sk-test")
 

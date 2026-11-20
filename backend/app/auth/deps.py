@@ -59,6 +59,10 @@ async def get_auth(request: Request, auth: Annotated[Auth | None, Depends(option
         raise ApiError(401, "not_signed_in", "Please sign in.")
     if auth.session.kiosk_id and not kiosk_allowed(request.method, request.url.path):
         raise ApiError(403, "kiosk_only", "This isn’t available at a kiosk. Sign in on your own device for it.")
+    if auth.session.view_mode == "readonly" and request.method not in ("GET", "HEAD", "OPTIONS"):
+        from app.core.readonly import REFUSED
+
+        raise REFUSED  # app/core/readonly.py refuses these before any route runs; this is the second lock
     if auth.session.demo_org_id and not demo_allowed(request.url.path, auth.session.demo_org_id):
         raise ApiError(403, "demo_only", "The demo coordinator can only open the demo college. Sign out to go back.")
     return auth

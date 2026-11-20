@@ -37,8 +37,8 @@ class PdfDoc {
     d.doc = await PDFDocument.create();
     d.doc.registerFontkit(shaping);
     d.w = w; d.h = h;
-    d.families = {}; // id → { normal, bold, italic } PDFFont
-    d.scripts = {}; // script → { normal, bold } PDFFont
+    d.families = {}; // id -> { normal, bold, italic } PDFFont
+    d.scripts = {}; // script -> { normal, bold } PDFFont
     d.standard = {}; // embedded built-in fonts
     d.images = new Map();
     d.font = { family: 'helvetica', style: 'normal', size: 10 };

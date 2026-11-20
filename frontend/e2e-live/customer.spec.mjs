@@ -21,7 +21,11 @@ test('sign up once (double click), confirm with a code, resend countdown', async
   await expect(page.getByRole('button', { name: /Send the code again in \d+ s/ })).toBeDisabled();
   await page.getByLabel('6-digit code').fill(lastCode(mail));
   await page.getByRole('button', { name: 'Confirm & continue' }).click();
-  await page.waitForURL('**/me');
+  await page.waitForURL('**/welcome'); // one account: "What would you like to do?" first
+  await page.getByRole('checkbox', { name: /Find a job/ }).check();
+  await page.getByRole('button', { name: 'Continue' }).click();
+  await page.waitForURL('**/start/jobseeker'); // the job seeker quick start
+  await page.goto('/me/profile');
   await expect(page.getByText('Signed in as')).toContainText('Asha Rao');
   await expect(page.getByText('Sai Varsha')).toHaveCount(0); // no sample person
 });

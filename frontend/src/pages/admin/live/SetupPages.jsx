@@ -7,7 +7,9 @@ import { Hero, Initial } from './SetupKit';
 import { ROLES } from '../roles';
 import { Loading, emptyIf, http, useAction, useApi, when } from './common';
 import { auditText } from './auditText';
-import { PaymentSettings } from './WaPages';
+import { PaymentSettings } from './PaymentsSettings';
+import { TestUsers } from './TestUsers';
+import { IcBolt, IcBuilding, IcClock, IcFile, IcHeart, IcHome, IcLock, IcMail, IcSettings, IcShield, IcTrash, IcUser } from '../../../components/icons';
 
 /* ---------- settings & prices ---------- */
 // same limits as the server (app/admin/console.py), which checks them again
@@ -76,7 +78,7 @@ export function LiveSettings() {
   }, 'Saved — new orders use these prices');
   return (
     <>
-      <Hero icon="⚙" title="Settings & prices" sub="Prices include GST. Changes apply to new checkouts at once and are written to the audit log." />
+      <Hero icon={<IcSettings />} title="Settings & prices" sub="Prices include GST. Changes apply to new checkouts at once and are written to the audit log." />
       <PaymentSettings />
       <Loading st={st}>{() => f && (
         <div className="as-settings">
@@ -93,13 +95,13 @@ export function LiveSettings() {
             <table className="table"><thead><tr><th>Add-on</th><th>Price (₹)</th><th /></tr></thead><tbody>{Object.keys(f.addons).map((k) => row('addons', k))}</tbody></table>
           </section>
           <section className="mcard as-sec" id="set-delivery-promise" aria-label="Delivery promise">
-            <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true">⏱</span><span className="mcard-ht"><h2 className="mcard-title">Delivery promise</h2></span></header>
+            <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true"><IcClock /></span><span className="mcard-ht"><h2 className="mcard-title">Delivery promise</h2></span></header>
             <label className="row g8 small">First draft within <input className="input" type="number" inputMode="numeric" min={24} max={168} step={1} aria-label="Delivery hours" style={{ height: 38, width: 90 }} value={f.hoursText}
               aria-invalid={errs.hours ? 'true' : undefined} aria-describedby={errs.hours ? 'dh-err' : undefined} onChange={(e) => setF({ ...f, hoursText: e.target.value })} /> hours (24–168). Express add-on is always 24 hours.</label>
             {errs.hours && <span id="dh-err" className="error">{errs.hours}</span>}
           </section>
           <section className="mcard as-sec" id="set-daily-summary" aria-label="Daily summary" data-testid="daily-settings">
-            <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true">✉</span><span className="mcard-ht"><h2 className="mcard-title">Daily summary</h2></span></header>
+            <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true"><IcMail /></span><span className="mcard-ht"><h2 className="mcard-title">Daily summary</h2></span></header>
             <label className="row g8 small"><input type="checkbox" checked={f.dailySummary.on} onChange={(e) => setF({ ...f, dailySummary: { on: e.target.checked } })} data-testid="daily-on" />Email the Owner admins yesterday’s numbers every day at 8:00 IST (new users, resumes, orders, revenue, codes used, new organizations, server errors)</label>
             <span className="xs muted">The Dashboard’s “Today so far” card has a Share to WhatsApp button for sending the numbers from your phone.</span>
           </section>
@@ -109,8 +111,8 @@ export function LiveSettings() {
             <span className="xs muted">Off: no language switch on any page, the easy dashboard doesn’t ask for a language, and voice, emails and alerts are in English. People’s saved Telugu / Hindi choices are kept and come back when this is on. Turn it on once a native speaker has checked the translations (docs/translations-review.csv).</span>
           </section>
           <section className="mcard as-sec" id="set-easy-dashboard" aria-label="Easy dashboard" data-testid="simple-settings">
-            <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true">☺</span><span className="mcard-ht"><h2 className="mcard-title">Easy dashboard</h2></span></header>
-            <span className="small muted">Big buttons, voice and English / Telugu / Hindi at /me/simple. Everyone can switch between Simple and Full at the top of their dashboard; a college can make Simple its students’ default (Organization → Groups).</span>
+            <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true"><IcHome /></span><span className="mcard-ht"><h2 className="mcard-title">Easy dashboard</h2></span></header>
+            <span className="small muted">Big buttons, voice and English / Telugu / Hindi at /me/simple. Everyone can switch between Simple and Full at the top of their dashboard; a college can make Simple its students’ default (Organization &gt; Groups).</span>
             <label className="row g8 small"><input type="checkbox" checked={f.simple.on} onChange={(e) => setF({ ...f, simple: { ...f.simple, on: e.target.checked } })} data-testid="simple-on" />Offer the simple dashboard (off: everyone gets the full dashboard)</label>
             {[['defaultTeHi', 'People who picked Telugu or Hindi start with'], ['defaultOther', 'Everyone else starts with']].map(([k, label]) => (
               <label key={k} className="row g8 small">{label}
@@ -126,14 +128,14 @@ export function LiveSettings() {
             {errs.weights && <span id="rw-err" className="error">{errs.weights}</span>}
           </section>
           <section className="mcard as-sec" id="set-company-limits" aria-label="Company limits" data-testid="company-limits">
-            <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true">▣</span><span className="mcard-ht"><h2 className="mcard-title">Company limits</h2></span></header>
-            <span className="small muted">What companies may post by trust level (Admin → Companies). Basic: the emails are confirmed. Verified: approved by our team.</span>
+            <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true"><IcBuilding /></span><span className="mcard-ht"><h2 className="mcard-title">Company limits</h2></span></header>
+            <span className="small muted">What companies may post by trust level (Admin &gt; Companies). Basic: the emails are confirmed. Verified: approved by our team.</span>
             <div className="as-fieldgrid">{[['basicJobsPerWeek', 'Basic: jobs a week', 0, 50], ['verifiedLiveJobs', 'Verified: live jobs at a time', 0, 500], ['verifiedMonths', 'Verified lasts (months)', 1, 36], ['ipBurst', 'Flag sign-ups from one address within 2 hours, from', 2, 50], ['noReplyDays', 'Close an Nm7 application the company hasn’t answered after (days)', 7, 60], ['applicantMonths', 'Companies see an applicant for (months, at most 12)', 1, 12]].map(([k, label, lo, hi]) => (
               <label key={k} className="row g8 small">{label} <input className="input" type="number" inputMode="numeric" min={lo} max={hi} step={1} style={{ height: 38, width: 90 }} value={f.companies[k]} data-testid={`co-${k}`} onChange={(e) => setF({ ...f, companies: { ...f.companies, [k]: e.target.value } })} /></label>
             ))}</div>
           </section>
           <section className="mcard as-sec" id="set-job-seekers" aria-label="Job seekers" data-testid="seek-settings">
-            <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true">◎</span><span className="mcard-ht"><h2 className="mcard-title">Job seekers</h2></span></header>
+            <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true"><IcUser /></span><span className="mcard-ht"><h2 className="mcard-title">Job seekers</h2></span></header>
             <span className="small muted">The salary guide shows a range only when at least this many real jobs (not demo, last 90 days) have a salary; otherwise it says “Not enough data yet”. “Skill verified” needs the official skill check at or above the pass mark, and the learning path project sent.</span>
             <span className="small" data-testid="seek-salaries-status">{salariesLine(f.salariesStatus)}</span>
             <label className="row g8 small">Salaries page <select className="input" style={{ height: 38, width: 160 }} value={f.seek.salariesMode} data-testid="seek-salaries-mode" onChange={(e) => setF({ ...f, seek: { ...f.seek, salariesMode: e.target.value } })}><option value="auto">Auto (by the rule below)</option><option value="show">Always show</option><option value="hide">Always hide</option></select></label>
@@ -143,30 +145,30 @@ export function LiveSettings() {
           </section>
           <section className="mcard as-sec" id="set-job-collector" aria-label="Job collector" data-testid="collector-settings">
             <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true">⟳</span><span className="mcard-ht"><h2 className="mcard-title">Job collector</h2></span></header>
-            <span className="small muted">AI summaries a day for the morning job collector. Jobs over the limit wait in Admin → Jobs for review.</span>
+            <span className="small muted">AI summaries a day for the morning job collector. Jobs over the limit wait in Admin &gt; Jobs for review.</span>
             <span className="small" data-testid="collector-ai-today">Used today: {Number(f.collectorAiToday || 0).toLocaleString('en-IN')} of {Number(f.seek.collectorAiDaily || 0).toLocaleString('en-IN')}</span>
             <label className="row g8 small">AI summaries a day <input className="input" type="number" inputMode="numeric" min={0} max={20000} step={100} style={{ height: 38, width: 110 }} value={f.seek.collectorAiDaily} data-testid="collector-ai-daily" onChange={(e) => setF({ ...f, seek: { ...f.seek, collectorAiDaily: e.target.value } })} /></label>
           </section>
           <section className="mcard as-sec" id="set-hire-in-60-minutes" aria-label="Hire in 60 minutes" data-testid="hire-settings">
-            <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true">⚡</span><span className="mcard-ht"><h2 className="mcard-title">Hire in 60 minutes</h2></span></header>
+            <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true"><IcBolt /></span><span className="mcard-ht"><h2 className="mcard-title">Hire in 60 minutes</h2></span></header>
             <span className="small muted">Candidates can say they are ready to join now (/me/hire). They stay visible to companies hiring now for the days below, then one tap (in the app or the reminder email) keeps them visible again. Off: nobody can turn it on, and nobody is shown.</span>
             <label className="row g8 small"><input type="checkbox" checked={f.hire.on} onChange={(e) => setF({ ...f, hire: { ...f.hire, on: e.target.checked } })} data-testid="hire-on" />Offer “Ready to join”</label>
             <label className="row g8 small">Ask “Still ready?” every (days) <input className="input" type="number" inputMode="numeric" min={1} max={30} step={1} style={{ height: 38, width: 80 }} value={f.hire.confirmDays} data-testid="hire-days" onChange={(e) => setF({ ...f, hire: { ...f.hire, confirmDays: e.target.value } })} /></label>
             <div className="as-fieldgrid">{[['freeShortlists', 'Instant shortlists free a month, per company (roles)', 0, 10000], ['shortlistsPerHour', 'Instant shortlists a company may run an hour', 1, 1000], ['invitesPerDay', 'Invites a company may send a day', 0, 5000], ['replyHours', 'Reliability: an invite answered within (hours) is a quick reply', 1, 168]].map(([k, label, lo, hi]) => (
               <label key={k} className="row g8 small">{label} <input className="input" type="number" inputMode="numeric" min={lo} max={hi} step={1} style={{ height: 38, width: 90 }} value={f.hire[k]} data-testid={`hire-${k}`} onChange={(e) => setF({ ...f, hire: { ...f.hire, [k]: e.target.value } })} /></label>
             ))}</div>
-            <span className="xs muted">Beyond the free roles a month, instant shortlists are a paid company feature: Admin → Plans → Company hiring (open to every Verified company unless you untick it).</span>
+            <span className="xs muted">Beyond the free roles a month, instant shortlists are a paid company feature: Admin &gt; Plans &gt; Company hiring (open to every Verified company unless you untick it).</span>
           </section>
           <section className="mcard as-sec" id="set-safe-job-posting" aria-label="Safe job posting" data-testid="job-checks">
-            <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true">⛨</span><span className="mcard-ht"><h2 className="mcard-title">Safe job posting</h2></span></header>
+            <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true"><IcShield /></span><span className="mcard-ht"><h2 className="mcard-title">Safe job posting</h2></span></header>
             <span className="small muted">Checked on every job a company posts. One phrase per line; case and punctuation don’t matter.</span>
             <label className="field"><span className="label">Unfair wording: the job can’t be posted</span>
               <textarea className="input" rows={6} value={f.jobChecks.blocked} onChange={(e) => setF({ ...f, jobChecks: { ...f.jobChecks, blocked: e.target.value } })} data-testid="checks-blocked" /></label>
-            <label className="field"><span className="label">Scam signs: the job waits for review in Admin → Jobs</span>
+            <label className="field"><span className="label">Scam signs: the job waits for review in Admin &gt; Jobs</span>
               <textarea className="input" rows={6} value={f.jobChecks.scam} onChange={(e) => setF({ ...f, jobChecks: { ...f.jobChecks, scam: e.target.value } })} data-testid="checks-scam" /></label>
           </section>
           <section className="mcard as-sec" id="set-referral-rewards" aria-label="Referral rewards" data-testid="ref-settings">
-            <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true">♥</span><span className="mcard-ht"><h2 className="mcard-title">Referral rewards</h2></span></header>
+            <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true"><IcHeart /></span><span className="mcard-ht"><h2 className="mcard-title">Referral rewards</h2></span></header>
             <span className="small muted">When enough invited friends sign up, confirm their email and build a resume with their name, the inviter’s downloads unlock free (the same unlock as paying for the resume plan). One reward per account; the inviter’s own device or network and throwaway emails don’t count.</span>
             <label className="row g8 small"><input type="checkbox" checked={f.referral.on} onChange={(e) => setF({ ...f, referral: { ...f.referral, on: e.target.checked } })} data-testid="ref-on" />Give referral rewards</label>
             <label className="row g8 small">Friends needed <input className="input" type="number" inputMode="numeric" min={1} max={20} step={1} style={{ height: 38, width: 80 }} value={f.referral.text} data-testid="ref-needed"
@@ -180,6 +182,7 @@ export function LiveSettings() {
           </div>
           <ReferralRewards />
           {owner && <SampleCleanup />}
+          {owner && <TestUsers />}
           </div>
         </div>
       )}</Loading>
@@ -200,7 +203,7 @@ export function ReferralRewards() {
   }, 'Reward revoked');
   return (
     <section className="mcard as-sec" id="set-referral-rewards-given" aria-label="Referral rewards given" data-testid="ref-rewards">
-      <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true">♥</span><span className="mcard-ht"><h2 className="mcard-title">Referral rewards given</h2></span></header>
+      <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true"><IcHeart /></span><span className="mcard-ht"><h2 className="mcard-title">Referral rewards given</h2></span></header>
       <Loading st={st}>{(rows) => (rows.length === 0 ? <span className="small muted">No rewards yet.</span> : (
         <div style={{ overflowX: 'auto' }}>
           <table className="table mtable"><thead><tr><th>Customer</th><th>Given</th><th>Friends</th><th /></tr></thead>
@@ -229,7 +232,7 @@ export function SampleCleanup() {
   const call = (dryRun) => http('/api/admin/maintenance/sample-cleanup', { method: 'POST', body: { dryRun, ids: dryRun ? undefined : found.resumes.map((r) => r.id) } });
   return (
     <section className="mcard as-sec" id="set-sample-data-cleanup" aria-label="Sample data cleanup" data-testid="sample-cleanup">
-      <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true">⌫</span><span className="mcard-ht"><h2 className="mcard-title">Sample data cleanup</h2></span></header>
+      <header className="mcard-h"><span className="mcard-ic violet" aria-hidden="true"><IcTrash /></span><span className="mcard-ht"><h2 className="mcard-title">Sample data cleanup</h2></span></header>
       <span className="small muted">Finds resumes that still hold the example person’s details (Sai Varsha) from an older version of the builder. Check first; removing clears only those exact values.</span>
       <div className="row g8">
         <button type="button" className="btn btn-outline" disabled={busy} onClick={() => run(async () => { setDone(null); setFound(await call(true)); })}>Check (dry run)</button>
@@ -250,14 +253,14 @@ export function LiveAutomation() {
   const [vals, setVals] = useState({});
   return (
     <>
-      <Hero icon="⚡" title="Automation" sub="Rules the server runs every 10 minutes while it’s awake (the free server sleeps when nobody uses the site)."
+      <Hero icon={<IcBolt />} title="Automation" sub="Rules the server runs every 10 minutes while it’s awake (the free server sleeps when nobody uses the site)."
         stats={st.data ? [['Rules on', st.data.filter((r) => r.on).length, 'ok'], ['Rules off', st.data.filter((r) => !r.on).length], ['Items acted on so far', st.data.reduce((t, r) => t + (r.acted || 0), 0), 'accent']] : null} right={
         <button type="button" className="btn btn-outline" disabled={busy} onClick={() => run(async () => { const r = await http('/api/admin/automation/run', { method: 'POST' }); st.reload(); return r; }, 'Rules ran now')}>Run now</button>} />
       <Loading st={st}>{(rules) => (
         <div className="as-rules">{rules.map((r) => (
           <section key={r.id} className={`as-rule${r.on ? ' is-on' : ''}`} aria-label={r.label}>
             <div className="as-rule-top">
-              <span className="mcard-ic violet" aria-hidden="true">⚡</span>
+              <span className="mcard-ic violet" aria-hidden="true"><IcBolt /></span>
               <span className="stack g4" style={{ flex: 1, minWidth: 0 }}>
                 <strong className="small">{r.label} <input className="input" inputMode="numeric" aria-label={`${r.label} (${r.unit})`} style={{ height: 36, width: 70, display: 'inline-block' }} value={vals[r.id] ?? r.value} onChange={(e) => setVals({ ...vals, [r.id]: e.target.value.replace(/\D/g, '') })} /> {r.unit}</strong>
                 <Chip tone={r.on ? 'ok' : 'neutral'}>{r.on ? 'Running' : 'Paused'}</Chip>
@@ -292,7 +295,7 @@ export function LiveTeam() {
   const patch = (id, body, ok) => run(async () => { await http(`/api/admin/team/${id}`, { method: 'PATCH', body }); st.reload(); log.reload(); }, ok);
   return (
     <>
-      <Hero icon="⚿" title="Team & audit log" sub="Every admin uses two-step login. Role changes sign that person out."
+      <Hero icon={<IcLock />} title="Team & audit log" sub="Every admin uses two-step login. Role changes sign that person out."
         stats={st.data ? [['Team members', st.data.length], ['Two-step set up', st.data.filter((t) => t.twoStep).length, 'ok'], ['Switched off', st.data.filter((t) => t.disabled).length]] : null} />
       <Loading st={st}>{(team) => (
         <ul className="as-team" aria-label="Team" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
@@ -334,7 +337,7 @@ export function LiveTeam() {
       </form>
 
       <section className="mcard as-audit" aria-label="Audit log">
-        <div className="row between g8" style={{ flexWrap: 'wrap' }}><span className="as-name"><span className="mcard-ic violet" aria-hidden="true">☰</span><h2 className="mcard-title">Audit log</h2></span>
+        <div className="row between g8" style={{ flexWrap: 'wrap' }}><span className="as-name"><span className="mcard-ic violet" aria-hidden="true"><IcFile /></span><h2 className="mcard-title">Audit log</h2></span>
           <label className="row g8 small">Action <input className="input" style={{ height: 36, width: 200 }} placeholder="e.g. settings.changed" value={action} onChange={(e) => setAction(e.target.value)} /></label></div>
         {filter && log.data?.length === 0 ? (
           <div className="well row between g8 small" role="status" style={{ padding: 16 }}>

@@ -145,7 +145,10 @@ async def create(db) -> dict[str, Any]:
 async def open_demo(request: Request, db: DB, auth: AdminAuth("jobs")) -> dict[str, Any]:
     await rate_limit.check(db, f"demo-simple:{auth.user.id}", [(10, timedelta(hours=1))])
     await rate_limit.record(db, f"demo-simple:{auth.user.id}")
-    out = await create(db)
+    from app.core.heavy import heavy_or_busy
+
+    async with heavy_or_busy(db):  # one heavy job at a time (app/core/heavy.py)
+        out = await create(db)
     token = secrets.token_urlsafe(32)
     await db[USERS].update_one(
         {"_id": STUDENT_ID},

@@ -10,6 +10,7 @@ import { readAccount } from '../../lib/recruiterPortal';
 import { API_BASE } from '../../services/http';
 import { rq } from '../../lib/company';
 import '../../styles/company-hire.css';
+import { IcCalendar, IcDownload } from '../../components/icons';
 
 const when = (ms) => new Date(ms).toLocaleString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit', timeZone: 'Asia/Kolkata' });
 const part = (ms, o) => new Date(ms).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', ...o });
@@ -42,7 +43,7 @@ export default function HireSlots({ t, c, job, canEdit }) {
   const live = (list || []).filter((s) => s.status !== 'cancelled');
   return (
     <section className="mcard hsl" aria-labelledby="co-slots-h" data-testid="co-slots">
-      <header className="mcard-h"><span className="mcard-ic blue" aria-hidden="true">🗓</span><span className="mcard-ht"><strong id="co-slots-h" className="mcard-title">{t('co.slots.title')}</strong><span className="mcard-sub">{t('co.slots.intro')}</span></span></header>
+      <header className="mcard-h"><span className="mcard-ic blue" aria-hidden="true"><IcCalendar /></span><span className="mcard-ht"><strong id="co-slots-h" className="mcard-title">{t('co.slots.title')}</strong><span className="mcard-sub">{t('co.slots.intro')}</span></span></header>
       {err && <p className="error" role="alert" style={{ margin: 0 }}>{err}</p>}
       {msg && <p className="small" role="status" style={{ margin: 0 }} data-testid="co-slots-msg">{msg}</p>}
       {live.length > 0 && (
@@ -57,7 +58,7 @@ export default function HireSlots({ t, c, job, canEdit }) {
               </span>
               {canEdit && (
                 <div className="hsl-actions">
-                  <button type="button" className="btn btn-ghost btn-sm" onClick={() => ics(s.id)}><span aria-hidden="true">⤓ </span>{t('co.slots.ics')}</button>
+                  <button type="button" className="btn btn-ghost btn-sm" onClick={() => ics(s.id)}><IcDownload size={16} /> {t('co.slots.ics')}</button>
                   {s.booked && s.at <= Date.now() && ['attended', 'no_show'].map((k) => (
                     <button key={k} type="button" className={`btn btn-sm ${s.mark === k ? 'btn-ink' : 'btn-outline'}`} aria-pressed={s.mark === k} onClick={() => act(() => rq(`/api/company/${c.id}/hire/slots/${s.id}/mark`, { method: 'POST', body: { result: s.mark === k ? 'clear' : k } }))} data-testid={`co-slot-${k}`}>{t(`co.slots.${k}`)}</button>
                   ))}

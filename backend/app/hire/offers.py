@@ -124,7 +124,8 @@ def state(o: dict[str, Any], t: datetime | None = None) -> str:
 
 def offer_out(o: dict[str, Any], t: datetime | None = None) -> dict[str, Any]:
     return {
-        "id": str(o["_id"]), "jobId": o["job_id"], "company": o["company_name"], "title": o["title"],
+        "id": str(o["_id"]), "jobId": o["job_id"], "companyId": o.get("company_id"),
+        "company": o["company_name"], "title": o["title"],
         "salary": o["salary"], "salaryText": salary_text(o["salary"]), "joinDate": o["join_date"],
         "place": o.get("place", ""), "letter": letter(o), "status": state(o, t), "respondBy": ms(o["respond_by"]),
         "answeredAt": ms(o.get("answered_at")), "typedName": o.get("typed_name", ""),
@@ -258,6 +259,10 @@ async def send_offer(
         "by_name": m.get("name", ""), "created_at": t, "updated_at": t,
     }  # fmt: skip
     await db[HIRE_OFFERS].insert_one(o)
+    from app.trust.tth.service import mark as tth_mark  # Vetting Trust T13: the first time a job reached a step
+
+    for kind in ("offer", "contact"):  # the offer email reaches the person
+        await tth_mark(db, j["_id"], kind, company_id=cid, user_id=body.person, via="offer", at=t)
     change = status_change(a, "offer", t)
     if change:
         await db[APPLICATIONS].update_one({"_id": a["_id"]}, change)
@@ -297,7 +302,7 @@ class JoinedIn(CamelModel):
     reason: str = Field("", max_length=300)
 
 
-async def _joined(db, o: dict[str, Any], side: str, body: JoinedIn) -> dict[str, Any]:
+async def _joined(db, o: dict[str, Any], side: str, body: JoinedIn, via: str = "hire") -> dict[str, Any]:
     if state(o) not in ("accepted", "joined", "dropped"):
         raise ApiError(409, "not_accepted", "Only an accepted offer can be marked Joined.")
     if date.fromisoformat(o["join_date"]) > now().astimezone(IST).date():
@@ -317,7 +322,19 @@ async def _joined(db, o: dict[str, Any], side: str, body: JoinedIn) -> dict[str,
     await reliability.forget(db, o["user_id"], "dropped", ref)
     if status in ("joined", "dropped"):
         await reliability.record(db, o["user_id"], status, o["company_id"], ref)
+    from app.trust.reliability import service as T15  # Vetting Trust T15: the reliability record (with consent)
+
+    await T15.on_join(db, o, side, body.joined, body.reason)
+    if status == "joined":
+        from app.trust.tth.service import mark as tth_mark  # Vetting Trust T13: the first time a job reached a step
+
+        await tth_mark(
+            db, o.get("job_id"), "joined", company_id=o.get("company_id"), user_id=o["user_id"], via=via, at=t
+        )
     await _college(db, o, "joined" if status == "joined" else "declined" if status == "dropped" else "accepted")
+    from app.trust.booking.service import on_joined  # Vetting Trust T11: the event for T15 (only on the new flow)
+
+    await on_joined(db, o, side, body.joined, body.reason.strip(), via)
     return offer_out({**o, **sets}, t)
 
 
@@ -408,6 +425,9 @@ async def answer(oid: str, body: AnswerIn, auth: CustomerAuth, db: DB, mailer: M
     o |= sets
     if body.answer == "accept":
         await _college(db, o, "accepted")
+        from app.trust.tth.service import mark as tth_mark  # Vetting Trust T13: the first time a job reached a step
+
+        await tth_mark(db, o.get("job_id"), "accepted", company_id=o.get("company_id"), user_id=uid, via="offer", at=t)
     if o.get("by"):
         await send_safely(mailer, offer_email(o, o["by"], "accepted" if body.answer == "accept" else "declined",
                                               body.reason.strip()))  # fmt: skip
@@ -435,6 +455,9 @@ async def joining(oid: str, body: JoiningIn, auth: CustomerAuth, db: DB, mailer:
     sets = {"status": "dropped", "drop_reason": body.reason.strip(), "joined": {"candidate": False}, "updated_at": t}
     await db[HIRE_OFFERS].update_one({"_id": o["_id"]}, {"$set": sets})
     await reliability.record(db, o["user_id"], "dropped", o["company_id"], str(o["_id"]))
+    from app.trust.reliability import service as T15  # Vetting Trust T15: in their own words, so it counts
+
+    await T15.on_join(db, o, "candidate", False, body.reason)
     await _college(db, o, "declined")
     if o.get("by"):
         await send_safely(mailer, offer_email({**o, **sets}, o["by"], "declined", body.reason.strip()))
@@ -456,12 +479,19 @@ async def my_pdf(oid: str, auth: CustomerAuth, db: DB) -> Response:
 
 async def send_checkins(db, mailer: Mailer, t: datetime | None = None) -> int:
     """Accepted offers: one email 7 days and one 1 day before the join date (India date), once each."""
+    from app.site import get_site
+    from app.trust.booking.service import handled
+
     t = t or now()
     today = t.astimezone(IST).date()
+    site = await get_site(db)
     sent = 0
     for days, flag, kind in ((7, "checkin7", "checkin7"), (1, "checkin1", "checkin1")):
         day = (today + timedelta(days=days)).isoformat()
         async for o in db[HIRE_OFFERS].find({"status": "accepted", "join_date": day, flag: {"$ne": True}}).limit(500):
+            if kind == "checkin1" and await handled(db, site, o.get("user_id"), o.get("company_id")):
+                await db[HIRE_OFFERS].update_one({"_id": o["_id"]}, {"$set": {flag: True, "t11_flow": True}})
+                continue  # Vetting Trust T11 sends the joining-day messages instead (never both)
             got = await db[HIRE_OFFERS].update_one({"_id": o["_id"], flag: {"$ne": True}}, {"$set": {flag: True}})
             if got.modified_count:
                 sent += await _candidate_mail(db, mailer, o, kind)

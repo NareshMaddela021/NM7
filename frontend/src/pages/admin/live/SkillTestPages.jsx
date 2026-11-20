@@ -1,10 +1,10 @@
-// Admin → Skill checks (Vetting V2). One page, eleven tabs:
-//   Overview    (Vetting V1, the first and default tab) people per level, ⚡ ready now, hot roles, shortlist health,
+// Admin -> Skill checks (Vetting V2). One page, eleven tabs:
+//   Overview    (Vetting V1, the first and default tab) people per level, ready now, hot roles, shortlist health,
 //               reminder replies and the success measures (VettingOverview.jsx).
 //   Banks       the question bank per role (50 roles): filters, a dense table with % right, average time and bad-question
 //               flags, and an edit dialog (wording, options, the right answer, topic, difficulty, kind, active, the
 //               Telugu / Hindi versions and "needs native review"). Nothing is deleted: turn a question off instead.
-//   Rubrics     each role's practical task and the rubric it is graded with (edit → a new rubric version).
+//   Rubrics     each role's practical task and the rubric it is graded with (edit -> a new rubric version).
 //   Review      practical tasks the AI could not grade with confidence: read the answer, score each rubric line 0–5.
 //   Integrity   attempts with strong integrity signals: Clear (the badge can be issued) or Hold (never a ban).
 //   Interviews  (Vetting V3) the AI screening interview: review queue, bias checks, graded (InterviewPages.jsx).
@@ -13,8 +13,10 @@
 //   Fraud scan  (Vetting V5) the daily scan's findings: Clear or Confirm (holds badges back, never a ban).
 //   Fairness    (Vetting V5) pass rates by language, city tier and experience band (TrustPages.jsx).
 //   Stats       attempts, pass rate and average score per role; flags and AI spend per day.
+//   Vetting Trust  (T1) the Trust switch, the retention schedule, erase-after-inactivity and the breach log (TrustAdmin.jsx,
+//               lazy: owner only).
 // The tab is in the address (?tab=rubrics) so a link opens the right one. Above the tabs: Launch (VettingLaunch.jsx).
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Dialog, useToast } from '../../../components/ui';
 import { PageHead } from '../AdminUI';
@@ -26,11 +28,14 @@ import { InterviewQueue } from './InterviewPages';
 import { L4Checks } from './L4Pages';
 import { Appeals, Fairness, FraudScan } from './TrustPages';
 import VettingLaunch from './VettingLaunch';
+
+const TrustAdmin = lazy(() => import('./TrustAdmin'));
 import '../../../styles/me-kit.css';
 import '../../../styles/admin-jobs.css';
 import '../../../styles/admin-vetting.css';
+import { IcCheck, IcX } from '../../../components/icons';
 
-const TABS = [['overview', 'Overview'], ['banks', 'Banks'], ['rubrics', 'Rubrics'], ['review', 'Review queue'], ['integrity', 'Integrity queue'], ['interviews', 'Interviews'], ['l4', 'L4 checks'], ['appeals', 'Appeals'], ['fraud', 'Fraud scan'], ['fairness', 'Fairness'], ['stats', 'Stats']];
+const TABS = [['overview', 'Overview'], ['banks', 'Banks'], ['rubrics', 'Rubrics'], ['review', 'Review queue'], ['integrity', 'Integrity queue'], ['interviews', 'Interviews'], ['l4', 'L4 checks'], ['appeals', 'Appeals'], ['fraud', 'Fraud scan'], ['fairness', 'Fairness'], ['stats', 'Stats'], ['trust', 'Vetting Trust']];
 const FLAG_LABEL = { too_easy: 'Too easy', too_hard: 'Too hard', top_scorers_fail: 'Top scorers fail it' };
 const FLAG_TONE = { too_easy: 'mchip-warn', too_hard: 'mchip-bad', top_scorers_fail: 'mchip-bad' };
 const DIFF = [['easy', 'Easy'], ['medium', 'Medium'], ['hard', 'Hard']];
@@ -85,6 +90,7 @@ export function LiveSkillTests() {
         {tab === 'fraud' && <FraudScan />}
         {tab === 'fairness' && <Fairness />}
         {tab === 'stats' && <Stats />}
+        {tab === 'trust' && <Suspense fallback={null}><TrustAdmin /></Suspense>}
       </div>
     </div>
   );
@@ -162,7 +168,7 @@ function Banks() {
                 <tr key={q.id} data-testid="st-row" className={q.active ? '' : 'vt-off'}>
                   <td className="vt-q">
                     <span className="vt-q-text">{q.question}</span>
-                    <span className="xs muted vt-q-answer">✔ {q.options[q.answer]}</span>
+                    <span className="xs muted vt-q-answer"><IcCheck size={14} /> Answer: {q.options[q.answer]}</span>
                     <span className="vt-q-tags">
                       {!skill && <span className="mchip mchip-neutral">{q.skill}</span>}
                       {q.needsReview && <span className="mchip mchip-warn">Needs native review</span>}
@@ -259,7 +265,7 @@ function QuestionDialog({ q, skill, topics, onSaved, onClose }) {
             <div key={i} className="vt-opt">
               <label className="vt-radio"><input type="radio" name="st-right" checked={Number(f.answer) === i} onChange={() => setF({ ...f, answer: i })} /><span className="sr-only">Option {i + 1} is the right answer</span></label>
               <input className="input" maxLength={200} value={o} onChange={(e) => setOpt(i, e.target.value)} aria-label={`Option ${i + 1}`} data-testid={`st-opt-${i}`} />
-              {f.options.length > 2 && <button type="button" className="btn btn-icon vt-drop" onClick={() => dropOpt(i)} aria-label={`Remove option ${i + 1}`}>✕</button>}
+              {f.options.length > 2 && <button type="button" className="btn btn-icon vt-drop" onClick={() => dropOpt(i)} aria-label={`Remove option ${i + 1}`}><IcX /></button>}
             </div>
           ))}
           {f.options.length < 6 && <button type="button" className="btn btn-outline btn-sm vt-addopt" onClick={addOpt}>Add an option</button>}
@@ -272,7 +278,7 @@ function QuestionDialog({ q, skill, topics, onSaved, onClose }) {
                 <textarea className="input" rows={2} maxLength={600} lang={l} value={f.tr[l].q} onChange={(e) => setTr(l, 'q', e.target.value)} data-testid={`st-tr-${l}`} />
               </label>
               {f.options.map((o, i) => (
-                <label key={i} className="field"><span className="label">Option {i + 1}{o ? ` (${o.slice(0, 40)})` : ''}{Number(f.answer) === i ? ' ✔' : ''}</span>
+                <label key={i} className="field"><span className="label">Option {i + 1}{o ? ` (${o.slice(0, 40)})` : ''}{Number(f.answer) === i ? ' (right answer)' : ''}</span>
                   <input className="input" maxLength={200} lang={l} value={f.tr[l].options[i] || ''} onChange={(e) => setTr(l, 'options', e.target.value, i)} />
                 </label>
               ))}

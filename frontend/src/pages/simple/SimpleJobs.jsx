@@ -1,6 +1,6 @@
-// Jobs made simple (Phase 4, E6), all on the Easy dashboard, all read aloud with 🔊:
+// Jobs made simple (Phase 4, E6), all on the Easy dashboard, all read aloud with the speaker button:
 //   /me/simple/jobs            the top 3 jobs as big cards: title, match % with one plain reason, place, ₹ a month,
-//                              the company's trust badge; Apply and Save
+//                              the company's trust badge; View (the job's page) · Apply · Save, "Applied" with a tick once sent
 //   /me/simple/jobs/:id        Apply: the normal Manual Apply (consent tick and the company's questions for jobs on
 //                              Nm7; the company's own site opens for the others, and it is saved in My applications)
 //   /me/simple/auto            "Let Nm7 apply for me": role, city, how many a day and the consent tick; the
@@ -9,13 +9,18 @@
 //   /me/simple/outside         "Apply on their website" (Ready to apply) as big cards
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Icon } from '../../components/ui';
 import { http } from '../../services/http';
 import { Big, WaitNote } from './SimpleApp';
 import { useScreen } from '../../lib/simple';
 import { SayButton, SpeakField } from './voice';
+import { useAuth } from '../../lib/auth';
+import { loadApplied, markApplied, useApplied } from '../../lib/jobBoard';
 
 const money = (n) => Number(n).toLocaleString('en-IN');
-const TRUST = { verified: '✔', basic: '✉', unverified: '•' };
+// View (the job's own page) and "Applied" on each card: the words are here, not in the strings bundle (size budget)
+const VIEW = { en: 'View', te: 'చూడండి', hi: 'देखें' };
+const APPLIED = { en: 'Applied', te: 'అప్లై చేశారు', hi: 'आवेदन किया' };
 
 export function salaryKey(s) {
   if (!s) return ['simple.j.noSalary'];
@@ -34,6 +39,7 @@ function useJobs() {
 
 function JobCard({ t, lang, j, onSave }) {
   const [busy, setBusy] = useState(false);
+  const applied = useApplied();
   const save = async () => {
     setBusy(true);
     try { await http(`/api/me/saved-jobs/${j.id}`, { method: j.saved ? 'DELETE' : 'PUT' }); onSave(!j.saved); } catch { /* stays as it was */ } finally { setBusy(false); }
@@ -45,13 +51,16 @@ function JobCard({ t, lang, j, onSave }) {
         <SayButton items={cardWords(j)} t={t} lang={lang} label={t('simple.voice.readCard')} testid="sx-job-say" />
       </span>
       <h2 id={`sx-j-${j.id}`} className="sx-h2">{j.title}</h2>
-      <p className="sx-p"><strong>{j.company}</strong>{j.trust && <span className={`sx-trust sx-trust-${j.trust.level}`} data-testid="sx-job-trust"> <span aria-hidden="true">{TRUST[j.trust.level]}</span> {t(`simple.j.trust.${j.trust.level}`)}</span>}</p>
-      <p className="sx-p" data-testid="sx-job-reason">👍 {t(`simple.j.reason.${j.reason.key}`, j.reason.vars)}</p>
-      <p className="sx-p">📍 {t(...placeKey(j))}</p>
-      <p className="sx-p" data-testid="sx-job-salary">💰 {t(...salaryKey(j.salaryMonth))}</p>
-      <div className="sx-frow">
-        <Big to={`/me/simple/jobs/${j.id}`} icon="✉️" label={t('simple.j.apply')} ink testid="sx-job-apply" />
-        <button type="button" className="sx-big" aria-pressed={j.saved} disabled={busy} onClick={save} data-testid="sx-job-save"><span className="sx-ic" aria-hidden="true">{j.saved ? '★' : '☆'}</span><span>{j.saved ? t('simple.j.saved') : t('simple.j.save')}</span></button>
+      <p className="sx-p"><strong>{j.company}</strong>{j.trust && <span className={`sx-trust sx-trust-${j.trust.level}`} data-testid="sx-job-trust"> {j.trust.level === 'verified' && <Icon name="checkc" />} {t(`simple.j.trust.${j.trust.level}`)}</span>}</p>
+      <p className="sx-p" data-testid="sx-job-reason">{t(`simple.j.reason.${j.reason.key}`, j.reason.vars)}</p>
+      <p className="sx-p">{t(...placeKey(j))}</p>
+      <p className="sx-p" data-testid="sx-job-salary">{t(...salaryKey(j.salaryMonth))}</p>
+      <div className="sx-frow sx-frow3">
+        {!j.demo && j.slug && <Big to={`/jobs/${j.slug}`} label={VIEW[lang] || VIEW.en} testid="sx-job-view" />}
+        {applied.has(j.id)
+          ? <button type="button" className="sx-big sx-applied" disabled data-testid="sx-job-applied"><Icon name="check" size={20} /><span>{APPLIED[lang] || APPLIED.en}</span></button>
+          : <Big to={`/me/simple/jobs/${j.id}`} label={t('simple.j.apply')} ink testid="sx-job-apply" />}
+        <button type="button" className="sx-big" aria-pressed={j.saved} disabled={busy} onClick={save} data-testid="sx-job-save"><span>{j.saved ? t('simple.j.saved') : t('simple.j.save')}</span></button>
       </div>
     </article>
   );
@@ -59,20 +68,22 @@ function JobCard({ t, lang, j, onSave }) {
 
 export function Jobs({ t, lang, setSay }) {
   const { d, err, setD } = useJobs();
+  const { user } = useAuth();
+  useEffect(() => { if (user) loadApplied(user.id); }, [user]);
   useEffect(() => { if (d) setSay([['simple.j.title'], ...(d.items[0] ? cardWords(d.items[0]) : [['simple.j.none']])]); }, [d]); // eslint-disable-line react-hooks/exhaustive-deps
   if (!d) return <WaitNote t={t} err={err} />;
   return (
     <section className="sx-stack" aria-labelledby="sx-jobs-h">
       <h1 id="sx-jobs-h" className="sx-h1">{t('simple.j.title')}</h1>
-      {d.needs > 0 && <Big to="/me/simple/answers" icon="💬" label={t('simple.j.answers', { n: d.needs })} ink testid="sx-to-answers" />}
+      {d.needs > 0 && <Big to="/me/simple/answers" label={t('simple.j.answers', { n: d.needs })} ink testid="sx-to-answers" />}
       {d.state === 'no_resume'
-        ? <><p className="sx-p">{t('simple.j.noResume')}</p><Big to="/me/simple/resume" icon="📝" label={t('simple.next.resume.cta')} ink /></>
+        ? <><p className="sx-p">{t('simple.j.noResume')}</p><Big to="/me/simple/resume" label={t('simple.next.resume.cta')} ink /></>
         : d.items.length === 0 ? <p className="sx-p">{t('simple.j.none')}</p>
           : d.items.map((j) => <JobCard key={j.id} t={t} lang={lang} j={j} onSave={(saved) => setD({ ...d, items: d.items.map((x) => (x.id === j.id ? { ...x, saved } : x)) })} />)}
-      {d.siteAutoOn && !d.autoOn && <Big to="/me/simple/auto" icon="🤖" label={t('simple.j.letNm7')} testid="sx-let-nm7" />}
+      {d.siteAutoOn && !d.autoOn && <Big to="/me/simple/auto" label={t('simple.j.letNm7')} testid="sx-let-nm7" />}
       {d.autoOn && <p className="sx-note sx-ok" role="status">{t('simple.j.autoIsOn')}</p>}
-      {d.ready > 0 && <Big to="/me/simple/outside" icon="🌐" label={t('simple.j.outside', { n: d.ready })} testid="sx-to-outside" />}
-      <Big to="/me/simple" icon="←" label={t('simple.back')} />
+      {d.ready > 0 && <Big to="/me/simple/outside" label={t('simple.j.outside', { n: d.ready })} testid="sx-to-outside" />}
+      <Big to="/me/simple" icon="back" label={t('simple.back')} />
     </section>
   );
 }
@@ -108,7 +119,7 @@ export function Apply({ t, lang, setSay }) {
   const j = d?.items.find((x) => x.id === id);
   useEffect(() => { if (j) setSay([['simple.j.applyTitle', { title: j.title }], ...(j.method === 'nm7' ? [['simple.j.consent', { company: j.company }]] : [['simple.j.onTheirSite']])]); }, [j?.id]); // eslint-disable-line react-hooks/exhaustive-deps
   if (!d) return <WaitNote t={t} err={err} />;
-  if (!j) return <div className="sx-stack"><p className="sx-p">{t('simple.j.gone')}</p><Big to="/me/simple/jobs" icon="←" label={t('simple.back')} /></div>;
+  if (!j) return <div className="sx-stack"><p className="sx-p">{t('simple.j.gone')}</p><Big to="/me/simple/jobs" icon="back" label={t('simple.back')} /></div>;
   const send = async () => {
     setBusy(true); setNote('');
     const win = j.method === 'link' ? window.open('', '_blank') : null; // opened on the tap itself, so phones allow it
@@ -116,16 +127,17 @@ export function Apply({ t, lang, setSay }) {
       const r = await http(`/api/jobs/${j.id}/apply`, { method: 'POST', body: j.method === 'nm7' ? { consent, answers } : {} });
       if (j.method === 'link' && r.url) { if (win) { win.opener = null; win.location.href = r.url; } else window.open(r.url, '_blank', 'noopener'); }
       setDone(r);
+      markApplied(j.id, r.application?.status);
     } catch (e) { win?.close(); setNote(e.message); } finally { setBusy(false); }
   };
   if (done) {
     return (
       <section className="sx-stack" data-testid="sx-applied">
-        <h1 className="sx-h1"><span aria-hidden="true">✅ </span>{t('simple.j.done')}</h1>
+        <h1 className="sx-h1">{t('simple.j.done')}</h1>
         <p className="sx-p">{t(done.method === 'link' ? 'simple.j.doneLink' : 'simple.j.doneSaved')}</p>
-        {done.email && <a className="sx-big sx-ink" href={`mailto:${done.email.to}?subject=${encodeURIComponent(done.email.subject)}&body=${encodeURIComponent(done.email.body)}`} data-testid="sx-mail"><span className="sx-ic" aria-hidden="true">✉️</span><span>{t('simple.j.openEmail')}</span></a>}
-        <Big to="/me/jobs" icon="📋" label={t('simple.tile.apps')} />
-        <Big to="/me/simple/jobs" icon="←" label={t('simple.back')} />
+        {done.email && <a className="sx-big sx-ink" href={`mailto:${done.email.to}?subject=${encodeURIComponent(done.email.subject)}&body=${encodeURIComponent(done.email.body)}`} data-testid="sx-mail"><span>{t('simple.j.openEmail')}</span></a>}
+        <Big to="/me/jobs" label={t('simple.tile.apps')} />
+        <Big to="/me/simple/jobs" icon="back" label={t('simple.back')} />
       </section>
     );
   }
@@ -140,10 +152,10 @@ export function Apply({ t, lang, setSay }) {
           <label className="sx-check"><input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} data-testid="sx-consent" /><span>{t('simple.j.consent', { company: j.company })}</span></label>
         </>
       ) : <p className="sx-p">{t(j.method === 'link' ? 'simple.j.onTheirSite' : 'simple.j.byEmail')}</p>}
-      <button type="button" className="sx-big sx-ink" disabled={busy || (j.method === 'nm7' && (!consent || unanswered)) || j.demo} onClick={send} data-testid="sx-send"><span className="sx-ic" aria-hidden="true">➜</span><span>{t(j.method === 'link' ? 'simple.j.openSite' : 'simple.j.send')}</span></button>
+      <button type="button" className="sx-big sx-ink" disabled={busy || (j.method === 'nm7' && (!consent || unanswered)) || j.demo} onClick={send} data-testid="sx-send"><span>{t(j.method === 'link' ? 'simple.j.openSite' : 'simple.j.send')}</span><span className="sx-ic"><Icon name="arrow" size={24} /></span></button>
       {j.demo && <p className="sx-hint">{t('simple.j.demo')}</p>}
       {note && <p className="sx-note" role="alert">{note}</p>}
-      <Big to="/me/simple/jobs" icon="←" label={t('simple.back')} />
+      <Big to="/me/simple/jobs" icon="back" label={t('simple.back')} />
     </section>
   );
 }
@@ -176,7 +188,7 @@ export function AutoOn({ t, lang, setSay }) {
       {!g.ok ? (
         <div className="sx-stack" data-testid="sx-gate">
           <p className="sx-note" role="status">{g.score == null ? t('simple.a.noResume') : t('simple.next.fix_score.text', { score: g.score, need: g.need })}</p>
-          <Big to={g.score == null ? '/me/simple/resume' : '/me/ats'} icon="📈" label={t('simple.next.fix_score.cta')} ink testid="sx-gate-fix" />
+          <Big to={g.score == null ? '/me/simple/resume' : '/me/ats'} label={t('simple.next.fix_score.cta')} ink testid="sx-gate-fix" />
         </div>
       ) : (
         <>
@@ -188,12 +200,12 @@ export function AutoOn({ t, lang, setSay }) {
             <div className="sx-chips">{[1, 3, 5, 10].filter((n) => n <= d.defaults.max).map((n) => <button key={n} type="button" className="sx-chipbtn" aria-pressed={limit === n} onClick={() => setLimit(n)} data-testid={`sx-limit-${n}`}>{n}</button>)}</div>
           </div>
           <label className="sx-check"><input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} data-testid="sx-auto-consent" /><span>{t('simple.a.consent')}</span></label>
-          <button type="button" className="sx-big sx-ink" disabled={busy || !role.trim() || !consent} onClick={on} data-testid="sx-auto-on"><span className="sx-ic" aria-hidden="true">🤖</span><span>{t('simple.next.auto_apply.cta')}</span></button>
+          <button type="button" className="sx-big sx-ink" disabled={busy || !role.trim() || !consent} onClick={on} data-testid="sx-auto-on"><span>{t('simple.next.auto_apply.cta')}</span></button>
         </>
       )}
       {note && <p className="sx-note" role="alert">{note}</p>}
       <Link to="/me/auto-apply" className="sx-hint">{t('simple.a.all')}</Link>
-      <Big to="/me/simple/jobs" icon="←" label={t('simple.back')} />
+      <Big to="/me/simple/jobs" icon="back" label={t('simple.back')} />
     </section>
   );
 }
@@ -235,7 +247,7 @@ export function Answers({ t, lang, setSay }) {
           ) : (
             <>
               {(it.questions || []).map((q) => <Question key={q.id} t={t} lang={lang} q={q} value={a[q.id]} onChange={(v) => setA({ ...a, [q.id]: q.kind === 'number' && v !== '' ? Number(v) : v })} />)}
-              <button type="button" className="sx-big sx-ink" disabled={busy || (it.questions || []).some((q) => a[q.id] == null || a[q.id] === '')} onClick={() => act('answer', { answers: a, remember: true })} data-testid="sx-answer-send"><span className="sx-ic" aria-hidden="true">✔</span><span>{t('simple.q.send')}</span></button>
+              <button type="button" className="sx-big sx-ink" disabled={busy || (it.questions || []).some((q) => a[q.id] == null || a[q.id] === '')} onClick={() => act('answer', { answers: a, remember: true })} data-testid="sx-answer-send"><span className="sx-ic"><Icon name="check" size={24} /></span><span>{t('simple.q.send')}</span></button>
               <p className="sx-hint">{t('simple.q.remember')}</p>
               <button type="button" className="sx-big" disabled={busy} onClick={() => act('skip', {})} data-testid="sx-answer-skip"><span>{t('simple.q.skip')}</span></button>
             </>
@@ -243,7 +255,7 @@ export function Answers({ t, lang, setSay }) {
         </div>
       )}
       {note && <p className="sx-note" role="alert">{note}</p>}
-      <Big to="/me/simple/jobs" icon="←" label={t('simple.back')} />
+      <Big to="/me/simple/jobs" icon="back" label={t('simple.back')} />
     </section>
   );
 }
@@ -271,11 +283,11 @@ export function Outside({ t, lang, setSay }) {
         <article key={it.id} className="sx-next" data-testid="sx-outside-item">
           <span className="sx-cardtop"><h2 className="sx-h2">{it.job.title}</h2><SayButton items={[it.job.title, it.job.company, ['simple.o.text']]} t={t} lang={lang} label={t('simple.voice.readCard')} /></span>
           <p className="sx-p"><strong>{it.job.company}</strong></p>
-          <button type="button" className="sx-big sx-ink" onClick={() => open(it)} data-testid="sx-outside-open"><span className="sx-ic" aria-hidden="true">🌐</span><span>{t('simple.o.open')}</span></button>
+          <button type="button" className="sx-big sx-ink" onClick={() => open(it)} data-testid="sx-outside-open"><span>{t('simple.o.open')}</span></button>
         </article>
       ))}
       {note && <p className="sx-note" role="alert">{note}</p>}
-      <Big to="/me/simple/jobs" icon="←" label={t('simple.back')} />
+      <Big to="/me/simple/jobs" icon="back" label={t('simple.back')} />
     </section>
   );
 }

@@ -5,6 +5,7 @@
 import { createHmac } from 'node:crypto';
 import { expect, test } from '@playwright/test';
 import { API, PASSWORD, email, login, seed } from './helpers.mjs';
+import { noSideScroll } from './college.mjs';
 
 const SIZES = [['desktop', { viewport: { width: 1280, height: 900 } }], ['phone', { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true }]];
 const call = (page, path, init = {}) => page.evaluate(async ([base, p, i]) => {
@@ -37,7 +38,7 @@ for (const [label, opts] of SIZES) {
       await expect(card.getByTestId('health-no_linkedin')).toContainText('Add your LinkedIn link');
       await expect(card.getByTestId('health-no_certs')).toContainText('Certifications section is empty');
       await expect(card.getByTestId('health-graduated')).toContainText('ends in 2024');
-      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1)).toBe(true);
+      expect(await noSideScroll(page)).toBe(true);
       // one button opens the exact builder section
       await card.getByTestId('health-fix-no_certs').click();
       await expect(page).toHaveURL(/\/builder\?start=section&sec=certs/);

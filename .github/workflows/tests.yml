@@ -18,8 +18,8 @@ concurrency:
 
 jobs:
   backend:
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+    runs-on: ubuntu-24.04 # pinned: Playwright has no Chromium for ubuntu-26.04 yet (18 Nov)
+    timeout-minutes: 35 # the backend suite takes ~19 min (Auto Apply 2.0 + Vetting Trust)
     defaults:
       run:
         working-directory: backend
@@ -41,7 +41,7 @@ jobs:
       - run: uv run pytest -q
 
   frontend:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # pinned: Playwright has no Chromium for ubuntu-26.04 yet (18 Nov)
     timeout-minutes: 15
     defaults:
       run:

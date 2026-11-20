@@ -1,0 +1,36 @@
+/* Profile setup P2: the dashboard checklist card (pages/me/SetupChecklist.jsx). Phone: compact, ring + one button. */
+.sc-card { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.sc-head { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.sc-head-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.sc-head-text .mcard-title { margin: 0; overflow-wrap: anywhere; }
+.sc-next { display: flex; flex-direction: column; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
+.sc-reward { color: var(--text2); overflow-wrap: anywhere; }
+.sc-ring { position: relative; flex: none; display: inline-grid; place-items: center; }
+.sc-ring svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.sc-ring-track { fill: none; stroke: #ece8fb; stroke-width: 6; }
+.sc-ring-val { fill: none; stroke: #16a34a; stroke-width: 6; stroke-linecap: round; transition: stroke-dasharray .4s var(--ease); }
+.sc-ring-num { position: relative; font-weight: 800; font-size: 13px; color: var(--ink); }
+.sc-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.sc-btn { min-height: 44px; }
+.sc-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0; border-top: 1px solid var(--border); }
+.sc-row { display: flex; gap: 12px; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); min-width: 0; }
+.sc-row-main { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.sc-row-top { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.sc-row-title { overflow-wrap: anywhere; }
+.sc-row[data-status="done"] .sc-row-title { color: var(--text2); }
+.sc-row-act { display: flex; flex-wrap: wrap; gap: 6px; flex: none; justify-content: flex-end; }
+.sc-row-act .btn { min-height: 44px; }
+.sc-who { overflow-wrap: anywhere; }
+.sc-row > .sc-who { flex: 0 1 200px; text-align: right; }
+.sc-remind { display: flex; align-items: center; gap: 10px; min-height: 44px; }
+.sc-remind input { width: 20px; height: 20px; flex: none; }
+.sc-done { flex-direction: column; padding-top: 14px; padding-bottom: 14px; }
+.sc-done-line { display: flex; align-items: center; gap: 10px; }
+.sc-tick { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #e7f6ec; color: #166534; font-weight: 800; flex: none; }
+@media (max-width: 600px) {
+  .sc-next-reward, .sc-head-skip { display: none; }
+  .sc-actions .sc-btn { flex: 1 1 140px; }
+  .sc-row { flex-direction: column; align-items: stretch; }
+  .sc-row-act { justify-content: flex-start; }
+  .sc-row > .sc-who { flex: none; text-align: left; }
+}

@@ -55,6 +55,13 @@ def with_badge(out: dict[str, Any], j: dict[str, Any], marks: dict[str, dict[str
     return out
 
 
+def with_employer(out: dict[str, Any], j: dict[str, Any], marks: dict[str, dict[str, Any]] | None) -> dict[str, Any]:
+    """Vetting Trust T4: the "Verified employer" badge on a card (marks: None while Trust is hidden from the viewer)."""
+    if marks and j.get("company_id") in marks:
+        out["employer"] = marks[j["company_id"]]
+    return out
+
+
 def public_out(j: dict[str, Any], full: bool = False) -> dict[str, Any]:
     apply = j["apply"]
     out = {
@@ -136,6 +143,7 @@ async def search(
         and_.append({"$or": [{"title": rx}, {"company.name": rx}, {"skills": rx}]})
     if ex := _csv(experience.replace("8_plus", "8_12,12_15,15_plus"), EXPERIENCE):  # the "8+ years" chip
         and_.append({"experience": {"$in": with_older(ex)}})
+    city = _city_query(city)
     if remote and city.strip():
         rx = {"$regex": f"^{re.escape(city.strip())}$", "$options": "i"}
         and_.append({"$or": [{"remote": True}, {"locations": rx}]})
@@ -178,9 +186,16 @@ async def search(
         ]  # fmt: skip
     )
     marks = await badges(db, rows)
+    from app.trust.employer.router import card_badges  # Vetting Trust T4: only where the switch allows
+
+    employers = await card_badges(db, auth, rows)
     return {
         "items": [
-            with_badge({**public_out(j), **({"match": fits[j["_id"]]} if j["_id"] in fits else {})}, j, marks)
+            with_employer(
+                with_badge({**public_out(j), **({"match": fits[j["_id"]]} if j["_id"] in fits else {})}, j, marks),
+                j,
+                employers,
+            )
             for j in rows
         ],
         "match": state,
@@ -247,6 +262,10 @@ async def one(slug: str, db: DB, auth: MaybeAuth) -> dict[str, Any]:
 
         out["policies"] = policies_out(await db[COMPANIES].find_one({"_id": j["company_id"]}, {"policies": 1}))
     with_badge(out, j, await badges(db, [j]))
+    from app.trust.employer.router import public_items
+
+    if (items := await public_items(db, auth, j.get("company_id"))) is not None:  # Vetting Trust T4 (else unchanged)
+        out["employerTrust"] = items
     state, person = await _person(db, auth)
     out["matchState"] = state
     if auth and auth.user.role == "customer":  # already applied? (J5)
@@ -254,6 +273,13 @@ async def one(slug: str, db: DB, auth: MaybeAuth) -> dict[str, Any]:
             {"user_id": auth.user.id, "job_id": j["_id"]}, {"status": 1, "created_at": 1}
         )
         out["application"] = {"status": mine["status"], "at": ms(mine["created_at"])} if mine else None
+        if out.get("questions") and not mine:  # Vetting Trust T6: answers given before are shown, never asked again
+            from app.trust import access as trust_access
+
+            if await trust_access.for_user(db, auth.user.id):
+                from app.trust import workprefs
+
+                out["known"] = await workprefs.known_answers(db, auth.user.id, j)
     if person:
         out["match"] = (await fitmod.fits(db, auth.user.id, person, [j]))[j["_id"]]
     return out
@@ -290,3 +316,10 @@ async def save_job(job_id: str, auth: CustomerAuth, db: DB) -> dict[str, Any]:
 async def unsave_job(job_id: str, auth: CustomerAuth, db: DB) -> dict[str, Any]:
     await db[SAVED_JOBS].delete_one({"_id": f"{auth.user.id}:{job_id}"})
     return {"saved": False}
+
+
+def _city_query(city: str) -> str:
+    """The filter's city in nm7.si's one spelling, so "Bangalore" finds the Bengaluru jobs."""
+    from app.jobsearch.parse import canonical_city
+
+    return canonical_city(city) if city and city.strip() else ""

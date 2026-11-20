@@ -22,19 +22,32 @@ export function emptyState(u) {
   };
 }
 
-/** An order from GET /api/orders in the shape the dashboard pages use. */
-export function orderFromApi(o, resumeId) {
+/** Unpaid orders that can still be paid (Pay now): checkout closed, or expired after 24 h (a late payment still counts). */
+export const PAYABLE = new Set(['pending_payment', 'expired', 'awaiting_payment']);
+/** An add-on / upgrade bought for a paid order is its own small order (kind "addon"): it shows on its parent order. */
+export const isAddonOrder = (o) => o.kind === 'addon' || (!o.items.some((i) => PLAN_KINDS.has(i.kind)) && ['addon', 'upgrade'].includes(o.items[0]?.kind));
+
+/** An order from GET /api/orders in the shape the dashboard pages use. `extras`: its paid add-on orders. */
+export function orderFromApi(o, resumeId, extras = []) {
   const plan = o.items.find((i) => PLAN_KINDS.has(i.kind));
   const paidAt = ts(o.paidAt);
+  // the add-on / upgrade order that paid for a line (its own GST invoice), matched by code
+  const via = (kind, code) => extras.find((x) => x.items[0]?.kind === kind && x.items[0]?.code === code);
+  const extra = (x) => (x ? { at: ts(x.paidAt), payId: x.paymentId || '', invoice: x.invoiceNo || '', invoiceOrder: x.id } : {});
+  const upgrades = o.items.filter((i) => i.kind === 'upgrade').map((i) => ({ from: plan?.code || o.plan, to: i.code, price: i.amount / 100, at: paidAt, payId: '', ...extra(via('upgrade', i.code)) }));
   const refunds = o.refunds || [];
   const done = refunds.find((r) => ['approved', 'processed'].includes(r.status));
   const review = refunds.find((r) => r.status === 'review');
   const declined = !done && !review ? refunds.find((r) => r.status === 'rejected') : null;
   return {
-    id: o.id, plan: o.plan, price: (plan?.amount ?? o.amount) / 100, paidAt, method: o.paymentMethod ? o.paymentMethod.toUpperCase() === 'UPI' ? 'UPI' : o.paymentMethod[0].toUpperCase() + o.paymentMethod.slice(1) : '—',
-    payId: o.paymentId || '', invoice: o.invoiceNo || '', receipt: o.receiptNo || '', // receipt: paid on WhatsApp before a GST invoice could be made
-    ...(o.method === 'whatsapp' ? { wa: true, createdAt: ts(o.createdAt), awaiting: o.status === 'awaiting_payment', waCancelled: o.status === 'cancelled' } : {}),
-    addons: o.items.filter((i) => i.kind === 'addon').map((i) => ({ id: i.code, price: i.amount / 100, at: paidAt, payId: o.paymentId || '' })),
+    id: o.id, plan: o.plan, price: (plan?.amount ?? o.amount) / 100 + upgrades.reduce((t, u) => t + u.price, 0), paidAt, method: o.paymentMethod ? o.paymentMethod.toUpperCase() === 'UPI' ? 'UPI' : o.paymentMethod[0].toUpperCase() + o.paymentMethod.slice(1) : '—',
+    payId: o.paymentId || '', invoice: o.invoiceNo || '', receipt: o.receiptNo || '', // receipt: an old (WhatsApp) order paid before a GST invoice could be made
+    createdAt: ts(o.createdAt), serverStatus: o.status,
+    ...(!paidAt && PAYABLE.has(o.status) ? { unpaid: true } : {}),
+    // old WhatsApp orders (awaiting_payment is theirs only): paid with an emailed Razorpay link, not Pay now
+    ...(o.method === 'whatsapp' || o.status === 'awaiting_payment' ? { wa: true, waCancelled: !paidAt && o.status === 'cancelled' } : {}),
+    ...(upgrades.length ? { upgrades } : {}),
+    addons: o.items.filter((i) => i.kind === 'addon').map((i) => ({ id: i.code, price: i.amount / 100, at: paidAt, payId: o.paymentId || '', ...extra(via('addon', i.code)) })),
     linked: !!paidAt && !['diy', 'linkedin_pack'].includes(o.plan), resumeId, // self-serve plans have no expert order serverStatus: o.status,
     status: o.status === 'refunded' || done ? 'refunded' : o.status === 'done' ? 'done' : undefined,
     ...(done ? { refund: { amount: done.amount / 100, reason: done.reason === 'late' ? 'Late delivery — automatic refund' : done.reason === 'cancel' ? 'Cancelled before an expert started' : 'Refund approved after review', at: ts(done.createdAt), done: ts(done.processedAt), ref: done.id } } : {}),
@@ -45,6 +58,21 @@ export function orderFromApi(o, resumeId) {
 
 const ticketFromApi = (t) => ({ id: t.id, topic: t.topic, order: t.orderId || undefined, text: t.text, at: t.at, status: t.status, reply: t.reply || undefined });
 
+const RECENT = 30 * 24 * 3600e3;
+/**
+ * The orders My orders shows, each with its paid add-on orders: paid orders; unpaid ones that can still be paid (an
+ * expired one for 30 days); old WhatsApp orders cancelled unpaid. Add-on orders show on their parent order.
+ */
+export function shownOrders(orders, now = Date.now()) {
+  const extras = orders.filter((o) => isAddonOrder(o) && o.paidAt);
+  const mine = (o) => extras.filter((x) => (x.parentId ? x.parentId === o.id : false));
+  return orders
+    .filter((o) => !isAddonOrder(o))
+    .filter((o) => o.paidAt || o.status === 'pending_payment' || o.status === 'awaiting_payment'
+      || (o.status === 'expired' && now - (ts(o.createdAt) || 0) < RECENT) || (o.method === 'whatsapp' && o.status === 'cancelled'))
+    .map((o) => [o, mine(o)]);
+}
+
 /** GET everything for the dashboard and turn it into the store's shape. */
 export async function fetchState() {
   const [s, orders] = await Promise.all([http('/api/me/state'), http('/api/orders')]);
@@ -54,8 +82,7 @@ export async function fetchState() {
   return {
     loading: false, error: null,
     account: { name: p.name, email: p.email, phone: p.phone || '', targetRole: p.targetRole, cities: p.cities, level: p.level, notify: withDefaults(p.notify), joined: p.joined, referralCode: p.referralCode },
-    // paid orders, plus WhatsApp orders still waiting for payment (or cancelled unpaid) so My orders can show them
-    orders: orders.filter((o) => o.paidAt || (o.method === 'whatsapp' && ['awaiting_payment', 'cancelled'].includes(o.status))).map((o) => orderFromApi(o, active?.id)),
+    orders: shownOrders(orders).map(([o, extras]) => orderFromApi(o, active?.id, extras)),
     resumes: s.resumes,
     checks: s.checks,
     covers: s.covers,
@@ -183,7 +210,7 @@ const appBody = (x, patch) => ({
   ...(x.score != null ? { score: x.score } : {}), ...(x.tailoredResumeId ? { tailoredResumeId: x.tailoredResumeId } : {}),
 });
 
-/** Called after every change to the store (prev → next). Returns a promise for new support tickets. */
+/** Called after every change to the store (prev -> next). Returns a promise for new support tickets. */
 export function persist(prev, next) {
   // resumes: new ones now, edits debounced, deleted ones now
   const a = byId(prev.resumes); const b = byId(next.resumes);

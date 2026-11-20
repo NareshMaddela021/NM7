@@ -1,4 +1,4 @@
-// Role finder (Phase 6, S1): ten simple questions → three roles that fit, each with plain reasons, what to learn, a
+// Role finder (Phase 6, S1): ten simple questions -> three roles that fit, each with plain reasons, what to learn, a
 // typical starting salary from Nm7's own job data (only with enough jobs; otherwise "Not enough data yet"), live jobs
 // and a "Start learning path" button (S2) and the role's skill check. Rules decide the roles; AI only words the reasons (checked, with the rules' words
 // as fallback). Retake any time; answers are saved to the profile and feed Auto Apply's role suggestions.
@@ -8,6 +8,7 @@ import { http } from '../../services/http';
 import { MeHead } from './MeLayout';
 import { Bar, Chip, Empty, FieldGroup, MeCard, Skel, StickyBar } from './kit';
 import '../../styles/me-learn.css';
+import { IcAlert, IcCheck } from '../../components/icons';
 
 const STUDIES = { '10th': '10th pass', '12th': '12th / Inter', iti: 'ITI', diploma: 'Diploma', graduate: 'Degree (BA, BCom, BSc, BTech…)', postgraduate: 'Master’s degree' };
 const STYLES = { people: 'With people', numbers: 'With numbers', machines: 'With machines and tools', computers: 'On a computer', outdoors: 'Outdoors, moving around' };
@@ -24,7 +25,7 @@ function Pick({ n, label, hint, options, value, max, onChange, testid }) {
       <legend className="label"><Qn n={n} />{label}{hint && <span className="xs muted" style={{ fontWeight: 600 }}> · {hint}</span>}</legend>
       <div className="ml-picks">
         {options.map((o) => (
-          <button key={o} type="button" className="ml-pick" aria-pressed={value.includes(o)} onClick={() => flip(o)}>{value.includes(o) ? '✓ ' : ''}{cap(o)}</button>
+          <button key={o} type="button" className="ml-pick" aria-pressed={value.includes(o)} onClick={() => flip(o)}>{value.includes(o) ? <><IcCheck size={14} /> </> : ''}{cap(o)}</button>
         ))}
       </div>
     </fieldset>
@@ -43,12 +44,12 @@ function Role({ r, i }) {
         </div>
       </div>
       <p className="ml-why" data-testid="rf-why">{r.why}</p>
-      {r.notes.map((n) => <p key={n} className="ml-note">⚠ {n}</p>)}
+      {r.notes.map((n) => <p key={n} className="ml-note"><IcAlert size={14} /> {n}</p>)}
       {known > 0 && <Bar value={r.have.length} max={known} label="Main skills you already have" tone="student" />}
       <div className="stack g4">
         <span className="ml-box-h">Learn</span>
         {r.learn.length ? <span className="ml-tags">{r.learn.map((x) => <span key={x} className="ml-tag">{x}</span>)}</span> : <span className="small">You already have the main skills. Prove them with a skill check.</span>}
-        {r.have.length > 0 && <span className="ml-tags" aria-label="On your resume already"><span className="xs muted" style={{ alignSelf: 'center' }}>On your resume already:</span>{r.have.map((x) => <span key={x} className="ml-tag have">✓ {x}</span>)}</span>}
+        {r.have.length > 0 && <span className="ml-tags" aria-label="On your resume already"><span className="xs muted" style={{ alignSelf: 'center' }}>On your resume already:</span>{r.have.map((x) => <span key={x} className="ml-tag have"><IcCheck size={14} /> {x}</span>)}</span>}
       </div>
       <div className="ml-box" data-testid="rf-salary">
         <span className="ml-box-h">Typical starting salary</span>

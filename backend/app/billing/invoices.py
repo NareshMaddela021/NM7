@@ -105,7 +105,10 @@ def snapshot(
         taxable, taxes = scale(bill, amount)
         line = {"rate": taxable, "discount": 0, "taxable": taxable}
     plan_line = next((i for i in order.items if i.kind == "plan"), None)
-    description = plan_line.name if plan_line else "Nm7 for Organizations"
+    if getattr(order, "kind", "org") == "org":
+        description = plan_line.name if plan_line else "Nm7 for Organizations"
+    else:  # a customer order (prices include GST): every line it was paid for, e.g. "Expert resume + Express"
+        description = " + ".join(i.name for i in order.items if i.kind not in ("discount", "tax")) or "Nm7"
     if kind == "credit_note":
         description = f"Credit against {original['number']}: {description}"
     tax_lines = [
@@ -156,6 +159,7 @@ def _doc(kind: str, snap: dict[str, Any], order: Any, **extra) -> dict[str, Any]
         "fy": snap["fy"],
         "date": snap["date"],
         "org_id": order.org_id,
+        "customer_id": None if getattr(order, "kind", "org") == "org" else order.customer_id,
         "order_id": order.id,
         "total": snap["totals"]["total"],
         "taxable": snap["totals"]["taxable"],

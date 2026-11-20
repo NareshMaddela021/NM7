@@ -19,7 +19,7 @@ export default function ReadinessCard() {
       </svg>
       <div className="stack g4" style={{ flex: 1, minWidth: 180 }}>
         <strong>{t('simple.ready.card')}: {r.score}%</strong>
-        {next ? <Link to={next.path} className="small" data-testid="readiness-next">{t('simple.ready.next', { thing: t(`simple.ready.item.${next.key}`) })} →</Link> : <span className="small muted">{t('simple.ready.done')}</span>}
+        {next ? <Link to={next.path} className="small" data-testid="readiness-next">{t('simple.ready.next', { thing: t(`simple.ready.item.${next.key}`) })}</Link> : <span className="small muted">{t('simple.ready.done')}</span>}
         <span className="xs muted">{t('simple.ready.private')}</span>
       </div>
     </section>
