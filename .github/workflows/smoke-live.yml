@@ -55,7 +55,7 @@ jobs:
       - name: Journey findings in the log (screenshots of signed-out pages only; the log is public)
         if: always()
         run: node e2e-smoke/dump-findings.mjs test-results --shots
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: smoke-live-results
