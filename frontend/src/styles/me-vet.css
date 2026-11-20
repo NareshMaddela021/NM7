@@ -126,3 +126,5 @@
 .vet-renew { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; padding: 10px 14px; border-radius: 14px; background: #fff7ed; border: 1px solid #fed7aa; color: #7c2d12; font-size: 14.5px; overflow-wrap: anywhere; }
 .vet-renew > span { flex: 1 1 200px; min-width: 0; }
 @media (max-width: 560px) { .vet-renew .btn { flex: 1 1 100%; } }
+/* Batch C item 27: details behind "Read more" on the start screens */
+.vet-more > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; color: var(--accent); font-weight: 600; }
