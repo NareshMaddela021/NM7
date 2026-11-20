@@ -33,7 +33,7 @@ jobs:
       SMOKE_ADMIN_TOTP: ${{ secrets.SMOKE_ADMIN_TOTP }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version-file: frontend/.nvmrc
           cache: npm

@@ -60,7 +60,7 @@ jobs:
           fetch-depth: 0 # the base branch too: the changed files pick the specs
       - name: Start MongoDB (replica set)
         run: bash "$GITHUB_WORKSPACE/.github/scripts/start-mongo.sh"
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version-file: frontend/.nvmrc
           cache: npm
@@ -118,7 +118,7 @@ jobs:
           ref: ${{ github.event_name == 'schedule' && 'main' || '' }}
       - name: Start MongoDB (replica set)
         run: bash "$GITHUB_WORKSPACE/.github/scripts/start-mongo.sh"
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version-file: frontend/.nvmrc
           cache: npm
@@ -181,7 +181,7 @@ jobs:
           cp /tmp/shotspec/*.spec.mjs frontend/e2e-live/
       - name: Start MongoDB (replica set)
         run: bash "$GITHUB_WORKSPACE/.github/scripts/start-mongo.sh"
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version-file: frontend/.nvmrc
           cache: npm
