@@ -157,13 +157,17 @@ export default function CompanyHire({ t, c }) {
     }, () => setJobs([]));
   }, [c.id]);
   const latest = useRef(0); // filters changed quickly: only the answer to the newest request is shown
-  const load = useCallback(async () => {
+  // `quiet` (after an Invite, item 33): the list stays on screen, as long as it was, and the page keeps its scroll
+  const load = useCallback(async (quiet = false) => {
     if (!job || !verified) return;
     const mine = ++latest.current;
-    setErr(''); setD(null); setShown(PAGE);
+    const y = window.scrollY;
+    setErr('');
+    if (quiet !== true) { setD(null); setShown(PAGE); }
     try {
       const [s, inv] = await Promise.all([rq(`/api/company/${c.id}/hire/shortlist?${shortlistQuery(job, { support, ...vf }, nt, wt)}`), rq(`/api/company/${c.id}/hire/invites?job=${encodeURIComponent(job)}`)]);
       if (mine !== latest.current) return;
+      if (quiet === true) requestAnimationFrame(() => window.scrollTo(0, y));
       setD(s); setInvites(inv); setNtCounts(s.nonTech ? { ...s.nonTech.counts, of: s.nonTech.filters } : null); setNtEnglish(!!s.nonTech?.englishFilter); setFair(s.nonTech?.fairness || []); setWtCounts(s.workTests ? s.workTests.counts : null);
     } catch (x) { if (mine === latest.current) { setErr(x.message); setD({ items: [] }); } }
   }, [c.id, job, verified, support, vf, nt, wt]);
@@ -186,7 +190,7 @@ export default function CompanyHire({ t, c }) {
     try {
       const r = await rq(`/api/company/${c.id}/hire/invite`, { method: 'POST', body: { job, people, note } });
       setMsg(t('co.hire.sent', { n: r.sent }));
-      await load();
+      await load(true);
     } catch (x) { setErr(x.message); } finally { setBusy(false); }
   };
   if (!verified) return <section className="mcard hn-gate" data-testid="co-hire"><strong className="mcard-title">{t('co.hire.title')}</strong><p className="small" data-testid="co-hire-basic">{t('co.hire.basic')}</p></section>;
@@ -326,7 +330,7 @@ export default function CompanyHire({ t, c }) {
                 <WorkChips w={x.workTests} rec={x.reliabilityRecord} />
                 <NmCheck c={c} uid={x.key} name={x.name} level={x.level?.level} row={x} canRequest={canInvite} />
                 <div className="hn-person-foot">
-                  <ScreeningInterview c={c} uid={x.key} name={x.name} level={x.level?.level} job={job} canInvite={canInvite && !x.applied} invited={!!x.invite} onInvited={load} />
+                  <ScreeningInterview c={c} uid={x.key} name={x.name} level={x.level?.level} job={job} canInvite={canInvite && !x.applied} invited={!!x.invite} onInvited={() => load(true)} />
                   {x.invite ? <span className={`mchip ${CHIP[x.invite.status]}`} data-testid="co-hire-state">{t(`co.hire.state.${x.invite.status}`)}</span>
                     : x.applied ? <span className="mchip mchip-neutral">{t('co.hire.applied')}</span>
                       : canInvite && <button type="button" className="btn btn-outline hn-invite" disabled={busy} onClick={() => invite([x.key])} data-testid="co-hire-invite">{t('co.hire.invite')}</button>}

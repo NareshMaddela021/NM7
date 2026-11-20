@@ -87,7 +87,9 @@ for (const [label, opts] of SIZES) {
       await co.getByRole('tab', { name: 'Hire now' }).click();
       await co.getByTestId('co-hire-job').selectOption({ label: title });
       await expect(co.getByTestId('co-hire-inv').filter({ hasText: `${first} Rao` }).getByTestId('co-hire-contact')).toContainText(smail);
+      await co.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
       await co.getByRole('tab', { name: 'Applicants' }).click();
+      await expect.poll(() => co.evaluate(() => window.scrollY)).toBe(0); // item 34: a tab opens at the top
       await expect(co.getByText(`${first} Rao`).first()).toBeVisible();
     });
   });
