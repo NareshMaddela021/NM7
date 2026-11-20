@@ -4,11 +4,14 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Spinner } from '../../components/ui';
 import { http } from '../../services/http';
+import { usePageMeta } from '../../lib/meta';
 
 let started = null; // one sign-in per page load (React runs effects twice in development)
 
 export default function DemoStudentLogin() {
   const [err, setErr] = useState('');
+  // not in the route table (it stays out of the first download), so the tab would say "Page not found"
+  usePageMeta({ title: 'Opening the demo student', description: 'Admin demo sign-in.', noindex: true });
   useEffect(() => {
     if (started) return;
     const token = new URLSearchParams(window.location.hash.slice(1)).get('t') || '';
