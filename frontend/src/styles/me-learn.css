@@ -76,8 +76,13 @@
 .ml-opt:has(input:checked) { border-color: #db2777; background: #fdf2f8; }
 .ml-opt input { width: 20px; height: 20px; margin: 1px 0 0; accent-color: #db2777; flex: none; }
 .ml-opt span { min-width: 0; overflow-wrap: anywhere; }
-.ml-opt.right { border-color: #16a34a; background: #f0fbf4; font-weight: 700; }
-.ml-opt.wrong { border-color: #dc2626; background: #fff4f4; }
+/* after checking (Batch E item 44): the right answer green, a wrong pick red, also when it is the ticked one */
+.ml-opt.right, .ml-opt.right:has(input:checked) { border-color: #16a34a; background: #f0fbf4; color: #14532d; font-weight: 700; }
+.ml-opt.wrong, .ml-opt.wrong:has(input:checked) { border-color: #dc2626; background: #fff4f4; color: #7f1d1d; }
+.ml-opt.right input { accent-color: #16a34a; }
+.ml-opt.wrong input { accent-color: #dc2626; }
+.ml-opt.right .ic { color: #16a34a; }
+.ml-opt.wrong .ic { color: #dc2626; }
 .ml-opt:has(input:disabled) { cursor: default; }
 .ml-qtext { font-family: var(--font-display); font-weight: 500; font-size: clamp(20px, 2.6vw, 24px); line-height: 1.3; color: var(--ink); padding: 0; margin: 0 0 4px; }
 .ml-qsmall { font-size: 15.5px; font-weight: 700; line-height: 1.45; color: var(--text); padding: 0; margin: 0 0 8px; }
