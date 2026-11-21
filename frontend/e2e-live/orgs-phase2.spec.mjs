@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
 import { PDFDocument } from 'pdf-lib';
 import { PASSWORD, adminLogin, email, emailsTo, lastCode, login, readQrPng, seed } from './helpers.mjs';
+import { actionWords } from '../src/lib/activityWords.js';
 
 async function saved(page, click, ext) {
   const [file] = await Promise.all([page.waitForEvent('download', { timeout: 60_000 }), click()]);
@@ -152,7 +153,7 @@ test('invite → accept → coordinator portal → approve → remind → export
   await c.getByRole('navigation', { name: 'Organization' }).getByRole('link', { name: 'Activity' }).click();
   await expect(c).toHaveTitle('Activity · Govt Polytechnic Nellore · Nm7');
   const log = c.getByRole('region', { name: 'Audit log' });
-  for (const a of ['approve', 'remind', 'print_bulk', 'export_csv', 'staff_accept']) await expect(log.getByText(a, { exact: true }).first()).toBeVisible();
+  for (const a of ['approve', 'remind', 'print_bulk', 'export_csv', 'staff_accept']) await expect(log.getByText(actionWords(a), { exact: true }).first()).toBeVisible(); // plain words (Batch E item 48)
   await adminNav.getByRole('link', { name: 'Shared resumes' }).click();
   await adminNav.getByRole('link', { name: 'Organizations' }).click();
   await expect(page.getByRole('region', { name: 'Audit log' }).getByText('remind', { exact: true }).first()).toBeVisible();
