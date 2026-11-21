@@ -18,10 +18,13 @@ for (const [label, opts] of SIZES) {
       await expect(page).not.toHaveURL(/\/login/);
       const real = (await call(page, '/api/admin/orgs', json('POST', { name: `Real College ${label}`, type: 'college' }))).body;
       await page.goto('/admin/orgs');
-      page.once('dialog', (d) => d.accept());
+      let native = false;
+      page.on('dialog', (d) => { native = true; d.dismiss(); }); // the site's own confirm, never a native one
       await page.getByTestId('demo-as-coordinator').click();
+      await page.getByRole('dialog', { name: 'Reset and open as coordinator' }).getByTestId('demo-as-coordinator-yes').click();
       await page.waitForURL('**/org/demo-engineering-college');
       await expect(page.getByTestId('demo-banner')).toContainText('Demo');
+      expect(native).toBe(false);
       expect(page.url()).not.toContain('#t='); // the token doesn't stay in the address bar
       for (const [tab, text] of [['drives', 'Drive day'], ['offers', 'Offers'], ['alumni', 'alumni'], ['reviewers', 'Reviewer'], ['dashboard', 'Joined']]) {
         await page.goto(`/org/demo-engineering-college/${tab}`);

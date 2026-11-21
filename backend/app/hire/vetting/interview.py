@@ -352,6 +352,7 @@ class StartIn(CamelModel):
     pledge: int | None = (
         None  # Vetting Trust T9: the honesty pledge version ticked (asked only while Trust is on for them)
     )
+    no_camera: bool = False  # "No camera right now": the interview goes ahead, the face check is marked pending
     spoken: bool = False  # Vetting Trust T10: also measure my spoken English (voice, English; the voice consent)
 
 
@@ -398,7 +399,7 @@ async def start(body: StartIn, auth: CustomerAuth, db: DB) -> dict[str, Any]:
     pledged = await PL.check(db, uid, body.pledge, lang, t)  # T9: the honesty pledge (only while Trust is on for them)
     from app.trust.face.service import gate
 
-    await gate(db, uid, "interview")  # Vetting Trust T3: ID + live selfie first (only while Trust allows this person)
+    face = await gate(db, uid, "interview", later=body.no_camera)  # Vetting Trust T3: ID + live selfie first
     turns = [{"id": q["id"], "kind": q["kind"], "q": q["q"], "looks_for": q["looks_for"], **{k: q[k] for k in ("te", "hi") if q.get(k)}}
              for q in qs["questions"]]  # fmt: skip
     extra: dict[str, Any] = {}
@@ -414,6 +415,8 @@ async def start(body: StartIn, auth: CustomerAuth, db: DB) -> dict[str, Any]:
                 extra = {"explain_source": src}
     if pledged:
         extra["pledge"] = pledged
+    if face and face["status"] == "pending":
+        extra["face"] = {**face, "at": t}  # checked later, never rejected
     from app.trust.spoken.service import start_flag
 
     if sp := await start_flag(db, uid, body.mode, lang, body.spoken):  # T10 (Trust only; None = nothing new)
