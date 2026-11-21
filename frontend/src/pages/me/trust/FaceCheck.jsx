@@ -8,6 +8,7 @@
 //      two more photos while the person does it. The photos go to /api/me/trust/face (memory only on the server, then
 //      to the face-check partner); nothing is kept in the browser either.
 //   4. The result: verified; or didn't pass, with the reason and the tries left; or a person at Nm7 checks it.
+// Before a test or interview (onLater): "No camera right now" starts it anyway, the face check marked pending (Batch A).
 // Always a way out: "I can't use the camera" asks for a manual check (a video call with the Nm7 team), also when the
 // camera is blocked or missing. Nobody is turned away by this check. English only for now.
 import { useEffect, useRef, useState } from 'react';
@@ -80,7 +81,7 @@ function Manual({ d, which, offerId, onSent, onBack }) {
 }
 
 /** The dialog. mode: "identity" (step: interview | skill_check | settings) or "joining" (offerId). */
-export default function FaceCheck({ mode = 'identity', step = 'settings', offerId = null, onDone, onClose }) {
+export default function FaceCheck({ mode = 'identity', step = 'settings', offerId = null, onDone, onClose, onLater }) {
   const joining = mode === 'joining';
   const [d, setD] = useState(null);
   const [stage, setStage] = useState('load');
@@ -293,6 +294,12 @@ export default function FaceCheck({ mode = 'identity', step = 'settings', offerI
           <div className="stack g12" data-testid="fc-done">
             <p className="small" role="status" style={{ margin: 0 }}><strong><IcCheck size={14} /> {joining ? 'Same person at joining: confirmed.' : 'ID + selfie verified.'}</strong> {joining ? 'Have a great first day!' : 'Thank you. We didn’t keep the photos.'}</p>
             <button type="button" className="btn btn-signal" style={{ minHeight: 44, alignSelf: 'flex-start' }} onClick={() => onDone?.(d.state)} data-testid="fc-continue">{step === 'interview' ? 'Start the interview' : step === 'skill_check' ? 'Start the test' : 'Done'}</button>
+          </div>
+        )}
+        {onLater && !joining && !['load', 'done', 'manual'].includes(stage) && (
+          <div className="stack g8" data-testid="fc-later">
+            <span className="xs muted">No camera right now? You can still take it. We mark the face check as pending and ask for it later. Nobody is turned away.</span>
+            <button type="button" className="btn btn-outline" style={{ minHeight: 44, alignSelf: 'flex-start' }} onClick={() => { stop(); onLater(); }} data-testid="fc-later-go">{step === 'interview' ? 'Start the interview now, check later' : 'Take the test now, check later'}</button>
           </div>
         )}
         {d?.provider?.test && stage !== 'load' && <span className="xs faint">Test provider: no real face check.</span>}
