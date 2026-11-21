@@ -6,6 +6,7 @@
 import { readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
 import { API, PASSWORD, adminLogin, apiMember, email, login, seed } from './helpers.mjs';
+import { actionWords } from '../src/lib/activityWords.js';
 
 const SIZES = [['desktop', { viewport: { width: 1280, height: 900 } }], ['phone', { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true }]];
 const call = (page, path, init = {}) => page.evaluate(async ([base, p, i]) => {
@@ -113,7 +114,7 @@ for (const [label, opts] of SIZES) {
       expect(await c.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(opts.viewport.width);
       // the activity log has the roll list upload
       await c.getByRole('navigation', { name: 'Organization' }).getByRole('link', { name: 'Activity' }).click();
-      await expect(c.getByText('roll_list_upload').first()).toBeVisible();
+      await expect(c.getByText(actionWords('roll_list_upload')).first()).toBeVisible(); // plain words (Batch E item 48)
       await ctx.close();
     });
   });

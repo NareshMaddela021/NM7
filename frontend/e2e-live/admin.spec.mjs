@@ -1,6 +1,7 @@
 // Admin console and expert portal against the real API: real numbers and empty states, actions saved and logged.
 import { expect, test } from '@playwright/test';
 import { API, PASSWORD, adminLogin, email, emailsTo, login, seed } from './helpers.mjs';
+import { actionWords } from '../src/lib/activityWords.js';
 
 /** Admin edit / detail panels slide over the list (a dialog): close one, if open, before using the menu. */
 async function closePanel(page) {
@@ -85,7 +86,7 @@ test('admin console shows real data (no samples), and every action is saved and 
   await closePanel(page);
   await page.getByRole('link', { name: 'Team & audit log' }).click();
   for (const action of ['expert.approve', 'order.assigned', 'settings.changed', 'ticket.replied']) {
-    await expect(page.getByRole('cell', { name: action, exact: true })).toBeVisible();
+    await expect(page.getByRole('cell', { name: actionWords(action), exact: true })).toBeVisible(); // plain words (Batch E item 48)
   }
 
   // the expert sees the offered order in their portal and accepts it

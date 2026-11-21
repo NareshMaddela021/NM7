@@ -40,6 +40,7 @@ import { openCertFile } from '../../../lib/certs';
 import { liveParams } from '../../../lib/liveParams';
 import '../../../styles/org-groups.css';
 import { IcArrowDown, IcArrowRight, IcArrowUp, IcFile, IcPrint, IcSearch, IcSettings, IcSpark, IcUser, IcUsers } from '../../../components/icons';
+import { actionWords } from '../../../lib/activityWords';
 
 export const ORG_TYPES = [
   ['college', 'College'], ['institute', 'Coaching / training institute'], ['job_fair', 'Job fair'], ['skill_centre', 'Skill centre'],
@@ -439,7 +440,7 @@ export function AuditList({ url, sub }) {
       </header>
       <Loading st={log} empty={emptyIf((d) => !d.length, 'Nothing logged yet.')}>{(rows) => (
         <div className="table-wrap og-table-wrap mtable-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table og-table mtable"><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Count</th><th>Details</th></tr></thead>
-          <tbody>{rows.map((a) => <tr key={a.id}><td className="small og-nowrap" data-label="When">{when(a.at)}</td><td className="small" data-label="Who"><span>{a.actorName || '—'}{a.byStaff && <span className="xs faint og-block">coordinator</span>}</span></td><td className="small" data-label="Action"><span className="mono og-action">{a.action}</span></td><td className="small" data-label="Count">{a.count ?? '—'}</td><td className="xs og-details" data-label="Details">{auditText(a.details)}</td></tr>)}</tbody></table></div>
+          <tbody>{rows.map((a) => <tr key={a.id}><td className="small og-nowrap" data-label="When">{when(a.at)}</td><td className="small" data-label="Who"><span>{a.actorName || '—'}{a.byStaff && <span className="xs faint og-block">coordinator</span>}</span></td><td className="small" data-label="Action"><span className="og-action" title={a.action}>{actionWords(a.action)}</span></td><td className="small" data-label="Count">{a.count ?? '—'}</td><td className="xs og-details" data-label="Details">{auditText(a.details)}</td></tr>)}</tbody></table></div>
       )}</Loading>
     </section>
   );

@@ -29,6 +29,9 @@ for (const [label, opts] of SIZES) {
         await t.getByTestId('pr-check').click();
         await expect(t.getByTestId('pr-why')).toBeVisible(); // right or not, and why
         if (i === 0) expect(await noSideScroll(page)).toBe(true);
+        if (i === 0) { // the ticked answer turns green when right, red when wrong (not the pink "picked" colour)
+          await expect.poll(() => t.locator('.ml-opt').first().evaluate((el) => getComputedStyle(el).borderColor)).toMatch(/^rgb\((22, 163, 74|220, 38, 38)\)$/);
+        }
         await t.getByTestId('pr-next').click();
       }
       await expect(page.getByTestId('pr-score')).toContainText('of 10 right');

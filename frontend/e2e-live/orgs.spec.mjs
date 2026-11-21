@@ -119,8 +119,8 @@ test('org + group → join link → consent, sign-up, questions, resume → Shar
   // audit log lists the print and the export
   await page.getByRole('navigation', { name: 'Admin sections' }).getByRole('link', { name: 'Organizations' }).click();
   const audit = page.getByRole('region', { name: 'Audit log' });
-  await expect(audit.getByText('print_bulk').first()).toBeVisible();
-  await expect(audit.getByText('export_csv').first()).toBeVisible();
+  await expect(audit.getByText('Resumes printed in bulk').first()).toBeVisible();
+  await expect(audit.getByText('CSV file downloaded').first()).toBeVisible();
 
   // 5. the member leaves the group → gone from Shared resumes
   await m.goto('/me/groups');

@@ -46,7 +46,7 @@ function Coupons() {
           <tbody>{settings.coupons.map((x) => (
             <tr key={x.code}><td className="mono strong">{x.code}</td><td>{x.type === '%' ? `${x.value}%` : inr(x.value)} off</td><td className="small">{x.plans.map((p) => settings.plans.find((pl) => pl.id === p)?.name).join(', ')}</td><td className="small">{x.expires}</td>
               <td className="small">{x.used}/{x.limit}</td>
-              <td><input type="checkbox" aria-label={`${x.code} on`} checked={x.active} onChange={(e) => { save(settings.coupons.map((y) => (y.code === x.code ? { ...y, active: e.target.checked } : y)), `${e.target.checked ? 'Turned on' : 'Turned off'} coupon ${x.code}`); }} /></td></tr>))}</tbody></table>
+              <td><input type="checkbox" aria-label={`Code ${x.code} active`} checked={x.active} onChange={(e) => { save(settings.coupons.map((y) => (y.code === x.code ? { ...y, active: e.target.checked } : y)), `${e.target.checked ? 'Turned on' : 'Turned off'} coupon ${x.code}`); }} /></td></tr>))}</tbody></table>
       </div>
       <form className="card stack g12" onSubmit={(e) => { e.preventDefault(); if (!valid) return; save([{ ...c, code: c.code.toUpperCase() }, ...settings.coupons], `Created coupon ${c.code.toUpperCase()}`); setC(blank); toast('Coupon created'); }}>
         <strong>New coupon</strong>

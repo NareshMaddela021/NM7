@@ -182,7 +182,7 @@ export function MeSettings() {
 
       <MeCard as="section" id="s-notify" className="acc-sec" label="Notifications" icon={<IcBell />} title="Notifications" sub="Choose how we tell you about each thing.">
         <div className="table-wrap mtable-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table mtable acc-notify"><thead><tr><th>Event</th>{CHANNELS.map(([k, l]) => <th key={k}>{l}</th>)}</tr></thead>
-          <tbody>{EVENTS.map(([ev, l]) => <tr key={ev}><th scope="row" className="small acc-ev">{l}</th>{CHANNELS.map(([ch, cl]) => <td key={ch} data-label={cl}><input type="checkbox" className="acc-cb" aria-label={`${l} on ${cl}`} checked={!!me.account.notify[ch][ev]} disabled={ev === 'order' && ch === 'email'} onChange={(e) => notify(ch, ev, e.target.checked)} /></td>)}</tr>)}</tbody></table></div>
+          <tbody>{EVENTS.map(([ev, l]) => <tr key={ev}><th scope="row" className="small acc-ev">{l}</th>{CHANNELS.map(([ch, cl]) => <td key={ch} data-label={cl}><input type="checkbox" className="acc-cb" aria-label={`${l} by ${cl}`} checked={!!me.account.notify[ch][ev]} disabled={ev === 'order' && ch === 'email'} onChange={(e) => notify(ch, ev, e.target.checked)} /></td>)}</tr>)}</tbody></table></div>
         <span className="xs faint">Order emails stay on — they carry your receipts and refund updates.</span>
         <HealthEmails />
         <SetupReminders />

@@ -7,6 +7,8 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import Header from '../../../components/Header';
 import { Spinner } from '../../../components/ui';
 import { useAuth } from '../../../lib/auth';
+import { usePageMeta } from '../../../lib/meta';
+import { navMeta } from '../../../lib/navTitle';
 import { http } from '../../../services/http';
 import { ROLES } from '../roles';
 import '../../../styles/admin.css';
@@ -130,6 +132,7 @@ export function LiveAdminLayout() {
   const can = ROLES[user?.adminRole]?.can || [];
   const current = NAV.find(([, to]) => (to === '/admin' ? pathname === '/admin' || pathname === '/admin/' : pathname.startsWith(to)));
   const allowed = !current || can.includes(current[0]);
+  usePageMeta(navMeta(pathname, NAV, { home: '/admin', generic: 'Admin console', suffix: ' · Admin' })); // the tab title (Batch E item 46)
   // Razorpay keys missing on the server: a calm banner on every page (GET /api/admin/payments/status; errors -> none)
   const [keys, setKeys] = useState(null);
   useEffect(() => {

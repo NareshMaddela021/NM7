@@ -6,11 +6,10 @@ import { track } from '../lib/track';
 import { Icon } from './ui';
 
 
-export function Logo({ suffix }) {
+export function Logo() {
   return (
     <Link to="/" className="logo" aria-label={`${BRAND.name} home`}>
       <b>Nm<mark>7</mark></b>
-      {suffix && <span className="mono faint">{suffix}</span>}
     </Link>
   );
 }
@@ -116,7 +115,7 @@ export default function Header({ variant = 'public', right, labels, lang }) {
   return (
     <header className="site-header" data-variant={variant} data-menu={menu} lang="en">
       <div className="bar">
-        <Logo suffix={variant === 'expert' ? '/expert' : variant === 'admin' ? '/admin' : variant === 'builder' ? '/builder' : variant === 'me' ? '/me' : undefined} />
+        <Logo />
 
         {variant === 'public' && (
           <span className="row g8 hdr-quick" lang={lang}>
