@@ -4,7 +4,8 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import PAGES from '../i18n/pages.json';
-import { MORE, TILES } from '../pages/simple/SimpleApp';
+import { TILES } from '../pages/simple/SimpleApp';
+import { MORE } from '../pages/simple/SimpleMore';
 
 // the next steps the home card can show (backend/app/simple/router.py PATHS); each has a title, text and button words
 const NEXT_KEYS = ['resume', 'education', 'skills', 'projects', 'fix_score', 'auto_apply', 'answer', 'jobs'];
@@ -99,7 +100,7 @@ describe('fix round (7 Nov): everything stays inside the easy dashboard', () => 
     expect(Object.fromEntries(TILES.map(([k, , to]) => [k, to]))).toEqual({ resume: '/me/simple/myresume', jobs: '/me/simple/jobs', apps: '/me/simple/apps', practice: '/me/simple/practice' });
   });
   it('item 13: every "Things left" button opens a simple screen', async () => {
-    const { READY_PATHS } = await import('../pages/simple/SimpleApp');
+    const { READY_PATHS } = await import('../pages/simple/SimpleMore');
     for (const to of Object.values(READY_PATHS)) expect(to).toMatch(/^\/me\/simple\//);
     expect(READY_PATHS.roles).toBe('/me/simple/auto');
   });

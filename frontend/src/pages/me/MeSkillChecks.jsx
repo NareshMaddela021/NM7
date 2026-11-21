@@ -129,8 +129,16 @@ function StartDialog({ r, cat, preset, needConsent, onConsent, onClose, onGo }) 
   return (
     <Dialog title={`Start: ${r.role}`} onClose={onClose} showTitle>
       <div className="stack g16" data-testid="vt-start">
-        <p className="small" style={{ margin: 0 }}>{cat.questions} questions, about {String(minutes).replace('.5', '½')} minutes. Each question has its own timer and moves on by itself. Pass mark {cat.pass}/100. {tries(cat)} every {cat.retakeDays} days.</p>
-        {r.retake && <Suspense fallback={null}><RetakeInfo rk={r.retake} /></Suspense>}
+        {/* Batch C item 27: the short version first, the details behind "Read more" */}
+        <p className="small" style={{ margin: 0 }} data-testid="vt-start-short"><strong>{cat.questions} questions, about {String(minutes).replace('.5', '½')} minutes.</strong> Pass mark {cat.pass}/100.</p>
+        <details className="vet-more" data-testid="vt-read-more">
+          <summary className="small">Read more</summary>
+          <div className="stack g8 small" style={{ marginTop: 8 }}>
+            <span>Each question has its own timer and moves on by itself. {tries(cat)} every {cat.retakeDays} days.</span>
+            <span>Find a quiet place with a steady connection. If the connection drops, come back within 10 minutes to carry on.</span>
+            {r.retake && <Suspense fallback={null}><RetakeInfo rk={r.retake} /></Suspense>}
+          </div>
+        </details>
         <fieldset className="vet-fs">
           <legend className="vet-legend">Your experience</legend>
           <div className="vet-chips">
@@ -158,13 +166,12 @@ function StartDialog({ r, cat, preset, needConsent, onConsent, onClose, onGo }) 
         )}
         <label className="vet-check">
           <input type="checkbox" checked={extra} onChange={(e) => setExtra(e.target.checked)} data-testid="vt-extra" />
-          <span><strong>I need extra time</strong><span className="xs muted" style={{ display: 'block' }}>For a disability, reading difficulty or a slow phone: 1½ times the time. It doesn’t change your score.</span></span>
+          <span><strong>I need extra time</strong><span className="xs muted" style={{ display: 'block' }}>1½ times the time. It doesn’t change your score.</span></span>
         </label>
         <Suspense fallback={null}><SnapshotChoice kind="skill" /></Suspense>
         {needConsent && (
           <div className="stack g8">
-            <strong className="small">What the test page checks</strong>
-            <ConsentList />
+            <details className="vet-more"><summary className="small"><strong>What the test page checks</strong> (read more)</summary><ConsentList /></details>
             <label className="vet-check">
               <input type="checkbox" checked={ok} onChange={(e) => setOk(e.target.checked)} data-testid="vt-consent-tick-dialog" />
               <span>I understand what is checked during the test</span>
@@ -172,7 +179,6 @@ function StartDialog({ r, cat, preset, needConsent, onConsent, onClose, onGo }) 
           </div>
         )}
         <Suspense fallback={null}><Pledge kind="skill" lang={lang} onChange={setPledge} /></Suspense>
-        <p className="xs muted" style={{ margin: 0 }}>Find a quiet place with a steady connection. If the connection drops, come back within 10 minutes to carry on.</p>
         {err && <p className="error" role="alert">{err}</p>}
         <div className="vet-actions">
           <button type="button" className="btn btn-signal btn-lg" disabled={busy || (needConsent && !ok) || pledge === null} onClick={go} data-testid="vt-go">{busy ? 'Starting…' : 'Start the test'}</button>
@@ -224,8 +230,7 @@ function RenewDialog({ r, needConsent, onConsent, onClose, onGo }) {
         </label>
         {needConsent && (
           <div className="stack g8">
-            <strong className="small">What the test page checks</strong>
-            <ConsentList />
+            <details className="vet-more"><summary className="small"><strong>What the test page checks</strong> (read more)</summary><ConsentList /></details>
             <label className="vet-check">
               <input type="checkbox" checked={ok} onChange={(e) => setOk(e.target.checked)} />
               <span>I understand what is checked during the test</span>

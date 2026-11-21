@@ -7,7 +7,8 @@
 import { useEffect, useState } from 'react';
 import { Icon } from '../../components/ui';
 import { http } from '../../services/http';
-import { Big, WaitNote } from './SimpleApp';
+import { Big, WaitNote, useSay } from './SimpleApp';
+import { savePrefs } from '../../lib/simple';
 import { useScreen } from '../../lib/simple';
 import { SayButton, SpeakField } from './voice';
 
@@ -220,6 +221,74 @@ export function Hire({ t, lang, setSay }) {
       {note && <p className="sx-note" role="status" data-testid="sx-hire-note">{note}</p>}
       <p className="sx-hint">{t('simple.h.private')}</p>
       {s.on && <Big to="/me/hire" icon="edit" label={t('simple.h.change')} testid="sx-hire-change" />}
+      <Big to="/me/simple" icon="back" label={t('simple.back')} />
+    </section>
+  );
+}
+
+/* ---------- moved here from SimpleApp.jsx (Batch C): the readiness screen and More load when opened ---------- */
+// "Things left" inside the easy dashboard (item 13), not the full pages
+export const READY_PATHS = { resume: '/me/simple/resume', score: '/me/simple/fixes', linkedin: '/me/simple/resume?step=about', interview: '/me/simple/practice', skills: '/me/simple/resume?step=skills', roles: '/me/simple/auto', certs: '/me/simple/resume?step=certs', feedback: '/me/simple/practice' };
+// More: plain words, no icons (a list of 15 icons is decoration, not help)
+export const MORE = [
+  ['resumes', '/me/resumes'], ['profile', '/me/profile'], ['ats', '/me/ats'], ['auto', '/me/auto-apply'],
+  ['covers', '/me/covers'], ['certs', '/me/certificates'], ['orders', '/me/orders'], ['messages', '/me/messages'],
+  ['share', '/me/share'], ['groups', '/me/groups'], ['payments', '/me/payments'], ['settings', '/me/settings'], ['help', '/me/help'], ['hire', '/me/simple/hire'], ['roles', '/me/simple/roles'],
+];
+
+
+/** The score as a big ring (no image: one SVG circle), with the number in the middle. */
+export function Ring({ score, size = 180 }) {
+  const r = 42;
+  const c = 2 * Math.PI * r;
+  return (
+    <svg className="sx-ring" width={size} height={size} viewBox="0 0 100 100" aria-hidden="true">
+      <circle cx="50" cy="50" r={r} fill="none" stroke="var(--border2)" strokeWidth="10" />
+      <circle cx="50" cy="50" r={r} fill="none" stroke="var(--success)" strokeWidth="10" strokeLinecap="round" strokeDasharray={`${(c * score) / 100} ${c}`} transform="rotate(-90 50 50)" />
+      <text x="50" y="57" textAnchor="middle" fontSize="24" fontWeight="800" fill="var(--text)">{score}%</text>
+    </svg>
+  );
+}
+
+export function Ready({ t, lang, d, setSay }) {
+  const r = d.readiness || { score: 0, left: [] };
+  useSay(setSay, [['simple.ready.big', { score: r.score }], r.left.length ? ['simple.ready.left'] : ['simple.ready.done'], ...r.left.map((x) => [`simple.ready.item.${x.key}`])]);
+  return (
+    <section className="sx-stack" aria-labelledby="sx-ready-h" data-testid="sx-ready">
+      <h1 id="sx-ready-h" className="sx-h1">{t('simple.ready.title')}</h1>
+      <div className="sx-ringrow"><Ring score={r.score} /><p className="sx-h2" data-testid="sx-ready-score">{t('simple.ready.big', { score: r.score })}</p></div>
+      <p className="sx-hint">{t('simple.ready.private')}</p>
+      {r.left.length ? (
+        <>
+          <span className="sx-cardtop"><h2 className="sx-h2">{t('simple.ready.left')}</h2><SayButton items={r.left.map((x) => [`simple.ready.item.${x.key}`])} t={t} lang={lang} label={t('simple.voice.readCard')} /></span>
+          <ul className="sx-list">
+            {r.left.map((x) => <li key={x.key}><Big to={READY_PATHS[x.key] || x.path} icon="arrow" after label={`${t(`simple.ready.item.${x.key}`)} · ${t('simple.ready.points', { points: x.points })}`} testid={`sx-left-${x.key}`} /></li>)}
+          </ul>
+        </>
+      ) : <p className="sx-p">{t('simple.ready.done')}</p>}
+      <Big to="/me/simple" icon="back" label={t('simple.back')} />
+    </section>
+  );
+}
+
+export function More({ t, d, setData, setSay }) {
+  useSay(setSay, [['simple.more.title'], ['simple.more.sub']]);
+  const [busy, setBusy] = useState(false);
+  const auto = async () => {
+    setBusy(true);
+    try { setData(await savePrefs({ autoRead: !d.autoRead })); } catch { /* stays as it was */ } finally { setBusy(false); }
+  };
+  return (
+    <section className="sx-stack" aria-labelledby="sx-more-h">
+      <h1 id="sx-more-h" className="sx-h1">{t('simple.more.title')}</h1>
+      <p className="sx-p">{t('simple.more.sub')}</p>
+      <ul className="sx-list">
+        {MORE.map(([k, to]) => <li key={k}><Big to={to} label={t(`simple.more.${k}`)} testid={`sx-more-${k}`} /></li>)}
+      </ul>
+      <button type="button" className="sx-big sx-switch" role="switch" aria-checked={!!d.autoRead} disabled={busy} onClick={auto} data-testid="sx-autoread">
+        <span className="sx-ic"><Icon name="volume" size={24} /></span><span>{t('simple.voice.auto')}</span><span className="sx-onoff" aria-hidden="true">{d.autoRead ? t('simple.voice.on') : t('simple.voice.off')}</span>
+      </button>
+      <Big to="/me" label={t('simple.more.full')} testid="sx-more-full" />
       <Big to="/me/simple" icon="back" label={t('simple.back')} />
     </section>
   );

@@ -53,10 +53,10 @@ for (const [label, opts] of SIZES) {
       await page.setViewportSize({ width: Math.round(vp.width / 2), height: Math.round(vp.height / 2) });
       expect(await noSideScroll(page)).toBe(true);
       await page.setViewportSize(vp);
-      // change the language from the top
-      await page.getByTestId('sx-lang').click();
-      await page.getByTestId('sx-pick-en').click();
+      // change the language from the switch in the top bar (Batch C item 13: a select, no extra screen)
+      await page.getByTestId('sx-lang-pick').selectOption('en');
       await expect(page).toHaveURL(/\/me\/simple$/);
+      await expect(page.getByTestId('sx-lang-pick')).toHaveValue('en');
       await expect(page.getByTestId('sx-next')).toContainText('Add your skills');
       await expect(page.getByTestId('sx-next-go')).toHaveText(/Add my skills/);
       // More: everything else, in the full dashboard

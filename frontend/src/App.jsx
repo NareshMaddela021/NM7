@@ -11,8 +11,19 @@ import { onSlow } from './services/http';
 import { reportError } from './lib/monitoring';
 import { rememberCode } from './lib/codeLink';
 
+// Batch C item 26: while a page's file loads (the old page stays on screen meanwhile), a thin bar runs at the top.
+let loads = 0;
+const loadSubs = new Set();
+const loading = (d) => { loads += d; loadSubs.forEach((f) => f(loads > 0)); };
+const tracked = (load) => () => { loading(1); return load().finally(() => loading(-1)); };
+function RouteBar() {
+  const [on, setOn] = useState(false);
+  useEffect(() => { let t; const f = (v) => { clearTimeout(t); t = v ? setTimeout(() => setOn(true), 120) : setOn(false); }; loadSubs.add(f); return () => { clearTimeout(t); loadSubs.delete(f); }; }, []);
+  return on ? <div className="route-bar" role="progressbar" aria-label="Loading the page" data-testid="route-bar" /> : null;
+}
+
 // a page file missing after a deploy (tab opened on the old build) reloads onto the new build
-const lazy = (load) => reactLazy(lazyRetry(load));
+const lazy = (load) => reactLazy(lazyRetry(tracked(load)));
 
 // Every page is its own chunk, loaded when first opened (the home page too, round P: the 3D home is lazy).
 const named = (load, name) => lazy(() => load().then((m) => ({ default: m[name] })));
@@ -372,6 +383,7 @@ export default function App() {
       <DownloadGateHost />
       <PrintCheckHost />
       <ServerWaking />
+      <RouteBar />
       <Pages>
       <Suspense fallback={<Fallback />}>
       <Routes>

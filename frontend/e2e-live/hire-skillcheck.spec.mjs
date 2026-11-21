@@ -36,6 +36,11 @@ for (const [label, opts] of SIZES) {
       await page.getByTestId('vt-search').fill('data analyst');
       await list.getByTestId('sk-start-SQL').click();
       const dlg = page.getByTestId('vt-start');
+      // Batch C item 27: a short line first, the rest behind "Read more"
+      await expect(dlg.getByTestId('vt-start-short')).toContainText(/questions, about \d+ minutes\. Pass mark/);
+      await expect(dlg.getByText('Find a quiet place')).toBeHidden();
+      await dlg.getByTestId('vt-read-more').locator('summary').click();
+      await expect(dlg.getByText('Find a quiet place')).toBeVisible();
       await dlg.getByText('1–3 years').click();
       await expect(dlg.getByTestId('vt-band-1-3')).toBeChecked();
       await dlg.getByTestId('vt-go').click();

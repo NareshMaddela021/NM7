@@ -8,6 +8,7 @@ import { useMe, unreadCount, syncFromBuilder, reloadMe } from '../../lib/custome
 import { Dialog, Spinner } from '../../components/ui';
 import { useExpertOrders } from '../../lib/expertStore';
 import { useLang } from '../../lib/i18n';
+import { useAuth } from '../../lib/auth';
 import { loadSimple, savePrefs } from '../../lib/simple';
 import { Still } from '../newhome/ParticleStage';
 import AppShell from '../../components/AppShell';
@@ -45,19 +46,31 @@ export const ME_NAV = [
   ['settings', '/me/settings', 'Profile & settings', IcSettings],
   ['help', '/me/help', 'Help & referral', IcHelp],
 ];
-/** The side menu in groups (round P). Every link of ME_NAV is in exactly one group. */
-export const ME_GROUPS = [
-  ['Overview', ['home', 'messages']],
-  ['Resume tools', ['resumes', 'profile', 'ats', 'covers', 'share', 'certificates']],
-  ['Jobs', ['jobs', 'auto', 'hire']],
-  ['Learning', ['roles', 'learn', 'practice', 'skills', 'programs', 'launch', 'guidance']],
-  ['Offer and work', ['offercheck', 'feedback', 'progress']],
-  ['Account', ['orders', 'payments', 'upgrade', 'settings', 'help', 'groups']],
-];
+/** The side menu in a few groups and a folded "More" (Batch C items 23, 24; round P before). Every link of ME_NAV is
+ * in exactly one group; the last group is "More". Students get their own order: learning, internships and skill checks
+ * first, then the resume, then jobs. */
+const MORE_KEYS = ['covers', 'share', 'certificates', 'launch', 'guidance', 'offercheck', 'feedback', 'progress', 'payments', 'upgrade', 'settings', 'help', 'groups'];
+export const MORE_GROUP = 'More';
+export function meGroups(student = false) {
+  return student ? [
+    ['Overview', ['home', 'orders', 'messages']],
+    ['Learning', ['learn', 'programs', 'skills', 'practice', 'roles']],
+    ['Resume tools', ['resumes', 'profile', 'ats']],
+    ['Jobs', ['jobs', 'hire', 'auto']],
+    [MORE_GROUP, MORE_KEYS],
+  ] : [
+    ['Overview', ['home', 'orders', 'messages']],
+    ['Jobs', ['jobs', 'auto', 'hire']],
+    ['Resume tools', ['resumes', 'profile', 'ats']],
+    ['Learning', ['skills', 'practice', 'learn', 'roles', 'programs']],
+    [MORE_GROUP, MORE_KEYS],
+  ];
+}
+export const ME_GROUPS = meGroups(false);
 /** Each section's small dotted shape and tint for the page header: job seekers orange, learning (students) magenta. */
 const SECTION_ART = {
   'Overview': ['sphere', 'seeker'], 'Resume tools': ['resume', 'seeker'], 'Jobs': ['briefcase', 'seeker'],
-  'Learning': ['cap', 'student'], 'Offer and work': ['badge', 'seeker'], 'Account': ['handshake', 'seeker'],
+  'Learning': ['cap', 'student'], [MORE_GROUP]: ['handshake', 'seeker'],
 };
 const artFor = (pathname) => {
   const hit = ME_NAV.filter(([, to]) => pathname === to || (to !== '/me' && pathname.startsWith(`${to}/`))).sort((x, y) => y[1].length - x[1].length)[0];
@@ -85,6 +98,11 @@ export default function MeLayout() {
   const [more, setMore] = useState(false);
   const { pathname } = useLocation();
   const TABS = phoneTabs(useSiteFlags().autoApply); // phones: Auto Apply in the bar while it is on, else My orders
+  const groups = meGroups(useAuth().user?.activeRole === 'student');
+  const here = (k) => { const to = ME_NAV.find((n) => n[0] === k)[1]; return pathname === to || pathname.startsWith(`${to}/`); };
+  const moreKeys = groups.find(([g]) => g === MORE_GROUP)[1];
+  const [moreOpen, setMoreOpen] = useState(() => moreKeys.some(here));
+  useEffect(() => { if (moreKeys.some(here)) setMoreOpen(true); }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { syncFromBuilder(); }, []);
   useEffect(() => { setMore(false); }, [pathname]);
   // the Easy dashboard (Phase 4): people whose dashboard is Simple land there; everyone can switch at the top
@@ -106,12 +124,17 @@ export default function MeLayout() {
       <AppShell
         label="My dashboard" phone="none" storageKey="nm7-me-side" routeKey={pathname} className="me-shell has-tabs" sideClassName="me-side" mainClassName="stack g20"
         foot={<span className="xs muted">Signed in as <strong>{me.account.name}</strong></span>}
-        nav={ME_GROUPS.map(([g, keys]) => (
+        nav={groups.map(([g, keys]) => (g === MORE_GROUP ? (
+          <details key={g} className="me-group me-more" open={moreOpen} onToggle={(e) => setMoreOpen(e.currentTarget.open)} data-testid="me-more">
+            <summary className="admin-link" title="More"><IcGrid style={{ flex: 'none' }} /><span className="app-side-text">More</span></summary>
+            <div role="group" aria-label={g} className="me-group">{keys.map((k) => link(ME_NAV.find((n) => n[0] === k)))}</div>
+          </details>
+        ) : (
           <div key={g} className="me-group" role="group" aria-label={g}>
             <span className="me-group-h app-side-h" aria-hidden="true">{g}</span>
             {keys.map((k) => link(ME_NAV.find((n) => n[0] === k)))}
           </div>
-        ))}
+        )))}
       >
         {me.loading && !me.error && <div className="row g12 muted" role="status" style={{ padding: '48px 0' }}><Spinner /> Loading your dashboard…</div>}
         {me.loading && me.error && (
@@ -131,7 +154,7 @@ export default function MeLayout() {
       </nav>
       {more && (
         <Dialog title="More" onClose={() => setMore(false)} overlayStyle={{ alignItems: 'flex-end', padding: 0 }} panelStyle={{ borderRadius: '20px 20px 0 0', maxWidth: '100%', margin: 0, paddingBottom: 88, gap: 4 }}>
-          {ME_GROUPS.map(([g, keys]) => keys.filter((k) => !TABS.includes(k)).length > 0 && (
+          {groups.map(([g, keys]) => keys.filter((k) => !TABS.includes(k)).length > 0 && (
             <div key={g} className="me-group" role="group" aria-label={g}>
               <span className="me-group-h" aria-hidden="true">{g}</span>
               {keys.filter((k) => !TABS.includes(k)).map((k) => link(ME_NAV.find((n) => n[0] === k)))}

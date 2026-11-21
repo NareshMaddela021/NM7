@@ -2,6 +2,7 @@
 // Also Help & referral.
 import { useVettingOn } from '../../lib/vettingAccess';
 import { langsShown } from '../../lib/i18n';
+import SiteLanguage from './SiteLanguage';
 import MyStories from './MyStories';
 import DeleteAccount from './DeleteAccount';
 import { Suspense, lazy, useEffect, useState } from 'react';
@@ -163,7 +164,7 @@ export function MeSettings() {
     <>
       <MeHead title="Profile & settings" sub="Your account, how we reach you, and your data." />
       <nav className="acc-jump" aria-label="On this page">
-        {[['#s-profile', 'Profile'], ['#s-notify', 'Notifications'], ...(LIVE ? [['#job-alerts', 'Job alerts']] : []), ['#s-password', 'Password'], ['#s-privacy', 'Privacy'], ...(trust ? [['#s-consent', 'Consent'], ['#s-work', 'Work preferences'], ['#s-criteria', 'Job requirements'], ['#s-calls', 'Calls & WhatsApp'], ['#s-docs', 'Documents'], ['#s-face', 'ID + selfie']] : [])].map(([h, l]) => <a key={h} href={h} className="acc-jump-a">{l}</a>)}
+        {[['#s-profile', 'Profile'], ...(langsShown() ? [['#s-lang', 'Language']] : []), ['#s-notify', 'Notifications'], ...(LIVE ? [['#job-alerts', 'Job alerts']] : []), ['#s-password', 'Password'], ['#s-privacy', 'Privacy'], ...(trust ? [['#s-consent', 'Consent'], ['#s-work', 'Work preferences'], ['#s-criteria', 'Job requirements'], ['#s-calls', 'Calls & WhatsApp'], ['#s-docs', 'Documents'], ['#s-face', 'ID + selfie']] : [])].map(([h, l]) => <a key={h} href={h} className="acc-jump-a">{l}</a>)}
       </nav>
       <form id="s-profile" className="mcard acc-sec" onSubmit={save} aria-label="Profile" noValidate>
         <header className="mcard-h"><span className="mavatar" aria-hidden="true">{(me.account.name || '?').trim()[0]?.toUpperCase()}</span><span className="mcard-ht"><h2 className="mcard-title">Profile</h2><span className="mcard-sub">Your name and mobile number. Career details live in your Job Profile.</span></span></header>
@@ -176,6 +177,8 @@ export function MeSettings() {
         <Link to="/me/profile" className="btn btn-outline acc-jp">Target role, cities &amp; career details: Job Profile <IcArrowRight size={16} /></Link>
         <StickyBar label="Profile actions"><button type="submit" className="btn btn-signal" disabled={busy}>{busy ? <Spinner /> : 'Save'}</button></StickyBar>
       </form>
+
+      <SiteLanguage />
 
       <MeCard as="section" id="s-notify" className="acc-sec" label="Notifications" icon={<IcBell />} title="Notifications" sub="Choose how we tell you about each thing.">
         <div className="table-wrap mtable-wrap" tabIndex={0} role="region" aria-label="Table — scroll sideways to see all columns"><table className="table mtable acc-notify"><thead><tr><th>Event</th>{CHANNELS.map(([k, l]) => <th key={k}>{l}</th>)}</tr></thead>

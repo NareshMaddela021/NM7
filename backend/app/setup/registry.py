@@ -202,10 +202,10 @@ def first_report(f: dict[str, Any]) -> Status:
 
 _PREFS = Step(
     "preferences",
-    "Add your job preferences",
+    "Add your job preferences in Ready to join",
     "Salary, notice period, job type, shifts and languages. Part of Level 1 (Profile ready), and companies see if you fit.",
     3,
-    "/me/hire",
+    "/me/hire#hire-prefs",
     preferences,
     switch="hire",
 )
