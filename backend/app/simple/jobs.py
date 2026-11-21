@@ -21,6 +21,7 @@ from app.autoapply.settings import gate, settings_of
 from app.core.db import APPLICATIONS, AUTO_ITEMS, DB, JOBS, SAVED_JOBS, USERS
 from app.jobs import fit as fitmod
 from app.jobs.public import badges, live_filter, public_out
+from app.jobs.titles import display_title
 from app.site import get_site
 
 router = APIRouter(prefix="/api/me/simple/jobs", tags=["easy dashboard"])
@@ -84,7 +85,7 @@ async def simple_jobs(db: DB, auth: CustomerAuth) -> dict[str, Any]:
             {
                 "id": j["_id"],
                 "slug": j["slug"],
-                "title": j["title"],
+                "title": display_title(j),
                 "company": j["company"]["name"],
                 "place": "remote" if j.get("remote") else ", ".join((j.get("locations") or [])[:2]),
                 "match": m["score"],

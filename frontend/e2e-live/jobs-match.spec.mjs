@@ -1,6 +1,6 @@
 // The match score on the job board (J4) on a desktop and a 390 px phone: signed out and without a resume people are
 // told how to see it; with a resume every card shows "N% match" and plain reasons (skills, experience, city), the job
-// page shows what's on the resume and what's missing, "Best match" sorts by score, and a changed resume changes the
+// page shows what's on the resume and what's missing, "Best match" (the default when signed in) sorts by score, and a changed resume changes the
 // score. No sideways scrolling.
 import { expect, test } from '@playwright/test';
 import { API, PASSWORD, email, login, seed } from './helpers.mjs';
@@ -56,12 +56,15 @@ for (const [label, opts] of SIZES) {
       await expect(bi.getByTestId('match')).toContainText('Missing: Snowflake');
       const java = page.getByTestId('job-card').filter({ hasText: `Java Engineer ${tag}` });
       await expect(java.getByTestId('match')).toContainText('Asks for 3+ years · Not in your city');
-      await expect(page.getByTestId('job-card').first()).toContainText(`Java Engineer ${tag}`); // newest first
+      await expect(page.getByTestId('job-card').first()).toContainText(`BI Analyst ${tag}`); // best match first by default
       await wide();
 
-      // Best match puts the better fit first
+      // Newest puts the newer job first; Best match puts the better fit back on top
+      await page.getByLabel('Sort').selectOption('new');
+      await expect(page).toHaveURL(/sort=new/);
+      await expect(page.getByTestId('job-card').first()).toContainText(`Java Engineer ${tag}`);
       await page.getByLabel('Sort').selectOption('match');
-      await expect(page).toHaveURL(/sort=match/);
+      await expect(page).not.toHaveURL(/sort=/);
       await expect(page.getByTestId('job-card').first()).toContainText(`BI Analyst ${tag}`);
 
       // the job page: what's on the resume and what's missing

@@ -292,6 +292,30 @@ def city_from(text: str, most: int = 3) -> list[str]:
     return found if 0 < len(found) <= most else []
 
 
+# "Location: Hyderabad", "Job location - Pune, Maharashtra", "based in Chennai": the page's own line for the place
+LOC_LABEL = re.compile(
+    r"\b(?:job\s+|work\s+)?locations?\s*[:\-\u2013]\s*([^\n|]{2,100})|\bbased\s+(?:in|out\s+of)\s+([^\n.;|]{2,60})",
+    re.I,
+)
+
+
+def city_labelled(page: str) -> list[str]:
+    """Batch B: the cities on the page's "Location:" lines (the first three), when they name one to three. A page that
+    lists every office in its footer still says "Location: Hyderabad" for the job itself."""
+    lines = [m.group(1) or m.group(2) or "" for m in list(LOC_LABEL.finditer(page or ""))[:3]]
+    return city_from(" ; ".join(lines))
+
+
+def city_fill(title: str, summary: str, page: str) -> tuple[list[str], str]:
+    """(cities, where from) for a job whose location names no city: its title ("... - Hyderabad"), the summary, the
+    page's "Location:" line, then the page. ([], "") when none names one to three cities."""
+    for src, text in (("title", title), ("summary", summary), ("page_label", None), ("page", page)):
+        found = city_labelled(page) if text is None else city_from(text)
+        if found:
+            return found, src
+    return [], ""
+
+
 def posted_at(raw: str) -> datetime | None:
     try:
         d = datetime.fromisoformat(raw.replace("Z", "+00:00")) if raw else None
@@ -546,8 +570,9 @@ async def handle(db, raw: Any, dry: bool, sem: asyncio.Semaphore) -> dict[str, A
     reasons: list[str] = []
     has_summary = bool(old and (old.get("collector") or {}).get("summarised"))
     if dry:
-        if missing_city and (
-            city_from(scrub(j.page_text)) or (has_summary and city_from(old.get("description") or ""))
+        if (
+            missing_city
+            and city_fill(j.title, old.get("description") or "" if has_summary else "", scrub(j.page_text))[0]
         ):
             missing_city = False
         thin = len(scrub(j.page_text)) < PAGE_MIN and not has_summary
@@ -561,11 +586,10 @@ async def handle(db, raw: Any, dry: bool, sem: asyncio.Semaphore) -> dict[str, A
         if wait:
             reasons.append(wait)
     desc = facts["summary"] if facts else (old["description"] if has_summary else PLACEHOLDER)
-    if missing_city:
-        for src, text in (("summary", desc if (facts or has_summary) else ""), ("page", scrub(j.page_text))):
-            if guess := city_from(text):
-                cities, city_src, missing_city = guess, src, False
-                break
+    if missing_city:  # Batch B: the title and the page's "Location:" line count too
+        guess, src = city_fill(j.title, desc if (facts or has_summary) else "", scrub(j.page_text))
+        if guess:
+            cities, city_src, missing_city = guess, src, False
     if missing_city:
         reasons.insert(0, "city_not_stated")
     try:

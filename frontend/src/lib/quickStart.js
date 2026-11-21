@@ -75,16 +75,26 @@ export function withAnswer(a, patch) {
   return out;
 }
 
+/** The levels next to each answer (Batch B): when nothing matches the person's own level, these are tried, never
+ * the whole board (a 1-3 year person is not shown 8-12 year or Lead / Senior / Manager jobs). */
+export const NEAR = {
+  fresher: 'internship,fresher,0_1,1_3,not_stated', '0_1': 'fresher,0_1,1_3,not_stated', '1_3': '0_1,1_3,3_5,not_stated',
+  '3_5': '1_3,3_5,5_8,not_stated', '5_8': '3_5,5_8,8_plus,not_stated', '8_plus': '5_8,8_plus,not_stated',
+};
+
 /** The job board filters for a job seeker's answers, from the closest match to the widest (each one only when it
- * differs from the one before): the first that finds jobs is shown. */
+ * differs from the one before): the first that finds jobs is shown. `level` (the person's experience) hides jobs far
+ * above it on every try. */
 export function jobQueries(a = {}) {
   const exp = a.experience === 'fresher' ? 'fresher,0_1' : a.experience || '';
+  const near = NEAR[a.experience] || '';
+  const level = a.experience || '';
   const places = a.cities?.length ? a.cities.slice(0, MAX_CITIES) : a.remote ? ['remote'] : [''];
   const tries = [
-    { q: a.job || '', experience: exp, places },
-    { q: a.job || '', experience: '', places },
-    { q: a.job || '', experience: '', places: a.remote && a.cities?.length ? ['remote'] : [''] },
-    { q: '', experience: exp, places: [''] },
+    { q: a.job || '', experience: exp, places, level },
+    { q: a.job || '', experience: near, places, level },
+    { q: a.job || '', experience: near, places: a.remote && a.cities?.length ? ['remote'] : [''], level },
+    { q: '', experience: exp, places: [''], level },
   ];
   const seen = new Set();
   return tries.filter((t) => { const k = JSON.stringify(t); if (seen.has(k)) return false; seen.add(k); return true; });

@@ -30,6 +30,7 @@ from app.core.schemas import CamelModel
 from app.core.time import now
 from app.jobs.fit import EDU_RANK
 from app.jobs.public import live_filter
+from app.jobs.titles import display_title
 from app.jobsearch import skills as dictionary
 from app.me.service import ms
 from app.seek.catalogue import EDU_LEVELS, LANGUAGES, LIKES, ROLES, STYLES
@@ -126,13 +127,51 @@ def score(a: dict[str, Any], role: dict[str, Any]) -> tuple[int, list[str], list
     return pts, why, note
 
 
-def pick(a: dict[str, Any], n: int = 3) -> list[dict[str, Any]]:
+def from_resume(cv: dict[str, Any] | None, role: dict[str, Any]) -> tuple[int, list[str], list[str]]:
+    """Batch B: points from the person's resume (skills it shows, the job titles they held, their years). A 4-year data
+    science resume gets the data and Python roles, not IT support or data entry."""
+    if not cv:
+        return 0, [], []
+    have = {s.lower() for s in cv.get("skills") or ()}
+    shared = [s for s in role["skills"] if s.lower() in have]
+    text = (cv.get("text") or "").lower()
+    did = any(re.search(rf"\b{re.escape(w)}\b", text) for w in role["words"])
+    pts, why, note = 0, [], []
+    if shared:
+        pts += min(36, 12 * len(shared))
+        why.append(f"your resume shows {', '.join(shared)}")
+    if did:
+        pts += 30
+        why.append("you have done this kind of work")
+    if cv.get("strong") and len(shared) < 2 and not did:  # a resume with a clear field: roles outside it go down
+        pts -= 25 + (15 if (cv.get("years") or 0) >= 2 else 0)
+    if (cv.get("years") or 0) >= 2 and EDU_RANK.get(role["edu"], 0) < EDU_RANK["graduate"] and not did:
+        pts -= 20  # a starting job that needs no degree, for someone with years of other work
+    return pts, why, note
+
+
+async def resume_facts(db, uid: str) -> dict[str, Any] | None:
+    """The resume's skills, titles and years, for the role finder (None without a usable resume)."""
+    from app.jobs.fit import person_for
+
+    p = await person_for(db, uid)
+    if not p:
+        return None
+    skills = set(p.has)
+    text = p.r.role_text()
+    cv = {"skills": skills, "text": text, "years": p.r.years}
+    cv["strong"] = any(from_resume({**cv, "strong": False}, r)[0] >= 24 for r in ROLES)
+    return cv
+
+
+def pick(a: dict[str, Any], n: int = 3, cv: dict[str, Any] | None = None) -> list[dict[str, Any]]:
     rows = []
     for r in ROLES:
         if not eligible(a["studies"], r["edu"]):
             continue
         pts, why, note = score(a, r)
-        rows.append({"role": r, "points": pts, "why": why, "note": note})
+        more, why_cv, _ = from_resume(cv, r)
+        rows.append({"role": r, "points": pts + more, "why": why_cv + why, "note": note})
     rows.sort(key=lambda x: (-x["points"], x["role"]["id"]))
     return rows[:n]
 
@@ -213,9 +252,9 @@ async def live_jobs(db, role: dict[str, Any], city: str, n: int = 3) -> list[dic
         q["$and"].append(
             {"$or": [{"remote": True}, {"locations": {"$regex": f"^{re.escape(city)}$", "$options": "i"}}]}
         )
-    rows = await db[JOBS].find(q, {"title": 1, "company": 1, "slug": 1, "locations": 1, "remote": 1}).sort(
+    rows = await db[JOBS].find(q, {"title": 1, "company": 1, "slug": 1, "locations": 1, "remote": 1, "source": 1}).sort(
         "posted_at", -1).limit(n).to_list(n)  # fmt: skip
-    return [{"id": j["_id"], "title": j["title"], "company": (j.get("company") or {}).get("name", ""), "slug": j["slug"],
+    return [{"id": j["_id"], "title": display_title(j), "company": (j.get("company") or {}).get("name", ""), "slug": j["slug"],
              "where": "Remote" if j.get("remote") else ", ".join(j.get("locations") or [])} for j in rows]  # fmt: skip
 
 
@@ -256,7 +295,7 @@ async def mine(auth: CustomerAuth, db: DB) -> dict[str, Any]:
     out: dict[str, Any] = {"questions": questions(), "answers": saved.get("answers"), "at": ms(saved.get("at")),
                            "roles": []}  # fmt: skip
     if saved.get("answers"):
-        rows = pick(saved["answers"])
+        rows = pick(saved["answers"], cv=await resume_facts(db, auth.user.id))
         why = saved.get("why") if [r["role"]["id"] for r in rows] == saved.get("picks") else None
         out["roles"] = await results(db, auth.user.id, saved["answers"], rows, why)
     return out
@@ -266,7 +305,7 @@ async def mine(auth: CustomerAuth, db: DB) -> dict[str, Any]:
 async def find(body: AnswersIn, auth: CustomerAuth, db: DB) -> dict[str, Any]:
     uid = auth.user.id
     a = body.model_dump()
-    rows = pick(a)
+    rows = pick(a, cv=await resume_facts(db, uid))
     why = await ai_why(db, uid, rows) if rows else None
     t = now()
     picks = [r["role"]["id"] for r in rows]
