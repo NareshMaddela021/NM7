@@ -138,3 +138,8 @@
 .sx-step .sx-label { display: inline-flex; align-items: center; gap: 6px; }
 .sx-step-done { border-color: var(--border2); box-shadow: none; }
 .sx-step-later, .sx-step-waiting { border-color: var(--border2); }
+/* the language switch in the top bar (Batch C item 13): a real select inside the chip */
+.sx-chip select { border: 0; background: transparent; font: inherit; color: inherit; min-height: 44px; cursor: pointer; }
+.sx-chip:focus-within { outline: 3px solid var(--accent); outline-offset: 3px; }
+/* Share under View / Apply / Save on an Easy job card (Batch C item 18) */
+.sx-share { justify-content: center; }

@@ -35,6 +35,8 @@ const Apps = lazy(() => more().then((m) => ({ default: m.Apps })));
 const Practice = lazy(() => more().then((m) => ({ default: m.Practice })));
 const Fixes = lazy(() => more().then((m) => ({ default: m.Fixes })));
 const Hire = lazy(() => more().then((m) => ({ default: m.Hire })));
+const Ready = lazy(() => more().then((m) => ({ default: m.Ready }))); // the readiness ring and More: in that chunk too (Batch C: room in the first download)
+const MoreScreen = lazy(() => more().then((m) => ({ default: m.More })));
 const Roles = lazy(() => import('./SimpleRoles')); // Phase 6 S1: the role finder
 const Setup = lazy(() => import('./SimpleChecklist')); // profile setup P4: the setup card and steps, one lazy chunk
 import '../../styles/simple.css';
@@ -54,20 +56,11 @@ export function WaitNote({ t, err }) {
 export const LANG_NAMES = [['en', 'English', 'en-IN', 'English'], ['te', 'తెలుగు', 'te-IN', 'Telugu'], ['hi', 'हिंदी', 'hi-IN', 'Hindi']];
 // every tile opens a simple screen (items 3, 4, 12): the resume as it is, simple jobs, applications as cards, practice
 export const TILES = [['resume', 'file', '/me/simple/myresume'], ['jobs', 'briefcase', '/me/simple/jobs'], ['apps', 'checkc', '/me/simple/apps'], ['practice', 'mic', '/me/simple/practice']];
-// "Things left" inside the easy dashboard (item 13), not the full pages
-export const READY_PATHS = { resume: '/me/simple/resume', score: '/me/simple/fixes', linkedin: '/me/simple/resume?step=about', interview: '/me/simple/practice', skills: '/me/simple/resume?step=skills', roles: '/me/simple/auto', certs: '/me/simple/resume?step=certs', feedback: '/me/simple/practice' };
-// More: plain words, no icons (a list of 15 icons is decoration, not help)
-export const MORE = [
-  ['resumes', '/me/resumes'], ['profile', '/me/profile'], ['ats', '/me/ats'], ['auto', '/me/auto-apply'],
-  ['covers', '/me/covers'], ['certs', '/me/certificates'], ['orders', '/me/orders'], ['messages', '/me/messages'],
-  ['share', '/me/share'], ['groups', '/me/groups'], ['payments', '/me/payments'], ['settings', '/me/settings'], ['help', '/me/help'], ['hire', '/me/simple/hire'], ['roles', '/me/simple/roles'],
-];
-
 /** What a screen reads aloud: set once per change of words. */
-const useSay = (setSay, items) => { const k = JSON.stringify(items); useEffect(() => { setSay(items); }, [k]); }; // eslint-disable-line react-hooks/exhaustive-deps
+export const useSay = (setSay, items) => { const k = JSON.stringify(items); useEffect(() => { setSay(items); }, [k]); }; // eslint-disable-line react-hooks/exhaustive-deps
 
 /** The bar at the top of every simple screen: Nm7 home, read this screen, the language, Simple / Full. */
-function Top({ t, lang, say, langs }) {
+function Top({ t, lang, say, langs, onLang }) {
   const nav = useNavigate();
   const [busy, setBusy] = useState(false);
   const full = async () => {
@@ -80,7 +73,7 @@ function Top({ t, lang, say, langs }) {
       <Link to="/me/simple" className="sx-logo" aria-label={t('simple.home')}>Nm7</Link>
       <span className="sx-top-r">
         <SayButton items={say} t={t} lang={lang} label={t('simple.voice.readScreen')} testid="sx-read-screen" />
-        {langs && <Link to="/me/simple/language" className="sx-chip" data-testid="sx-lang"><Icon name="globe" />{LANG_NAMES.find(([c]) => c === lang)?.[1] || 'English'}</Link>}
+        {langs && <label className="sx-chip" data-testid="sx-lang"><Icon name="globe" /><span className="sr-only">{t('lang.label')}</span><select value={lang} onChange={(e) => savePrefs({ lang: e.target.value }).then(onLang, () => {})} data-testid="sx-lang-pick">{LANG_NAMES.map(([c, n]) => <option key={c} value={c} lang={c}>{n}</option>)}</select></label>}
         <span className="sx-seg" role="group" aria-label={t('simple.mode.label')}>
           <button type="button" aria-pressed="true">{t('simple.mode.simple')}</button>
           <button type="button" aria-pressed="false" disabled={busy} onClick={full} data-testid="sx-to-full">{t('simple.mode.full')}</button>
@@ -90,10 +83,10 @@ function Top({ t, lang, say, langs }) {
   );
 }
 
-function Frame({ t, lang, offline, say, langs, children }) {
+function Frame({ t, lang, offline, say, langs, onLang, children }) {
   return (
     <div className="sx" lang={lang}>
-      <Top t={t} lang={lang} say={say} langs={langs} />
+      <Top t={t} lang={lang} say={say} langs={langs} onLang={onLang} />
       {offline && <div className="sx-offline" role="status" data-testid="sx-offline">{t('simple.offline')}</div>}
       <main id="main" className="sx-main" tabIndex={-1}>{children}</main>
     </div>
@@ -163,63 +156,6 @@ function Home({ t, lang, d, setSay }) {
   );
 }
 
-/** The score as a big ring (no image: one SVG circle), with the number in the middle. */
-export function Ring({ score, size = 180 }) {
-  const r = 42;
-  const c = 2 * Math.PI * r;
-  return (
-    <svg className="sx-ring" width={size} height={size} viewBox="0 0 100 100" aria-hidden="true">
-      <circle cx="50" cy="50" r={r} fill="none" stroke="var(--border2)" strokeWidth="10" />
-      <circle cx="50" cy="50" r={r} fill="none" stroke="var(--success)" strokeWidth="10" strokeLinecap="round" strokeDasharray={`${(c * score) / 100} ${c}`} transform="rotate(-90 50 50)" />
-      <text x="50" y="57" textAnchor="middle" fontSize="24" fontWeight="800" fill="var(--text)">{score}%</text>
-    </svg>
-  );
-}
-
-function Ready({ t, lang, d, setSay }) {
-  const r = d.readiness || { score: 0, left: [] };
-  useSay(setSay, [['simple.ready.big', { score: r.score }], r.left.length ? ['simple.ready.left'] : ['simple.ready.done'], ...r.left.map((x) => [`simple.ready.item.${x.key}`])]);
-  return (
-    <section className="sx-stack" aria-labelledby="sx-ready-h" data-testid="sx-ready">
-      <h1 id="sx-ready-h" className="sx-h1">{t('simple.ready.title')}</h1>
-      <div className="sx-ringrow"><Ring score={r.score} /><p className="sx-h2" data-testid="sx-ready-score">{t('simple.ready.big', { score: r.score })}</p></div>
-      <p className="sx-hint">{t('simple.ready.private')}</p>
-      {r.left.length ? (
-        <>
-          <span className="sx-cardtop"><h2 className="sx-h2">{t('simple.ready.left')}</h2><SayButton items={r.left.map((x) => [`simple.ready.item.${x.key}`])} t={t} lang={lang} label={t('simple.voice.readCard')} /></span>
-          <ul className="sx-list">
-            {r.left.map((x) => <li key={x.key}><Big to={READY_PATHS[x.key] || x.path} icon="arrow" after label={`${t(`simple.ready.item.${x.key}`)} · ${t('simple.ready.points', { points: x.points })}`} testid={`sx-left-${x.key}`} /></li>)}
-          </ul>
-        </>
-      ) : <p className="sx-p">{t('simple.ready.done')}</p>}
-      <Big to="/me/simple" icon="back" label={t('simple.back')} />
-    </section>
-  );
-}
-
-function More({ t, d, setData, setSay }) {
-  useSay(setSay, [['simple.more.title'], ['simple.more.sub']]);
-  const [busy, setBusy] = useState(false);
-  const auto = async () => {
-    setBusy(true);
-    try { setData(await savePrefs({ autoRead: !d.autoRead })); } catch { /* stays as it was */ } finally { setBusy(false); }
-  };
-  return (
-    <section className="sx-stack" aria-labelledby="sx-more-h">
-      <h1 id="sx-more-h" className="sx-h1">{t('simple.more.title')}</h1>
-      <p className="sx-p">{t('simple.more.sub')}</p>
-      <ul className="sx-list">
-        {MORE.map(([k, to]) => <li key={k}><Big to={to} label={t(`simple.more.${k}`)} testid={`sx-more-${k}`} /></li>)}
-      </ul>
-      <button type="button" className="sx-big sx-switch" role="switch" aria-checked={!!d.autoRead} disabled={busy} onClick={auto} data-testid="sx-autoread">
-        <span className="sx-ic"><Icon name="volume" size={24} /></span><span>{t('simple.voice.auto')}</span><span className="sx-onoff" aria-hidden="true">{d.autoRead ? t('simple.voice.on') : t('simple.voice.off')}</span>
-      </button>
-      <Big to="/me" label={t('simple.more.full')} testid="sx-more-full" />
-      <Big to="/me/simple" icon="back" label={t('simple.back')} />
-    </section>
-  );
-}
-
 export default function SimpleApp() {
   const [t, lang] = useLang();
   const { data, offline, error, reload, setData } = useSimple();
@@ -254,11 +190,11 @@ export default function SimpleApp() {
         <Route path="auto" element={wait(<AutoOn {...screen} />)} />
         <Route path="answers" element={wait(<Answers {...screen} />)} />
         <Route path="outside" element={wait(<Outside {...screen} />)} />
-        <Route path="ready" element={<Ready t={t} lang={lang} d={data} setSay={setSay} />} />
-        <Route path="more" element={<More t={t} d={data} setData={setData} setSay={setSay} />} />
+        <Route path="ready" element={wait(<Ready t={t} lang={lang} d={data} setSay={setSay} />)} />
+        <Route path="more" element={wait(<MoreScreen t={t} d={data} setData={setData} setSay={setSay} />)} />
         <Route path="*" element={<Navigate to="/me/simple" replace />} />
       </Routes>
     );
   }
-  return <Frame t={t} lang={lang} offline={offline} say={say} langs={!!data?.langs}>{body}</Frame>;
+  return <Frame t={t} lang={lang} offline={offline} say={say} langs={!!data?.langs} onLang={setData}>{body}</Frame>;
 }

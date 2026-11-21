@@ -21,7 +21,7 @@ from typing import Any
 
 from pymongo.errors import DuplicateKeyError
 
-from app.core.db import EXPERT_PROFILES, JOB_PROFILES, MEMBERSHIPS, ORGANIZATIONS, USERS
+from app.core.db import EXPERT_PROFILES, HIRE_PROFILES, JOB_PROFILES, MEMBERSHIPS, ORGANIZATIONS, USERS
 from app.core.time import now
 from app.me.service import ms
 from app.setup import steps as S
@@ -201,6 +201,63 @@ async def _map_jobseeker(db, u: dict[str, Any], a: dict[str, Any], ours: bool) -
     return sets
 
 
+# the Job Profile's "Experience level" choices (frontend pages/builder/schema.js EXP_LEVELS)
+PROFILE_LEVEL = {"fresher": "Fresher (0–1 yr)", "0_1": "Fresher (0–1 yr)", "1_3": "Junior (1–3 yrs)",
+                 "3_5": "Mid (3–6 yrs)", "5_8": "Senior (6–10 yrs)", "8_plus": "Senior (6–10 yrs)"}  # fmt: skip
+
+
+async def _map_profile_and_hire(db, uid: str, a: dict[str, Any], role: str, cities: str, exp: str) -> None:
+    """Batch C item 15: the quick start's role, cities and experience also fill the Job Profile (headline, city,
+    experience level) and Ready to join (cities or remote), each only where it is still empty. Ready to join is never
+    turned on here: a new one is saved switched off."""
+    t = now()
+    fill = {"headline": role, "location": cities.split(",")[0].strip() if cities else "",
+            "level": PROFILE_LEVEL.get(exp, "")}  # fmt: skip
+    fill = {k: v for k, v in fill.items() if v}
+    if fill:
+        doc = await db[JOB_PROFILES].find_one({"_id": uid}, {"data.personal": 1, "version": 1})
+        personal = ((doc or {}).get("data") or {}).get("personal") or {}
+        add = {k: v for k, v in fill.items() if not personal.get(k)}
+        if add and doc is None:
+            from app.profile.service import privacy_of
+
+            try:
+                await db[JOB_PROFILES].insert_one(
+                    {"_id": uid, "data": {"personal": add}, "privacy": privacy_of(None), "version": 1, "updated_at": t}
+                )
+            except DuplicateKeyError:  # their first save at the same moment: theirs wins
+                pass
+        elif add:  # the version moves on, so an open Job Profile tab reloads instead of saving over it
+            await db[JOB_PROFILES].update_one(
+                {"_id": uid, "version": doc.get("version", 0)},
+                {
+                    "$set": {**{f"data.personal.{k}": v for k, v in add.items()}, "updated_at": t},
+                    "$inc": {"version": 1},
+                },
+            )
+    places = list(a.get("cities") or [])
+    if places or a.get("remote"):
+        hp = await db[HIRE_PROFILES].find_one({"_id": uid}, {"cities": 1, "remote": 1, "on": 1})
+        if not hp:
+            await db[HIRE_PROFILES].update_one(
+                {"_id": uid},
+                {
+                    "$setOnInsert": {
+                        "on": False,
+                        "cities": places,
+                        "remote": bool(a.get("remote")),
+                        "created_at": t,
+                        "updated_at": t,
+                    }
+                },  # fmt: skip
+                upsert=True,
+            )
+        elif not hp.get("on") and not hp.get("cities") and not hp.get("remote"):
+            await db[HIRE_PROFILES].update_one(
+                {"_id": uid}, {"$set": {"cities": places, "remote": bool(a.get("remote")), "updated_at": t}}
+            )
+
+
 async def _map_education(db, uid: str, a: dict[str, Any], pid: str | None) -> str | None:
     """College / course / passing year into the Job Profile's education: a new entry only when it has none; later
     answers fill only the empty fields of that same entry. Returns the entry's pid."""
@@ -296,6 +353,13 @@ async def save(db, u: dict[str, Any], role: str, new: dict[str, Any], skip: list
             rec["alert_made"] = True
         if answers.get("experience") == "fresher":
             rec["edu_pid"] = await _map_education(db, uid, answers, saved.get("edu_pid"))
+        # the account's own values (the answers fill them only when empty), so the three places say the same
+        level = sets.get("level") or u.get("level") or ""
+        exp = answers.get("experience") or ""
+        await _map_profile_and_hire(
+            db, uid, answers, sets.get("target_role") or u.get("target_role") or "",
+            sets.get("cities") or u.get("cities") or "", exp if level == S.EXPERIENCE_LABEL.get(exp) else "",
+        )  # fmt: skip
     elif role == "student":
         rec["edu_pid"] = await _map_education(db, uid, answers, saved.get("edu_pid"))
     else:

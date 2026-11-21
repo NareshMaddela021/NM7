@@ -209,22 +209,32 @@ def state_out(st: dict[str, Any] | None, fs: dict[str, Any]) -> dict[str, Any]:
 # --- the gate ------------------------------------------------------------------------------------------------------------
 
 
-async def gate(db, uid: str, step: str) -> None:
+async def gate(db, uid: str, step: str, *, later: bool = False) -> dict[str, Any] | None:
     """Before the AI interview / a new skill check: 409 face_check_needed unless this person's ID + selfie is verified.
-    Nothing happens while Vetting Trust is hidden from them, when Admin turned the step off, or with no provider."""
+    Nothing happens while Vetting Trust is hidden from them or when Admin turned the step off (→ None).
+
+    Never blocks (Batch A, 20 Nov live test: the selfie gate stopped people with no camera) → {"status": "pending",
+    "why"}: while no real face-check vendor is connected (no keys: "no_provider"), while only the test provider is
+    ("test_mode": its results aren't real anyway), and when the person says they have no camera (later=True:
+    "no_camera"). The test goes ahead, marked "face check pending", for a check later; nobody is rejected for it.
+    Verified → {"status": "verified"}."""
     from app.trust import access
 
     if not await access.for_user(db, uid):
-        return
+        return None
     site, _, p = await _context(db, uid)
     fs = face_settings(site)
-    if not fs["require"].get(step) or not p:
-        return
+    if not fs["require"].get(step):
+        return None
     st = await get_state(db, uid)
     status = (st or {}).get("status") or "none"
     if status == "verified":
         await db[TRUST_FACE].update_one({"_id": uid}, {"$set": {"process_at": now()}})
-        return
+        return {"status": "verified"}
+    why = "no_provider" if not p else "test_mode" if p.test else "no_camera" if later else ""
+    if why:
+        await audit(db, uid, "trust.face_pending", data={"step": step, "why": why})
+        return {"status": "pending", "why": why}
     what = "the AI interview" if step == "interview" else "the skill check"
     msg = (
         GATE_TEXT.get(status)

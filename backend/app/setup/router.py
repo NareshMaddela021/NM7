@@ -20,7 +20,7 @@ from fastapi import APIRouter, Query
 from pydantic import ConfigDict, Field
 
 from app.auth.deps import CurrentAuth
-from app.core.db import DB, JOBS, ORGANIZATIONS, USERS
+from app.core.db import DB, ORGANIZATIONS, USERS
 from app.core.errors import ApiError
 from app.core.schemas import CamelModel
 from app.setup import steps as S
@@ -85,26 +85,10 @@ async def suggest(
     q = " ".join(q.split())
     rx = {"$regex": re.escape(q), "$options": "i"} if q else None
     out: list[str] = []
-    if kind == "job":
-        from app.jobs.public import live_filter
-        from app.seek.catalogue import ROLES
+    if kind == "job":  # Batch B: clean common role names only, never raw titles from the board
+        from app.jobs.titles import suggest_roles
 
-        out = [r["title"] for r in ROLES if not q or q.lower() in r["title"].lower()][:8]
-        if q and len(out) < 8:
-            rows = await db[JOBS].aggregate(
-                [
-                    {"$match": {"$and": [live_filter(), {"title": rx}]}},
-                    {"$group": {"_id": "$title", "n": {"$sum": 1}}},
-                    {"$sort": {"n": -1, "_id": 1}},
-                    {"$limit": 8},
-                ]  # fmt: skip
-            )
-            seen = {x.lower() for x in out}
-            async for r in rows:
-                t = " ".join(str(r["_id"]).split())[:80]
-                if t and t.lower() not in seen and len(out) < 8:
-                    out.append(t)
-                    seen.add(t.lower())
+        out = suggest_roles(q, 8)
     elif q:  # colleges on Nm7 (never the demo college); anything else can be typed as it is
         cur = db[ORGANIZATIONS].find(
             {"type": {"$in": ["college", "institute"]}, "status": "active", "demo": {"$ne": True}, "name": rx},

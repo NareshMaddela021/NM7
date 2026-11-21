@@ -11,6 +11,20 @@ import '../../../styles/me-kit.css';
 import '../../../styles/admin-daily.css';
 
 // loaded with the report's own chunk's import map (not the main bundle's): shared with Admin -> Auto Apply
+const REFRESH_MS = 150_000;
+const sleep = (ms) => new Promise((r) => { setTimeout(r, ms); });
+/** The report once today's snapshot is newer than `before` (checked every 10 s, for up to 2 minutes), else null. */
+export async function waitForNewer(before, still, get = () => http('/api/admin/daily-report'), every = 10_000) {
+  for (let i = 0; i < 12 && still(); i += 1) {
+    await sleep(every);
+    try {
+      const d = await get();
+      if ((d?.today?.at || 0) > before) return d;
+    } catch { /* try again */ }
+  }
+  return null;
+}
+
 const AutoApplyNumbers = lazy(() => import('./AutoApplyNumbers'));
 const SetupFunnel = lazy(() => import('./SetupFunnel')); // profile setup P4: users reaching each checklist step, per role
 const TimeToHireNumbers = lazy(() => import('./TimeToHireNumbers')); // Vetting Trust T13 (internal: admins, demo left out)
@@ -309,13 +323,19 @@ export default function DailyReport() {
   const refresh = async () => {
     if (busy) return;
     setBusy(true);
+    const n = ++seq.current;
+    const before = st.data?.today?.at || 0;
     try {
-      const n = ++seq.current;
-      const data = await http('/api/admin/daily-report/refresh', { method: 'POST' });
+      // item 38: the whole snapshot (the setup funnel too) can take longer than a normal request on the live server
+      const data = await http('/api/admin/daily-report/refresh', { method: 'POST', timeout: REFRESH_MS });
       if (n === seq.current) setSt({ data, error: null, loading: false });
       toast('Report refreshed');
     } catch (e) {
-      toast(e.message || 'That didn’t work. Please try again.');
+      // the answer was lost (a timeout or the server's gateway) but the job goes on: wait for the new snapshot here
+      const lost = e.status === 0 || e.status >= 500;
+      const data = lost ? await waitForNewer(before, () => n === seq.current) : null;
+      if (data && n === seq.current) { setSt({ data, error: null, loading: false }); toast('Report refreshed'); }
+      else toast(e.message || 'That didn’t work. Please try again.');
     } finally {
       setBusy(false);
     }

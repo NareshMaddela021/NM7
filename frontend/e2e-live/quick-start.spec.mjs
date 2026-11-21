@@ -56,6 +56,8 @@ for (const [label, opts] of SIZES) {
       const tag = `${label}${Date.now().toString(36)}`;
       const title = `Quickstart Analyst ${tag}`;
       seed('job', JSON.stringify({ title, description: DESC, experience: '1_3', applyMethod: 'link', applyUrl: 'https://qsco.example/jobs', company: { name: `Qsco ${tag}` }, locations: ['Visakhapatnam'], skills: ['SQL'] }));
+      // Batch B: a Lead job at the same level is not shown to a 1-3 year person
+      seed('job', JSON.stringify({ title: `Lead ${title}`, description: DESC, experience: '1_3', applyMethod: 'link', applyUrl: 'https://qsco.example/lead', company: { name: `Qsco ${tag}` }, locations: ['Visakhapatnam'], skills: ['SQL'] }));
       const t0 = Date.now();
       const mail = email(`qs-new-${label}`);
       await signUp(page, mail, 'Asha Quick');
@@ -94,12 +96,21 @@ for (const [label, opts] of SIZES) {
 
       await page.waitForURL('**/start/jobseeker/results');
       await expect(page.getByRole('heading', { level: 1, name: 'Jobs matched for you' })).toBeVisible();
-      await expect(page.getByTestId('qs-jobs').getByRole('link', { name: title })).toBeVisible();
+      await expect(page.getByTestId('qs-jobs').getByRole('link', { name: title, exact: true })).toBeVisible();
+      await expect(page.getByTestId('qs-jobs').getByRole('link', { name: `Lead ${title}` })).toHaveCount(0);
+      // Batch C item 17: View / Apply / Save on each result, like every job card
+      const card = page.getByTestId('qs-job').filter({ hasText: title }).first();
+      await expect(card.getByTestId('card-view')).toBeVisible();
+      await card.getByTestId('card-save').click();
+      await expect(card.getByTestId('card-save')).toHaveAttribute('aria-pressed', 'true');
       expect(await noSideScroll(page)).toBe(true);
       expect(Date.now() - t0).toBeLessThan(5 * 60_000);
       const s = (await call(page, '/api/me/setup')).body.setup;
       expect(s.jobseeker).toMatchObject({ done: true, skipped: ['faster'] });
       expect(s.jobseeker.answers).toMatchObject({ job: title, cities: ['Visakhapatnam'], experience: '1_3' });
+      // Batch C item 15: the answers also fill the Job Profile and Ready to join
+      expect((await call(page, '/api/me/job-profile')).body.data.personal).toMatchObject({ headline: title, location: 'Visakhapatnam', level: 'Junior (1–3 yrs)' });
+      expect((await call(page, '/api/me/hire')).body).toMatchObject({ cities: ['Visakhapatnam'], on: false });
       const me = (await call(page, '/api/me/profile')).body;
       expect(me).toMatchObject({ targetRole: title, cities: 'Visakhapatnam', level: '1–3 years' });
 

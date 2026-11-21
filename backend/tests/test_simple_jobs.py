@@ -3,7 +3,7 @@ trust badge, saved), Manual Apply from there, and "Let Nm7 apply for me": the no
 consent tick and the resume-score gate still apply."""
 
 from app.core.db import JOBS, USERS
-from app.simple.jobs import per_month, reason
+from app.simple.jobs import per_month, reason, round_pay, same_job
 from tests.conftest import signup
 from tests.jobs_helpers import add_resume, resume, strong_resume
 from tests.test_auto_apply_engine import company_job, no_ai  # noqa: F401
@@ -22,6 +22,25 @@ def test_plain_reason_and_salary_a_month():
     assert per_month({"min": 300000, "max": 450000, "period": "yearly"}) == {"min": 25000, "max": 37500}
     assert per_month({"min": 15000, "max": None, "period": "monthly"}) == {"min": 15000}
     assert per_month(None) is None and per_month({"min": None, "max": None}) is None
+    # Batch C item 18: clear round numbers a month
+    assert per_month({"min": 350000, "max": 500000, "period": "yearly"}) == {"min": 29000, "max": 41500}
+    assert per_month({"min": 240000, "max": 240000, "period": "yearly"}) == {"min": 20000}
+    assert round_pay(4321) == 4300 and round_pay(12) == 100
+    assert same_job({"title": " Data  Analyst", "company": {"name": "ACME"}}) == same_job(
+        {"title": "data analyst", "company": {"name": "Acme"}}
+    )
+
+
+async def test_no_duplicate_jobs_in_the_top_three(client, outbox, db):
+    """Batch C item 18: the same job posted twice shows once."""
+    await signup(client, outbox, email="sai@example.com", name="Sai Varsha")
+    await add_resume(client, data=resume())
+    for n in range(3):
+        await add(db, title="Junior Data Analyst", applyUrl=f"https://acme.example/dup{n}")
+    await add(db, title="SQL Analyst", applyUrl="https://acme.example/sql")
+    items = (await client.get(URL)).json()["items"]
+    titles = [x["title"] for x in items]
+    assert titles.count("Junior Data Analyst") == 1 and "SQL Analyst" in titles
 
 
 async def test_top_three_cards(client, outbox, db):

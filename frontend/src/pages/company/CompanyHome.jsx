@@ -136,6 +136,7 @@ const TRUST_TONE = { verified: 'ok', basic: 'accent', unverified: 'warn', blocke
 function Dashboard({ t, c, onChanged, onSignedOut }) {
   // a link like /company#jobs (the setup checklist's reminder email) opens that tab
   const [tab, setTab] = useState(() => { const k = typeof window !== 'undefined' ? window.location.hash.slice(1) : ''; return TAB_META[k] ? k : 'overview'; });
+  // item 34: every tab opens at the top of the page (the side menu and the setup checklist's links)
   const openTab = (k) => { setTab(k); try { window.scrollTo({ top: 0 }); } catch { /* jsdom */ } };
   const manage = ['main', 'full'].includes(c.myRole);
   const [icon, shape] = TAB_META[tab];
@@ -154,7 +155,7 @@ function Dashboard({ t, c, onChanged, onSignedOut }) {
           {groups.map((g, gi) => (
             <div key={gi} className="co-tab-group">
               {g.map((k) => (
-                <button key={k} type="button" role="tab" aria-selected={tab === k} className="co-tab" onClick={() => setTab(k)}>
+                <button key={k} type="button" role="tab" aria-selected={tab === k} className="co-tab" onClick={() => openTab(k)}>
                   <span className="co-tab-ic" aria-hidden="true">{TAB_META[k][0]}</span>{label(k)}
                 </button>
               ))}

@@ -683,11 +683,12 @@ export default function Builder({ embedded = null }) {
           {/* Section nav: a glass rail on a desktop, a sideways strip of section cards on a phone */}
           <nav aria-label="Sections" className="bld-nav">
             <div className="bld-strength">
-              <div className="bld-strength-top"><span className="bld-kicker">Profile strength</span><span aria-live="polite" className="display bld-strength-num">{score}%</span></div>
-              <Meter value={score} color={score >= 80 ? 'var(--success)' : score >= 55 ? 'var(--warning)' : 'var(--text3)'} label="Profile strength" />
+              <div className="bld-strength-top"><span className="bld-kicker">Sections filled</span><span aria-live="polite" className="display bld-strength-num">{score}%</span></div>
+              <Meter value={score} color={score >= 80 ? 'var(--success)' : score >= 55 ? 'var(--warning)' : 'var(--text3)'} label="Sections filled" />
               <span className="bld-strength-word">{score >= 80 ? 'Excellent — recruiter-ready' : score >= 60 ? 'Good — a few more details help' : 'Keep going'}</span>
-              {/* not the same number as the resume score (ATS) or job readiness (fix round item 17) */}
-              <span className="xs faint bld-strength-means" data-testid="strength-means">Sections filled in. Your resume score (how hiring systems read it) is on your dashboard.</span>
+              {/* not the same number as the resume score (ATS) or job readiness (fix round item 17); called "Sections filled", not
+                  a second "profile" score next to the Job Profile's "Profile complete" (Batch C item 20) */}
+              <span className="xs faint bld-strength-means" data-testid="strength-means">How many sections of this resume have something in them. Your resume score (how hiring systems read it) is on your dashboard.</span>
             </div>
             <span className="bld-kicker bld-nav-h" aria-hidden="true">Your sections</span>
             <div className="bld-secs">

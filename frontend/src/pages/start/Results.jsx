@@ -3,10 +3,12 @@
 //                and experience, widened step by step when nothing matches; freshers also get the practice papers;
 //   student    -> Internships and projects for you: open internships, guided projects and courses, the role finder;
 //   expert     -> Your expert application: its status (paid work only after Nm7 approves it) and the next step.
+// Each job has View / Apply / Save like every other job card (Batch C item 17).
 // Then: the next role to set up (people with several roles do each one once), the dashboard, "Change my answers".
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Spinner } from '../../components/ui';
+import JobActions from '../../components/JobActions';
 import { homeFor } from '../../lib/auth';
 import { pageQuery, placeText, searchJobs } from '../../lib/jobBoard';
 import { ROLE_NAMES } from '../../lib/roles';
@@ -21,9 +23,10 @@ function JobList({ items, testid }) {
     <ul className="qs-jobs" data-testid={testid}>
       {items.map((j) => (
         <li key={j.id} className="qs-job" data-testid="qs-job">
-          <Link to={`/jobs/${j.slug}`} className="qs-job-title">{j.title}</Link>
+          <Link to={`/jobs/${j.slug}`} className="qs-job-title" id={`qs-jt-${j.id}`}>{j.title}</Link>
           <span className="small">{j.company?.name}</span>
           <span className="xs muted">{[placeText(j, words), j.match?.score != null ? `Match ${j.match.score}%` : ''].filter(Boolean).join(' · ')}</span>
+          <JobActions job={j} titleId={`qs-jt-${j.id}`} />
         </li>
       ))}
     </ul>
@@ -32,7 +35,7 @@ function JobList({ items, testid }) {
 
 async function firstJobs(tries) {
   for (const t of tries) {
-    const lists = await Promise.all(t.places.map((city) => searchJobs({ q: t.q, experience: t.experience, city, sort: 'match' }).catch(() => null)));
+    const lists = await Promise.all(t.places.map((city) => searchJobs({ q: t.q, experience: t.experience, city, sort: 'match', level: t.level }).catch(() => null)));
     const seen = new Set();
     const items = lists.flatMap((l) => l?.items || []).filter((j) => !seen.has(j.id) && seen.add(j.id));
     items.sort((a, b) => (b.match?.score ?? -1) - (a.match?.score ?? -1) || (b.postedAt || 0) - (a.postedAt || 0));
@@ -56,7 +59,7 @@ function JobsResults({ answers }) {
       {!r ? <div className="row g8 muted" aria-busy="true"><Spinner />Finding jobs…</div>
         : r.items.length ? (
           <>
-            {!exact && <p className="small" role="status" style={{ margin: 0 }}>No exact matches yet, so here are the closest open jobs.</p>}
+            {!exact && <p className="small" role="status" data-testid="qs-near" style={{ margin: 0 }}>{r.t.experience !== first.experience ? 'No jobs at exactly your level yet, so here are jobs at nearby levels.' : 'No exact matches yet, so here are the closest open jobs.'}</p>}
             <JobList items={r.items} testid="qs-jobs" />
             <Link to={board} className="btn btn-outline" style={{ alignSelf: 'flex-start' }}>See all on the job board</Link>
           </>

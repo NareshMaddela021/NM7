@@ -17,7 +17,7 @@ import LineEntries from '../builder/LineEntries';
 import { moveItem, removeItem, toggleItem } from '../builder/entries';
 import { HOBBY_IDEAS, STRENGTH_IDEAS } from '../builder/schema';
 import { MeHead } from './MeLayout';
-import { Chip, ScoreRing, Skel, StickyBar } from './kit';
+import { Chip, ScoreRing, Skel, StickyBar, useHashScroll } from './kit';
 import { useMyLevel } from './LevelCard';
 import LevelBadge from '../../components/LevelBadge';
 import '../../styles/me-resume.css';
@@ -165,10 +165,13 @@ export function FillFaster({ onAdded }) {
   return <Importer p={pr.data} onAdded={onAdded} />;
 }
 
+const HASH_IDS = Object.fromEntries(SECTIONS.map(([id]) => [id, `pf-${id}`]));
+
 export default function MeProfile() {
   const pr = useJobProfile();
   const lv = useMyLevel(); // Vetting V1: the level chip next to the completeness
   const toast = useToast();
+  useHashScroll(!!pr.data, HASH_IDS); // a setup step's /me/profile#skills or #edu opens at that section (Batch C item 22)
   if (pr.loading || (!pr.data && pr.available && !pr.error)) return <><MeHead title="Job Profile" /><Skel cards={2} lines={4} label="Loading your Job Profile…" /></>;
   if (!pr.available) {
     return (

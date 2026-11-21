@@ -9,7 +9,7 @@ import { trustOn, useTrustOn } from '../../lib/trustAccess';
 import { useToast } from '../../components/ui';
 import { API_BASE, http } from '../../services/http';
 import { MeHead } from './MeLayout';
-import { Bar, Empty, FieldGroup, MeCard, Skel, StickyBar } from './kit';
+import { Bar, Empty, FieldGroup, MeCard, Skel, StickyBar, useHashScroll } from './kit';
 import '../../styles/me-jobs.css';
 import { fmtDay } from '../../lib/format';
 import { IcBolt, IcCheck, IcCheckCircle, IcClock, IcLock, IcMail, IcMinus, IcPause, IcStar } from '../../components/icons';
@@ -62,9 +62,11 @@ export default function MeHire() {
   const [err, setErr] = useState('');
   const load = (x) => { setS(x); setF(toForm(x)); };
   useEffect(() => { http('/api/me/hire').then(load, (e) => setErr(e.message)); }, []);
+  useHashScroll(!!s); // the setup step "Add your job preferences" opens at #hire-prefs (Batch C item 21)
   const run = async (fn, said) => { setBusy(true); setErr(''); try { const x = await fn(); setS(x); if (said) toast(said); return x; } catch (e) { setErr(e.message); } finally { setBusy(false); } };
   const set = (k) => (e) => setF({ ...f, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value });
-  const save = (on) => run(async () => {
+  // Batch C item 14: "Save" keeps the details without showing you to companies; "Turn on" is its own button
+  const save = (on, said) => run(async () => {
     const body = {
       on, consent: f.consent, joinDate: f.joinDate, cities: f.cities.split(',').map((x) => x.trim()).filter(Boolean), remote: f.remote,
       returner: f.returner, hideFrom: f.hideFrom.split(',').map((x) => x.trim()).filter(Boolean),
@@ -73,7 +75,7 @@ export default function MeHire() {
     const x = await http('/api/me/hire', { method: 'PUT', body });
     setF(toForm(x));
     return x;
-  }, on ? 'Saved: you are ready to join' : 'Turned off');
+  }, said || (on ? 'Saved: you are ready to join' : 'Turned off'));
   if (!s) return err ? <p className="error" role="alert">{err}</p> : <Skel cards={2} label="Loading" />;
   if (!s.siteOn && !s.on) return <><MeHead title="Ready to join" /><Empty shape="handshake" title="Hiring now is switched off" action={<a href="/jobs" className="btn btn-signal">Find a job</a>}>Hiring now is switched off for the moment.</Empty></>;
   const tone = s.available ? 'b-success' : s.on ? 'b-warning' : 'b-neutral';
@@ -115,6 +117,7 @@ export default function MeHire() {
       <TrustReliability />
       <div className="mgrid-2">
         <form className="mcard" onSubmit={(e) => { e.preventDefault(); save(true); }} aria-label="Ready to join details" data-testid="hire-form">
+          <h2 id="hire-prefs" className="mcard-title" tabIndex={-1}>Your job preferences</h2>
           <FieldGroup title="When you can start">
             <div className="field"><label className="label" htmlFor="hj-date">Earliest join date</label><input id="hj-date" type="date" className="input" value={f.joinDate} onChange={set('joinDate')} /></div>
             <div className="field"><label className="label" htmlFor="hj-notice">Notice period (days)</label><input id="hj-notice" className="input" inputMode="numeric" value={f.noticeDays} onChange={(e) => setF({ ...f, noticeDays: e.target.value.replace(/\D/g, '').slice(0, 3) })} /></div>
@@ -142,6 +145,7 @@ export default function MeHire() {
           {err && <p className="error" role="alert" style={{ margin: 0 }}>{err}</p>}
           <StickyBar label="Save Ready to join">
             <button type="submit" className="btn btn-signal" disabled={busy} data-testid="hire-save">{s.on ? 'Save' : 'Turn on Ready to join'}</button>
+            {!s.on && <button type="button" className="btn btn-outline" disabled={busy} onClick={() => save(false, 'Saved. Companies don’t see you until you turn on Ready to join.')} data-testid="hire-save-only">Save</button>}
             {s.on && <button type="button" className="btn btn-outline" disabled={busy} onClick={() => save(false)} data-testid="hire-off">Turn off</button>}
           </StickyBar>
         </form>

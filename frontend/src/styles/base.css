@@ -571,3 +571,8 @@ mark.fact { background: color-mix(in srgb, var(--signal) 38%, transparent); colo
 .aa-chip { cursor: pointer; border: 0; font: inherit; }
 @media (max-width: 720px) { .aa-big { width: 100%; } }
 svg.ic { flex: none; vertical-align: -0.18em; } /* the line icons (components/icons.jsx) sit on the text line */
+/* Batch C item 26: a thin bar at the top while the next page loads */
+.route-bar { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 1000; overflow: hidden; pointer-events: none; background: color-mix(in srgb, var(--accent) 20%, transparent); }
+.route-bar::after { content: ""; position: absolute; inset: 0; width: 40%; background: var(--accent); animation: route-bar 1.1s ease-in-out infinite; }
+@keyframes route-bar { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+@media (prefers-reduced-motion: reduce) { .route-bar::after { animation: none; width: 100%; opacity: .6; } }

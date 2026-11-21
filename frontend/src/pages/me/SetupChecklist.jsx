@@ -57,12 +57,14 @@ function Row({ s, onSkip, busy, onOpen, canSkip }) {
   );
 }
 
-export default function SetupChecklist({ role }) {
+export default function SetupChecklist({ role, onShown }) {
   const toast = useToast();
   const [c, setC] = useState(null);
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   useEffect(() => { let dead = false; getChecklist(role).then((x) => { if (!dead) setC(x); }, () => {}); return () => { dead = true; }; }, [role]);
+  // the dashboard keeps one clear next step: while this card has steps left, its other "do this next" cards step back
+  useEffect(() => { if (c && onShown) onShown(showCard(c) && !c.complete); }, [c]); // eslint-disable-line react-hooks/exhaustive-deps
   const skip = async (id) => {
     setBusy(true);
     try { setC(await skipStep(c.role, id)); toast('Skipped for now. You can do it any time.'); } catch (e) { toast(e.message || 'Couldn’t skip that. Please try again.'); } finally { setBusy(false); }

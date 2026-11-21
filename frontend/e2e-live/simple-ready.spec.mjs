@@ -37,7 +37,8 @@ for (const [label, opts] of SIZES) {
       await expect(page.getByTestId('sx-ready-link')).toHaveText(/You are 65% ready/);
       // the full dashboard: a small card with the next thing
       await page.getByTestId('sx-to-full').click();
-      await expect(page.getByTestId('readiness-card')).toContainText('Job readiness: 65%');
+      await expect(page.getByTestId('readiness-card')).toContainText('Job readiness'); // the dashboard's one main score
+      await expect(page.getByTestId('readiness-score')).toHaveText('65%');
       await expect(page.getByTestId('readiness-next')).toHaveText(/Next: Choose the jobs you want/);
       // Admin → Settings: the points must add up to 100
       const owner = `ready-owner-${label}-${Date.now().toString(36)}@nm7.si`;

@@ -23,6 +23,11 @@ for (const [label, opts] of SIZES) {
       await page.getByLabel(/Cities you can work in/).fill('Hyderabad, Pune');
       await page.getByLabel('Expected salary').fill('25000');
       await page.getByLabel('Full-time').check();
+      // Batch C item 14: a plain Save keeps the details and stays invisible
+      await page.getByTestId('hire-save-only').click();
+      await expect(page.getByText('Companies don’t see you until you turn on Ready to join.')).toBeVisible();
+      await expect(page.getByTestId('hire-badge')).toHaveText('Off');
+      expect((await call(page, '/api/me/hire')).body.cities).toEqual(['Hyderabad', 'Pune']);
       await page.getByTestId('hire-save').click();
       await expect(page.getByRole('alert')).toContainText('Tick the box'); // consent first
       await page.getByTestId('hire-consent').check();

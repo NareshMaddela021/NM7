@@ -93,6 +93,8 @@ async def test_pause_before_setup_and_suggestions(client, outbox, db):
     await add(db)
     await add(db, title="Java Developer", skills=["Java"], locations=["Chennai"])
     s = (await client.get(f"{URL}/suggest")).json()
-    assert "Junior Data Analyst" in s["roles"] and "Java Developer" in s["roles"]
+    # Batch B: clean role names (the resume's fitting roles first), never the board's raw titles
+    assert "Junior Data Analyst" not in s["roles"] and "Data analyst" in s["roles"][:3]
+    assert "Java developer" in s["roles"]
     assert "SQL" in s["skills"] and "Power BI" in s["skills"]
     assert (await client.get(URL.replace("/auto-apply", "/auto-apply/suggest"))).status_code == 200

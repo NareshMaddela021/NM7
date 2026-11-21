@@ -352,7 +352,11 @@ async def test_reminder_rules(client, outbox, db):
     assert await C.remind(db, outbox, t=datetime(2026, 11, 19, 17, 30, tzinfo=UTC)) == 0
     assert await C.remind(db, outbox, t=NOON) == 1
     m = outbox.sent[-1]
-    assert m.to == "asha@example.com" and "Next: Add your job preferences" in m.text and "k=setup" in m.text
+    assert (
+        m.to == "asha@example.com"
+        and "Next: Add your job preferences in Ready to join" in m.text
+        and "k=setup" in m.text
+    )
     # at most one a week
     await db[USERS].update_one({"_id": uid}, {"$unset": {"setup_checked_at": ""}})
     assert await C.remind(db, outbox, t=NOON + timedelta(days=3)) == 0
