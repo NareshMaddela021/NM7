@@ -6,6 +6,7 @@
 //   CriteriaStrip   the compact chip strip on an applicant / Hire now card (tick met · cross not met · ? unknown,
 //                   "evaluating…"), opening the list with each quote and where it came from.
 //   criteriaSort    must-haves met, then nice-to-haves met, then the score (the server's order, done here after an edit).
+//   blendScore / hireSort   Hire now's score counts must-haves (item 29) and the list is ranked by it.
 // Shown only when the API sends `criteria` (the Trust switch lets the company in). Not met is a label only: nobody is
 // rejected. English only while it is tested. Statically imported by the company page chunk (no new lazy chunk).
 import { useEffect, useState } from 'react';
@@ -27,6 +28,20 @@ export function criteriaSort(rows, stripOf, scoreOf) {
     const sb = stripOf(b) || {};
     return (sb.mustMet || 0) - (sa.mustMet || 0) || (sb.niceMet || 0) - (sa.niceMet || 0) || (scoreOf(b) || 0) - (scoreOf(a) || 0) || i - j;
   }).map(([r]) => r);
+}
+
+/** The score Hire now shows (item 29): with must-haves on the job it is half the skills match and half the must-haves
+ *  met, so a person missing must-haves never shows 100%. A label and an order only: nobody is rejected or hidden. */
+export function blendScore(score, cr) {
+  const s = Math.max(0, Math.min(100, Number(score) || 0));
+  if (!cr || !cr.mustTotal) return s;
+  return Math.round(s / 2 + (50 * Math.min(cr.mustMet || 0, cr.mustTotal)) / cr.mustTotal);
+}
+
+/** Hire now's order: the shown score (must-haves counted), then must-haves met, then nice-to-haves met. */
+export function hireSort(rows, stripOf, scoreOf) {
+  const b = (r) => blendScore(scoreOf(r), stripOf(r));
+  return criteriaSort(rows, stripOf, () => 0).map((r, i) => [r, i]).sort(([a, i], [c, j]) => b(c) - b(a) || i - j).map(([r]) => r);
 }
 
 /** The body PUT /trust/criteria/{job} takes. */

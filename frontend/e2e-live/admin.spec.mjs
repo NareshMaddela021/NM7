@@ -93,6 +93,9 @@ test('admin console shows real data (no samples), and every action is saved and 
   const ep = await e.newPage();
   await login(ep, ex);
   await ep.waitForURL('**/expert');
+  // items 36, 37: the home greets the expert by name and shows the Earnings page's real number (no sample amount)
+  await expect(ep.getByRole('heading', { level: 1 })).toContainText('Hi Ravi');
+  await expect(ep.getByTestId('ex-earned')).toHaveText('₹0');
   await ep.goto('/expert/orders');
   await expect(ep.getByText(order).first()).toBeVisible();
   await e.close();

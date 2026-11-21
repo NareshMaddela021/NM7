@@ -153,3 +153,25 @@ async def test_expired_list_and_demo_jobs(owner, db):
     assert all(["(demo)" in j["company"]["name"] async for j in db[JOBS].find({"demo": True})])
     await demo.remove_demo(db)
     assert await db[JOBS].count_documents({"demo": True}) == 0 and await db[JOBS].count_documents({}) == 1
+
+
+async def test_totals_are_not_capped(db, admin_client):
+    """Item 40 (Admin -> Jobs showed exactly 7,500): the totals and the counts are the real numbers, past 7,500."""
+    from tests.test_jobs_public import add
+
+    base = await add(db)
+    rows = []
+    for i in range(7_600):
+        d = {k: v for k, v in base.items() if k != "_id"}
+        key = f"cap-{i}"
+        d.update(_id=key, dedupe_key=key, slug=key, status="active" if i % 4 else "closed", source="collector")
+        rows.append(d)
+    await db[JOBS].insert_many(rows)
+    owner = await admin_client()
+    res = await owner.get("/api/admin/jobs")
+    assert res.status_code == 200, res.text
+    r = res.json()
+    assert r["total"] == 7_601 and r["pages"] == -(-7_601 // 50)
+    assert sum(r["counts"]["status"].values()) == 7_601 and r["counts"]["status"]["closed"] == 1_900
+    assert sum(r["counts"]["source"].values()) == 7_601
+    assert (await owner.get("/api/admin/jobs", params={"status": "closed"})).json()["total"] == 1_900

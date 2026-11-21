@@ -47,7 +47,7 @@ for (const [label, opts] of SIZES) {
       await expect(form.getByLabel('Job description')).toHaveValue(/Manual testing, SQL/);
       await expect(form.getByLabel('Job description')).toHaveValue(new RegExp(`We are hiring a QA Trainee ${tag}\\.[\\s\\S]*- Test the billing screens`));
       await expect(form.getByLabel('Job title')).toHaveValue(`QA Trainee ${tag}`);
-      await form.getByLabel('Cities (comma between)').fill('Pune');
+      await expect(form.getByLabel('Cities (comma between)')).toHaveValue('Pune'); // item 31: copied from the writer
       // unfair wording: Check shows it and Post is disabled
       const desc = await form.getByLabel('Job description').inputValue();
       await form.getByLabel('Job description').fill(`${desc}\n\nMale preferred.`);

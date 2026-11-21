@@ -109,3 +109,36 @@ async def test_scores_on_cards_and_page_best_match_and_cache(client, db, outbox)
     me = (await client.get("/api/auth/me")).json()
     out = await erase_user_data(db, me.get("id") or me["user"]["id"])
     assert out["job_fit"] == 3 and await db[JOB_FIT].count_documents({}) == 0
+
+
+async def test_people_for_matches_person_for(db):
+    """Item 32 (Hire now was slow): many resumes in one go, the same choice as person_for, cached by revision."""
+    from datetime import timedelta
+
+    from app.core.db import RESUMES
+    from app.core.time import now
+
+    t = now()
+    await db[RESUMES].insert_many(
+        [
+            {"_id": "a1", "user_id": "ua", "key": "r1", "active": False, "data": resume(), "updated_at": t},
+            {
+                "_id": "a2",
+                "user_id": "ua",
+                "key": "r2",
+                "active": True,
+                "data": resume(),
+                "updated_at": t - timedelta(days=3),
+            },
+            {"_id": "b1", "user_id": "ub", "key": "r1", "data": resume(), "updated_at": t - timedelta(days=2)},
+            {"_id": "b2", "user_id": "ub", "key": "r2", "data": resume(), "updated_at": t},
+            {"_id": "c1", "user_id": "uc", "key": "r1", "data": {}, "updated_at": t},
+        ]
+    )
+    got = await fitmod.people_for(db, ["ua", "ub", "uc", "ud"])
+    assert set(got) == {"ua", "ub"}
+    for uid in ("ua", "ub"):
+        assert got[uid].resume_id == (await fitmod.person_for(db, uid)).resume_id
+    assert got["ua"].resume_id == "a2" and got["ub"].resume_id == "b2"
+    got["ua"].place = "pune"  # a copy: the cached one is not changed
+    assert (await fitmod.people_for(db, ["ua"]))["ua"].place != "pune"

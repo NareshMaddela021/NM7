@@ -573,6 +573,11 @@ async def test_hire_now_sorted_by_criteria_and_quota_limit(client, outbox, db, m
     scores = {x["key"]: x["match"]["score"] for x in d["items"]}
     assert set(keys) == {asha, bala} and scores[asha] > scores[bala]
     assert keys == [bala, asha]  # the must-have (Hindi) first, though Asha's match score is higher
+    # item 29: the shown score counts must-haves, so nobody missing one reaches 100%
+    from app.trust.criteria.router import blend
+
+    assert blend(100, {"mustMet": 0, "mustTotal": 7}) == 50 and blend(100, {"mustMet": 7, "mustTotal": 7}) == 100
+    assert blend(80, {"mustMet": 1, "mustTotal": 2}) == 65 and blend(90, None) == 90
     # the AI allowance: a company at its daily limit leaves the rest queued
     mock_claude(monkeypatch, X, EV)
     await db[TRUST_CRITERIA_QUEUE].insert_one({"_id": f"{asha}:x", "user_id": asha, "chash": "x", "kind": "other", "text": "Owns a laptop",

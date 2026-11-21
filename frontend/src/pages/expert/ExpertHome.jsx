@@ -5,6 +5,7 @@ import { http } from '../../services/http';
 import { Meter, useToast } from '../../components/ui';
 import { useExpertOrders } from '../../lib/expertStore';
 import { loadExpert, saveExpert, useExpertReady } from '../../lib/expert';
+import { useAuth } from '../../lib/auth';
 import { LIVE } from '../../services/http';
 import { expertPayout, inr } from '../../lib/pricing';
 import { timeLeft } from './OrderWorkspace';
@@ -23,7 +24,8 @@ export function expertStats(orders) {
   const onTime = done.length ? Math.round((done.filter((o) => (o.deliveredAt || 0) <= o.deadline).length / done.length) * 100) : 100;
   const revisions = done.length ? +(done.reduce((s, o) => s + Math.max(0, (o.versions?.length || 1) - 1), 0) / done.length).toFixed(1) : 0;
   const rating = rated.length ? +(rated.reduce((s, o) => s + o.rating, 0) / rated.length).toFixed(1) : null;
-  const earned = done.reduce((s, o) => s + expertPayout(o.price).net, 0);
+  // item 36: live, "Earned" is the Earnings page's number: approved orders, after fees (no sample amount added)
+  const earned = done.filter((o) => !LIVE || o.status === 'approved').reduce((s, o) => s + expertPayout(o.price).net, 0);
   if (LIVE) return { delivered: done.length, rating: rating ?? '—', onTime: done.length ? onTime : '—', revisions, earned };
   // preview only: sample history before this preview — 24 delivered orders, rated 4.7, 93% on time
   return { delivered: done.length + 24, rating: rating ? +(((rating * rated.length) + 4.7 * 24) / (rated.length + 24)).toFixed(1) : 4.7, onTime: Math.round((onTime * done.length + 93 * 24) / (done.length + 24)), revisions, earned };
@@ -54,7 +56,8 @@ function ExpertHomePage() {
   const tier = [...TIERS].reverse().find(([, n]) => st.delivered >= n)[0];
   const av = prof?.availability || { days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], from: '10:00', to: '19:00' };
   const saveP = (patch, msg) => { const p = { ...(prof || {}), ...patch }; setProf(p); saveExpert(p); if (msg) toast(msg); };
-  const first = prof?.about?.name?.split(' ')[0] || 'there';
+  const { user } = useAuth();
+  const first = (user?.name || prof?.about?.name || '').trim().split(/\s+/)[0] || 'there'; // item 37: the expert's own name
   const tierPct = next ? Math.round((st.delivered / next[1]) * 100) : 100;
 
   return (
@@ -65,7 +68,7 @@ function ExpertHomePage() {
         <div className={`ex-tile ${today.length ? 'ex-tile-warn' : ''}`}><span className="ex-tile-l">Due in 24 hours</span><strong className="ex-tile-v">{today.length}</strong><span className="ex-tile-s">{live.length} in progress</span></div>
         <div className="ex-tile"><span className="ex-tile-l">New offers</span><strong className="ex-tile-v">{offers.length}</strong><span className="ex-tile-s">Accept within 30 min</span></div>
         <div className="ex-tile"><span className="ex-tile-l">Revisions asked</span><strong className="ex-tile-v">{orders.filter((o) => o.status === 'revision').length}</strong><span className="ex-tile-s">Customer left comments</span></div>
-        <div className="ex-tile ex-tile-ink"><span className="ex-tile-l">Earned this month</span><strong className="ex-tile-v" style={{ fontSize: 32 }}>{inr(st.earned + 14436)}</strong><Link to="/expert/earnings" className="xs" style={{ color: '#fff' }}>Withdraw <IcArrowRight size={14} /></Link></div>
+        <div className="ex-tile ex-tile-ink"><span className="ex-tile-l">{LIVE ? 'Earned · approved orders' : 'Earned this month'}</span><strong className="ex-tile-v" style={{ fontSize: 32 }} data-testid="ex-earned">{inr(LIVE ? st.earned : st.earned + 14436)}</strong><Link to="/expert/earnings" className="xs" style={{ color: '#fff' }}>Withdraw <IcArrowRight size={14} /></Link></div>
         <div className="ex-tile"><span className="ex-tile-l">Rating · on time</span><strong className="ex-tile-v" style={{ fontSize: 26 }}>{st.rating}/5 · {st.onTime}%</strong><span className="ex-tile-s">{st.revisions} revisions / order</span></div>
       </div>
 

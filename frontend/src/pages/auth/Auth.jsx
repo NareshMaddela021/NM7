@@ -12,6 +12,7 @@ import LangSwitch from '../../components/LangSwitch';
 import { useLang } from '../../lib/i18n';
 import { usePageMeta } from '../../lib/meta';
 import { safeNext } from '../../lib/safeNext';
+import { backToAdmin, bannerText } from '../../lib/adminViews';
 import { addRoles, fits, roleFor, roleFromLink, rolesOf, switchRole } from '../../lib/roles';
 import '../../styles/admin-ops.css';
 import { IcCheck, IcKey, IcShield } from '../../components/icons';
@@ -318,6 +319,15 @@ export function AdminLogin() {
   const [recovery, setRecovery] = useState(false); // lost phone: one-time recovery code instead
   const { busy, err, setErr, run } = useRun();
   if (user?.role === 'admin' && session?.twoStep) return <Navigate to={next?.startsWith('/admin') ? next : '/admin'} replace />;
+  // item 39: an admin with a view open ("Switch to", "View as this user") is still signed in: Back to Admin, no sign-in
+  if (user?.view) {
+    return (
+      <Shell title="You are in an admin view" sub={`${bannerText(user.view)}. Go back to Admin to use the admin pages.`}>
+        {err && <p className="small" role="alert">{err}</p>}
+        <button type="button" className="btn btn-primary btn-lg" disabled={busy} onClick={() => run(() => backToAdmin(user.view))} data-testid="view-back-admin">Back to Admin</button>
+      </Shell>
+    );
+  }
   return (
     <Shell title="Admin sign in" sub="Two-step login is required for every admin account.">
       {!step ? (

@@ -19,7 +19,14 @@ import AgentJobs from './AgentJobs'; // Vetting Trust T5 (renders nothing unless
 import { CriteriaEditor } from './CriteriaBits'; // Vetting Trust T7
 import { FairnessNotes } from './FairnessBits'; // Vetting Trust T12: discriminatory filters (direct refused, proxies warned)
 
-const BLANK = { title: '', cities: '', workType: 'onsite', jobType: 'full_time', experience: 'fresher', education: '', salaryMin: '', salaryMax: '', period: 'yearly', skills: '', description: '', applyMethod: 'nm7', applyUrl: '', applyEmail: '', closesAt: '', questions: [] };
+/** The city names in the writer's "City and salary" line (item 31): "Pune, Rs 2.4-3 LPA" -> "Pune". */
+export function placeCities(s) {
+  return String(s || '').split(/[,;/|]|\band\b/i)
+    .map((x) => x.split(/[₹\d]|\brs\.?(?=\s|\d|$)|\binr\b|\blpa\b|\bsalary\b|\bper\b|\ba month\b/i)[0].replace(/[-–—:.()]+$/g, '').trim())
+    .filter((x) => x.length > 1).join(', ');
+}
+
+const BLANK = { title: '', cities: '', workType: 'onsite', jobType: 'full_time', experience: 'fresher', education: '', salaryMin: '', salaryMax: '', period: 'monthly', skills: '', description: '', applyMethod: 'nm7', applyUrl: '', applyEmail: '', closesAt: '', questions: [] };
 import { IcBriefcase, IcPin } from '../../components/icons';
 const NEW_Q = { text: '', kind: 'yesno', options: '', want: '', min: '', accept: '', template: '' };
 const MAX_Q = 5;
@@ -83,7 +90,7 @@ function toBody(f, ko) {
 function fromJob(j) {
   return {
     title: j.title, cities: (j.locations || []).join(', '), workType: j.workType, jobType: j.jobType, experience: j.experience, education: j.education || '',
-    salaryMin: j.salary?.min ?? '', salaryMax: j.salary?.max ?? '', period: j.salary?.period || 'yearly', skills: (j.skills || []).join(', '),
+    salaryMin: j.salary?.min ?? '', salaryMax: j.salary?.max ?? '', period: j.salary?.period || 'monthly', skills: (j.skills || []).join(', '),
     description: j.description, applyMethod: j.apply.method, applyUrl: j.apply.url || '', applyEmail: j.apply.email || '',
     closesAt: j.closesAt ? new Date(j.closesAt).toISOString().slice(0, 10) : '',
     questions: questionsForm(j.questions),
@@ -179,7 +186,8 @@ function JobForm({ t, c, auto, ko, init, onDone, onCancel }) {
     // the title the company typed stays word for word; only the duties they typed are used (fix round item 20)
     const role = (f.title.trim() || writer.role).trim();
     const r = await rq(`/api/company/${c.id}/jobs/write`, { method: 'POST', body: { role, skills: writer.skills, place: writer.place, duties: writer.duties } });
-    setF({ ...f, description: r.description, title: f.title || writer.role, skills: f.skills || writer.skills });
+    // item 31: the place typed here also fills Cities when Cities is still empty
+    setF({ ...f, description: r.description, title: f.title || writer.role, skills: f.skills || writer.skills, cities: f.cities.trim() ? f.cities : placeCities(writer.place) });
     setNote(r.source === 'ai' ? t('co.jobs.writerAi') : r.removed.length ? t('co.jobs.writerRemoved') : t('co.jobs.writerTemplate'));
   });
   const submit = (e) => {
@@ -231,7 +239,7 @@ function JobForm({ t, c, auto, ko, init, onDone, onCancel }) {
         <div className="cj-grid cj-pay">
           <div className="field"><label className="label" htmlFor="cj-min">{t('co.jobs.f.salaryMin')}</label><input id="cj-min" className="input" inputMode="numeric" value={f.salaryMin} onChange={set('salaryMin')} /></div>
           <div className="field"><label className="label" htmlFor="cj-max">{t('co.jobs.f.salaryMax')}</label><input id="cj-max" className="input" inputMode="numeric" value={f.salaryMax} onChange={set('salaryMax')} /></div>
-          <div className="field"><label className="label" htmlFor="cj-per">{t('co.jobs.f.per')}</label><select id="cj-per" className="input" value={f.period} onChange={set('period')}><option value="yearly">{t('jobs.perYear')}</option><option value="monthly">{t('jobs.perMonth')}</option></select></div>
+          <div className="field"><label className="label" htmlFor="cj-per">{t('co.jobs.f.per')}</label><select id="cj-per" className="input" value={f.period} onChange={set('period')}><option value="monthly">{t('jobs.perMonth')}</option><option value="yearly">{t('jobs.perYear')}</option></select></div>
         </div>
       </div>
       <div className="mcard cj-group">

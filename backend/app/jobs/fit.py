@@ -11,6 +11,7 @@ person and job (job_fit), keyed by the resume's and the job's last change, so it
 changes. The resume used is the person's active one (else the latest).
 """
 
+import copy
 import re
 from datetime import UTC, datetime
 from typing import Any
@@ -62,6 +63,42 @@ async def person_for(db, user_id: str) -> Person | None:
         return None
     p = Person(d)
     return p if p.usable() else None
+
+
+_PEOPLE: dict[str, Person] = {}  # resume rev -> Person (reading a resume costs ~1 ms of regex; Hire now reads many)
+_PEOPLE_MAX = 6000
+
+
+def _rev(d: dict[str, Any]) -> str:
+    changed = d.get("updated_at") or d.get("created_at") or datetime(2000, 1, 1, tzinfo=UTC)
+    return f"{d['_id']}:{changed.isoformat()}"
+
+
+async def people_for(db, user_ids: list[str]) -> dict[str, Person]:
+    """person_for for many people at once (Hire now, item 32): user id -> Person, only those with a usable one.
+    One small query picks each person's resume (the active one, else the latest); only resumes not read before (or
+    changed since) are fetched whole and read. Each Person is a copy, so a caller may change it."""
+    best: dict[str, dict[str, Any]] = {}
+    old = datetime(2000, 1, 1, tzinfo=UTC)
+    q = {"user_id": {"$in": list(dict.fromkeys(user_ids))}}
+    async for d in db[RESUMES].find(q, {"user_id": 1, "active": 1, "updated_at": 1, "created_at": 1}):
+        b = best.get(d["user_id"])
+        rank = (bool(d.get("active")), d.get("updated_at") or old)
+        if b is None or rank > (bool(b.get("active")), b.get("updated_at") or old):
+            best[d["user_id"]] = d
+    revs = {uid: _rev(d) for uid, d in best.items()}
+    need = [d["_id"] for uid, d in best.items() if revs[uid] not in _PEOPLE]
+    if need:
+        if len(_PEOPLE) + len(need) > _PEOPLE_MAX:
+            _PEOPLE.clear()
+        async for d in db[RESUMES].find({"_id": {"$in": need}}):
+            _PEOPLE[_rev(d)] = Person(d)
+    out = {}
+    for uid, rev in revs.items():
+        p = _PEOPLE.get(rev)
+        if p is not None and p.usable():
+            out[uid] = copy.copy(p)
+    return out
 
 
 def _has_skill(p: Person, name: str) -> bool:
