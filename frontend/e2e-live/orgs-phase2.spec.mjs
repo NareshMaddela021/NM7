@@ -156,7 +156,7 @@ test('invite → accept → coordinator portal → approve → remind → export
   for (const a of ['approve', 'remind', 'print_bulk', 'export_csv', 'staff_accept']) await expect(log.getByText(actionWords(a), { exact: true }).first()).toBeVisible(); // plain words (Batch E item 48)
   await adminNav.getByRole('link', { name: 'Shared resumes' }).click();
   await adminNav.getByRole('link', { name: 'Organizations' }).click();
-  await expect(page.getByRole('region', { name: 'Audit log' }).getByText('remind', { exact: true }).first()).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Audit log' }).getByText(actionWords('remind'), { exact: true }).first()).toBeVisible();
 
   // 8. removed: access ends at once
   await page.getByRole('button', { name: 'Govt Polytechnic Nellore' }).click();
