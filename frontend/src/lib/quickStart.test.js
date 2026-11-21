@@ -61,10 +61,15 @@ describe('resume and next', () => {
 describe('results', () => {
   it('job board searches go from the closest match to the widest', () => {
     const q = jobQueries({ job: 'Data analyst', cities: ['Pune', 'Delhi'], experience: 'fresher' });
-    expect(q[0]).toEqual({ q: 'Data analyst', experience: 'fresher,0_1', places: ['Pune', 'Delhi'] });
-    expect(q[1]).toEqual({ q: 'Data analyst', experience: '', places: ['Pune', 'Delhi'] });
-    expect(q.at(-1)).toEqual({ q: '', experience: 'fresher,0_1', places: [''] });
+    expect(q[0]).toEqual({ q: 'Data analyst', experience: 'fresher,0_1', places: ['Pune', 'Delhi'], level: 'fresher' });
+    expect(q[1]).toEqual({ q: 'Data analyst', experience: 'internship,fresher,0_1,1_3,not_stated', places: ['Pune', 'Delhi'], level: 'fresher' });
+    expect(q.at(-1)).toEqual({ q: '', experience: 'fresher,0_1', places: [''], level: 'fresher' });
     expect(jobQueries({ remote: true })[0].places).toEqual(['remote']);
+    // Batch B: 1-3 years never widens to every level, only to the ones next to it, and every try keeps the level
+    const mid = jobQueries({ job: 'Data analyst', cities: ['Pune'], experience: '1_3' });
+    expect(mid.map((t) => t.experience)).not.toContain('');
+    expect(mid[1].experience).toBe('0_1,1_3,3_5,not_stated');
+    expect(mid.every((t) => t.level === '1_3')).toBe(true);
     expect(new Set(jobQueries({}).map((x) => JSON.stringify(x))).size).toBe(jobQueries({}).length);
   });
   it('the next role to set up, in the picker’s order', () => {

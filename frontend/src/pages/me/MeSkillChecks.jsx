@@ -476,7 +476,7 @@ function MeSkillChecksV2() {
       {renewing && <RenewDialog r={renewing} needConsent={!cat.consentAt} onConsent={(at) => setCat({ ...cat, consentAt: at })} onClose={closeRenew} onGo={begin} />}
       {face && (
         <Suspense fallback={null}>
-          <FaceCheck mode="identity" step="skill_check" onClose={() => setFace(null)} onDone={() => { const b = face; setFace(null); begin(b).catch((e) => setErr(e.message)); }} />
+          <FaceCheck mode="identity" step="skill_check" onClose={() => setFace(null)} onDone={() => { const b = face; setFace(null); begin(b).catch((e) => setErr(e.message)); }} onLater={() => { const b = face; setFace(null); begin({ ...b, noCamera: true }).catch((e) => setErr(e.message)); }} />
         </Suspense>
       )}
       {dialog && <StartDialog r={dialog.r} cat={cat} preset={dialog.preset} needConsent={!cat.consentAt} onConsent={(at) => setCat({ ...cat, consentAt: at })} onClose={closeDialog} onGo={begin} />}

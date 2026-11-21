@@ -42,7 +42,7 @@ from app.hire import skillcheck_classic as classic
 from app.hire.vetting import access, grade
 from app.hire.vetting import engine as E
 from app.hire.vetting.roles import BY_TEST, ROLES
-from app.hire.vetting.store import bank_meta, ensure_banks, localized
+from app.hire.vetting.store import bank_meta, banks_ready, localized
 from app.me.service import ms
 
 log = logging.getLogger(__name__)
@@ -143,28 +143,50 @@ def result_out(a: dict[str, Any], v: dict[str, Any] | None = None, t: datetime |
 
 # --- catalogue --------------------------------------------------------------------------------------------------
 
-_DEMAND: dict[str, Any] = {"at": None, "counts": {}}
+_DEMAND: dict[str, Any] = {"at": None, "counts": {}, "task": None}
+DEMAND_WAIT = 3.0  # seconds a page waits for the hourly count; then the last counts (or none) and it finishes later
 
 
-async def demand(db) -> dict[str, int]:
-    """Live jobs per role (title words), counted at most once an hour."""
+async def _count_demand(db) -> dict[str, int]:
     from app.core.db import JOBS
 
-    t = now()
-    if _DEMAND["at"] and t - _DEMAND["at"] < timedelta(hours=1):
-        return _DEMAND["counts"]
     titles = [
         j.get("title", "")
-        async for j in db[JOBS].find({"status": "active", "demo": {"$ne": True}}, {"title": 1}).limit(5000)
+        async for j in db[JOBS].find({"status": "active", "demo": {"$ne": True}}, {"_id": 0, "title": 1}).limit(5000)
     ]
+    low = [x.lower() for x in titles]
     counts = {}
     for r in ROLES:
         words = [
             w for w in re.findall(r"[a-z]{3,}", r["role"].lower()) if w not in {"and", "executive", "staff", "junior"}
         ]
-        counts[r["test"]] = sum(1 for x in titles if words and words[0] in x.lower())
-    _DEMAND.update(at=t, counts=counts)
+        counts[r["test"]] = sum(1 for x in low if words and words[0] in x)
+    _DEMAND.update(at=now(), counts=counts)
     return counts
+
+
+async def demand(db) -> dict[str, int]:
+    """Live jobs per role (title words), counted at most once an hour. Never holds a page up (Batch A): a cold count
+    gets DEMAND_WAIT seconds, then the page shows the last counts (none on the very first) and the count finishes in
+    the background for the next request."""
+    import asyncio
+
+    t = now()
+    if _DEMAND["at"] and t - _DEMAND["at"] < timedelta(hours=1):
+        return _DEMAND["counts"]
+    loop = asyncio.get_running_loop()
+    task = _DEMAND["task"]
+    if task is None or task.done() or task.get_loop() is not loop:
+        task = _DEMAND["task"] = loop.create_task(_count_demand(db))
+    try:
+        return await asyncio.wait_for(asyncio.shield(task), DEMAND_WAIT)
+    except TimeoutError:
+        return _DEMAND["counts"]
+    except Exception:  # noqa: BLE001  (the skill checks still show; the next request counts again)
+        import logging
+
+        logging.getLogger(__name__).exception("skill check demand count failed")
+        return _DEMAND["counts"]
 
 
 async def suggested_for(db, uid: str) -> list[str]:
@@ -206,10 +228,7 @@ async def vetting_access(auth: CustomerAuth, db: DB) -> dict[str, Any]:
 async def catalog(auth: CustomerAuth, db: DB) -> dict[str, Any]:
     if not await access.for_user(db, auth.user.id):
         return await classic.catalog(db, auth.user.id)  # hidden: the skill checks as before
-    from app.hire.skillcheck import ensure_bank
-
-    await ensure_bank(db)
-    await ensure_banks(db)
+    await banks_ready(db)  # never long: a cold load finishes in the background (store.banks_ready)
     uid, t = auth.user.id, now()
     counts = {g["_id"]: g["n"] async for g in await db[SKILL_QUESTIONS].aggregate(
         [{"$match": {"active": True}}, {"$group": {"_id": "$skill", "n": {"$sum": 1}}}])}  # fmt: skip
@@ -273,6 +292,7 @@ class StartIn(CamelModel):
     pledge: int | None = (
         None  # Vetting Trust T9: the honesty pledge version ticked (asked only while Trust is on for them)
     )
+    no_camera: bool = False  # "No camera right now": the test goes ahead, the face check is marked pending for later
 
 
 def paper_out(a: dict[str, Any], picked: list[dict[str, Any]], t: datetime) -> dict[str, Any]:
@@ -292,6 +312,7 @@ def paper_out(a: dict[str, Any], picked: list[dict[str, Any]], t: datetime) -> d
         "bandLabel": E.BANDS[a["band"]]["label"], "lang": a.get("lang", "en"), "strict": bool(a.get("strict")),
         "extraTime": bool(a.get("extra_time")), "totalMs": a["total_ms"], "remainingMs": remaining,
         "questions": qs, "answers": a.get("answers") or {}, "pass": E.PASS_MCQ,
+        "facePending": (a.get("face") or {}).get("status") == "pending",
     }  # fmt: skip
 
 
@@ -299,10 +320,7 @@ def paper_out(a: dict[str, Any], picked: list[dict[str, Any]], t: datetime) -> d
 async def start(body: StartIn, auth: CustomerAuth, db: DB) -> dict[str, Any]:
     if not await access.for_user(db, auth.user.id):
         return await classic.start(db, auth.user.id, body.skill)
-    from app.hire.skillcheck import ensure_bank
-
-    await ensure_bank(db)
-    await ensure_banks(db)
+    await banks_ready(db)  # never long: a cold load finishes in the background (store.banks_ready)
     uid, t = auth.user.id, now()
     role = BY_TEST.get(body.skill)
     if not role:
@@ -360,7 +378,7 @@ async def start(body: StartIn, auth: CustomerAuth, db: DB) -> dict[str, Any]:
     pledged = await PL.check(db, uid, body.pledge, lang, t)  # T9: the honesty pledge (only while Trust is on for them)
     from app.trust.face.service import gate
 
-    await gate(db, uid, "skill_check")  # Vetting Trust T3: ID + live selfie first (only while Trust allows this person)
+    face = await gate(db, uid, "skill_check", later=body.no_camera)  # Vetting Trust T3: ID + live selfie first
     pool = await active_pool(db, body.skill)
     if len(pool) < E.MIN_PAPER:
         raise ApiError(404, "no_test", "There is no test for this skill yet.")
@@ -377,6 +395,7 @@ async def start(body: StartIn, auth: CustomerAuth, db: DB) -> dict[str, Any]:
         "ends_at": t + timedelta(milliseconds=total) + E.RESUME_WITHIN, "total_ms": total, "remaining_ms": total,
         "pauses": 0, "answers": {}, "times": {}, "signals": {}, "total": len(picked), "share": False,
         "submitted_at": None, **({"pledge": pledged} if pledged else {}),
+        **({"face": {**face, "at": t}} if face and face["status"] == "pending" else {}),  # checked later, never rejected
     }  # fmt: skip
     if free:
         await db[SKILL_ATTEMPTS].update_one({"_id": last["_id"]}, {"$set": {"retest_used": True}})

@@ -215,7 +215,8 @@ async def _vetting_on(db, email):
     await db["settings"].update_one({"_id": "site"}, {"$addToSet": {"vetting.testers": email}}, upsert=True)
 
 
-async def test_gate_before_interview_and_skill_check(db, make_client, outbox, admin_client):
+async def test_gate_before_interview_and_skill_check(db, make_client, outbox, admin_client, monkeypatch):
+    monkeypatch.setattr(P.Mock, "test", False)  # a real vendor connected: the gate asks first (test mode never blocks)
     c = await student(make_client, outbox, "esha@example.com", "Esha Rao")
     uid = (await db[USERS].find_one({"email": "esha@example.com"}))["_id"]
     await _vetting_on(db, "esha@example.com")
@@ -595,3 +596,31 @@ async def test_rekognition_adapter(db, make_client, outbox, admin_client, fake_a
     # withdrawing deletes the face at AWS
     await c.delete("/api/me/trust/consents/selfie_face")
     assert ("DeleteFaces" in [a for a, _ in fake_aws.calls]) and await db[TRUST_FACE].count_documents({"_id": uid}) == 0
+
+
+async def test_gate_never_blocks_in_test_mode_or_without_a_camera(db, make_client, outbox, admin_client, monkeypatch):
+    """Batch A (20 Nov live test): the selfie gate stopped people with no camera. With only the test provider (vendor
+    keys missing) the test starts, marked "face check pending"; with a real vendor, "No camera right now" starts it too,
+    flagged for a later check. Nobody is rejected for it."""
+    c = await student(make_client, outbox, "gita@example.com", "Gita Rao")
+    uid = (await db[USERS].find_one({"email": "gita@example.com"}))["_id"]
+    await _vetting_on(db, "gita@example.com")
+    await db["settings"].update_one({"_id": "site"}, {"$addToSet": {"trust.testers": "gita@example.com"}})
+    await c.post("/api/me/skill-checks/consent")
+    r = await c.post("/api/me/skill-checks/start", json={"skill": "SQL", "pledge": 1})
+    assert r.status_code == 200, r.text
+    assert r.json()["facePending"] is True
+    a = await db["skill_attempts"].find_one({"user_id": uid})
+    assert a["face"]["status"] == "pending" and a["face"]["why"] == "test_mode"
+    await db["skill_attempts"].delete_many({"user_id": uid})
+
+    monkeypatch.setattr(P.Mock, "test", False)  # a real vendor: asked first, unless there is no camera
+    r = await c.post("/api/me/skill-checks/start", json={"skill": "SQL", "pledge": 1})
+    assert r.status_code == 409 and r.json()["error"]["code"] == "face_check_needed"
+    r = await c.post("/api/me/skill-checks/start", json={"skill": "SQL", "pledge": 1, "noCamera": True})
+    assert r.status_code == 200, r.text
+    a = await db["skill_attempts"].find_one({"user_id": uid})
+    assert a["face"]["why"] == "no_camera" and r.json()["facePending"] is True
+    assert await db[AUDIT_LOG].count_documents({"action": "trust.face_pending", "actor_id": uid}) == 2
+    # the face state itself is untouched: no rejection, nothing marked against the person
+    assert ((await db[TRUST_FACE].find_one({"_id": uid})) or {}).get("status") in (None, "none")

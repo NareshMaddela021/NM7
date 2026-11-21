@@ -35,7 +35,7 @@ function JobList({ items, testid }) {
 
 async function firstJobs(tries) {
   for (const t of tries) {
-    const lists = await Promise.all(t.places.map((city) => searchJobs({ q: t.q, experience: t.experience, city, sort: 'match' }).catch(() => null)));
+    const lists = await Promise.all(t.places.map((city) => searchJobs({ q: t.q, experience: t.experience, city, sort: 'match', level: t.level }).catch(() => null)));
     const seen = new Set();
     const items = lists.flatMap((l) => l?.items || []).filter((j) => !seen.has(j.id) && seen.add(j.id));
     items.sort((a, b) => (b.match?.score ?? -1) - (a.match?.score ?? -1) || (b.postedAt || 0) - (a.postedAt || 0));
@@ -59,7 +59,7 @@ function JobsResults({ answers }) {
       {!r ? <div className="row g8 muted" aria-busy="true"><Spinner />Finding jobs…</div>
         : r.items.length ? (
           <>
-            {!exact && <p className="small" role="status" style={{ margin: 0 }}>No exact matches yet, so here are the closest open jobs.</p>}
+            {!exact && <p className="small" role="status" data-testid="qs-near" style={{ margin: 0 }}>{r.t.experience !== first.experience ? 'No jobs at exactly your level yet, so here are jobs at nearby levels.' : 'No exact matches yet, so here are the closest open jobs.'}</p>}
             <JobList items={r.items} testid="qs-jobs" />
             <Link to={board} className="btn btn-outline" style={{ alignSelf: 'flex-start' }}>See all on the job board</Link>
           </>

@@ -8,6 +8,7 @@ rubric; each change is a new rubric version, and every graded task records the r
 Translations (Telugu, Hindi) come in marked "needs native review" until Admin ticks them reviewed.
 """
 
+import asyncio
 import hashlib
 import json
 import logging
@@ -24,6 +25,8 @@ from app.hire.vetting.validate import BANKS, validate
 
 log = logging.getLogger(__name__)
 _FILES: dict[str, dict[str, Any]] | None = None  # the bank files, read and validated once per process
+_LOAD: "asyncio.Task[None] | None" = None  # the one bank load running now (shared by every request that needs it)
+WAIT = 4.0  # seconds a request waits for a cold bank load before it answers with what is stored already
 
 
 def qid(bank_id: str) -> ObjectId:
@@ -141,3 +144,34 @@ def localized(q: dict[str, Any], lang: str) -> tuple[str, list[str]]:
     if tr and tr.get("q") and len(tr.get("options") or []) == len(q["options"]):
         return tr["q"], tr["options"]
     return q["question"], q["options"]
+
+
+async def _load_all(db) -> None:
+    from app.hire.skillcheck import ensure_bank
+
+    if _FILES is None:
+        await asyncio.to_thread(read_banks)  # 50 files, ~2 MB: parsed off the event loop so other requests keep moving
+    await ensure_bank(db)
+    await ensure_banks(db)
+
+
+async def banks_ready(db, wait: float | None = None) -> bool:
+    """The H3 starting questions and the V2 bank files in the database, without ever making a page wait long (Batch A,
+    20 Nov live test: the first /api/me/skill-checks after a deploy took 25 s and failed). Every caller shares one
+    load; a caller waits at most `wait` seconds (default WAIT), then goes on with the questions already stored while
+    the load finishes in the background. When everything is loaded already this is the same few small queries as
+    before. False when it didn't finish in time (or failed: logged, the next request tries again)."""
+    global _LOAD
+    loop = asyncio.get_running_loop()
+    if _LOAD is None or _LOAD.done() or _LOAD.get_loop() is not loop:
+        _LOAD = loop.create_task(_load_all(db))
+    task = _LOAD
+    try:
+        await asyncio.wait_for(asyncio.shield(task), WAIT if wait is None else wait)
+    except TimeoutError:
+        log.warning("vetting banks still loading after %.1f s: answering with the stored questions", wait or WAIT)
+        return False
+    except Exception:  # noqa: BLE001  (a page still answers; the next request loads again)
+        log.exception("vetting banks: load failed")
+        return False
+    return True

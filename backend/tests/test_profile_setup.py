@@ -315,6 +315,9 @@ async def test_job_suggestions(client, outbox):
     await person(client, outbox)
     items = (await client.get("/api/me/setup/suggest", params={"kind": "job", "q": "data"})).json()["items"]
     assert "Data analyst" in items
+    from app.jobs.titles import role_names
+
+    assert set(items) <= set(role_names())  # Batch B: only clean role names, never raw titles from the board
     assert len((await client.get("/api/me/setup/suggest", params={"kind": "job"})).json()["items"]) == 8
 
 
