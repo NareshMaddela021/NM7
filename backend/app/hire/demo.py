@@ -101,40 +101,47 @@ async def create(db) -> dict[str, Any]:
                                                           "verified_until": t + timedelta(days=365)}})  # fmt: skip
     tpls = TEMPLATES
     cs = next(x for x in tpls if x["id"] == "customer-support")
-    people = []
+    # Batch A (20 Nov live test: this timed out on the live server while the plain reset worked): the 30 people were
+    # ~150 one-by-one writes; now one insert per collection, and each test's questions are read once
+    people, users, resumes, profiles, attempts, events = [], [], [], [], [], []
+    tests = sorted({tp["test"] for tp in tpls if tp["test"]})
+    qids = {k: [q["_id"] for q in await db[SKILL_QUESTIONS].find({"skill": k, "active": True}, {"_id": 1}).limit(10).to_list(10)]
+            for k in tests}  # fmt: skip
     for i in range(30):
         tpl = cs if i < 10 else tpls[i % len(tpls)]  # 10 suit the bulk post; 20 across every domain
         name = f"{FIRST[i]} {LAST[i % len(LAST)]}"
         uid = f"hire-demo-{i + 1:02d}"
         city = CITIES[i % len(CITIES)] if i >= 10 else "Hyderabad"
-        await db[USERS].insert_one({"_id": uid, "email": f"{uid}@{DOMAIN}", "email_lc": f"{uid}@{DOMAIN}", "name": name, "role": "customer",
-                                    "password_hash": "", "demo": True, "created_at": t - timedelta(days=20 + i)})  # fmt: skip
-        await db[RESUMES].insert_one({"_id": f"r-{uid}", "user_id": uid, "key": "r1", "name": "Main", "active": True,
-                                      "data": _resume(name, city, tpl, i % 3), "template": "classic",
-                                      "created_at": t, "updated_at": t})  # fmt: skip
+        users.append({"_id": uid, "email": f"{uid}@{DOMAIN}", "email_lc": f"{uid}@{DOMAIN}", "name": name, "role": "customer",
+                      "password_hash": "", "demo": True, "created_at": t - timedelta(days=20 + i)})  # fmt: skip
+        resumes.append({"_id": f"r-{uid}", "user_id": uid, "key": "r1", "name": "Main", "active": True,
+                        "data": _resume(name, city, tpl, i % 3), "template": "classic",
+                        "created_at": t, "updated_at": t})  # fmt: skip
         salary = (
             {"amount": 15000 + 1000 * (i % 8), "unit": "month"}
             if tpl["domain"] != "IT"
             else {"amount": 3 + (i % 3) * 0.5, "unit": "lpa"}
         )
-        await db[HIRE_PROFILES].insert_one({"_id": uid, "on": True, "consent_at": t - timedelta(days=2),
-                                            "confirmed_at": t - timedelta(hours=i), "join_date": (t + timedelta(days=7 + i % 20)).astimezone(IST).date().isoformat(),
-                                            "cities": [city], "remote": i % 7 == 0, "salary": salary, "notice_days": [0, 0, 15, 30][i % 4],
-                                            "job_types": ["full_time"], "paused_at": None, "updated_at": t})  # fmt: skip
+        profiles.append({"_id": uid, "on": True, "consent_at": t - timedelta(days=2),
+                         "confirmed_at": t - timedelta(hours=i), "join_date": (t + timedelta(days=7 + i % 20)).astimezone(IST).date().isoformat(),
+                         "cities": [city], "remote": i % 7 == 0, "salary": salary, "notice_days": [0, 0, 15, 30][i % 4],
+                         "job_types": ["full_time"], "paused_at": None, "updated_at": t})  # fmt: skip
         if tpl["test"] and i % 2 == 0:  # a shared skill check for half of those with a test
-            qs = await db[SKILL_QUESTIONS].find({"skill": tpl["test"], "active": True}).limit(10).to_list(10)
             right = 6 + i % 5
-            await db[SKILL_ATTEMPTS].insert_one({"_id": ObjectId(), "user_id": uid, "skill": tpl["test"],
-                                                 "question_ids": [q["_id"] for q in qs], "order": {}, "total": 10,
-                                                 "started_at": t - timedelta(days=3), "ends_at": t - timedelta(days=3) + timedelta(minutes=10),
-                                                 "submitted_at": t - timedelta(days=3) + timedelta(minutes=8), "right": right,
-                                                 "score": right * 10, "late": False, "tab_switches": i % 2, "spoken": [], "share": True})  # fmt: skip
+            attempts.append({"_id": ObjectId(), "user_id": uid, "skill": tpl["test"],
+                             "question_ids": qids.get(tpl["test"], []), "order": {}, "total": 10,
+                             "started_at": t - timedelta(days=3), "ends_at": t - timedelta(days=3) + timedelta(minutes=10),
+                             "submitted_at": t - timedelta(days=3) + timedelta(minutes=8), "right": right,
+                             "score": right * 10, "late": False, "tab_switches": i % 2, "spoken": [], "share": True})  # fmt: skip
         if i % 3 == 1:  # a reliability history from earlier (made-up) companies; the rest are new
             kinds = ["attended", "attended", "joined"] if i % 6 == 1 else ["attended", "no_show"]
-            for k, kind in enumerate(kinds):
-                await db[HIRE_EVENTS].insert_one({"user_id": uid, "kind": kind, "ref": f"demo-{uid}-{k}",
-                                                  "company_id": "demo-earlier", "at": t - timedelta(days=30 + k)})  # fmt: skip
+            events += [{"user_id": uid, "kind": kind, "ref": f"demo-{uid}-{k}", "company_id": "demo-earlier",
+                        "at": t - timedelta(days=30 + k)} for k, kind in enumerate(kinds)]  # fmt: skip
         people.append(uid)
+    for coll, docs in ((USERS, users), (RESUMES, resumes), (HIRE_PROFILES, profiles), (SKILL_ATTEMPTS, attempts),
+                       (HIRE_EVENTS, events)):  # fmt: skip
+        if docs:
+            await db[coll].insert_many(docs, ordered=False)
     # the bulk post: customer support, 50 openings, Hyderabad
     body = JobIn.model_validate({
         "title": cs["title"], "company": {"name": company_demo.NAME, "website": company_demo.SITE},

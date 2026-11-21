@@ -1,6 +1,6 @@
 // Jobs made simple (Phase 4, E6), all on the Easy dashboard, all read aloud with the speaker button:
 //   /me/simple/jobs            the top 3 jobs as big cards: title, match % with one plain reason, place, ₹ a month,
-//                              the company's trust badge; View (the job's page) · Apply · Save, "Applied" with a tick once sent
+//                              the company's trust badge; View (the job's page) · Apply · Save · Share (Batch C item 18), "Applied" with a tick once sent
 //   /me/simple/jobs/:id        Apply: the normal Manual Apply (consent tick and the company's questions for jobs on
 //                              Nm7; the company's own site opens for the others, and it is saved in My applications)
 //   /me/simple/auto            "Let Nm7 apply for me": role, city, how many a day and the consent tick; the
@@ -16,6 +16,7 @@ import { useScreen } from '../../lib/simple';
 import { SayButton, SpeakField } from './voice';
 import { useAuth } from '../../lib/auth';
 import { loadApplied, markApplied, useApplied } from '../../lib/jobBoard';
+import ShareButton from '../../components/ShareButton'; // its own words (en / te / hi); this lazy chunk only
 
 const money = (n) => Number(n).toLocaleString('en-IN');
 // View (the job's own page) and "Applied" on each card: the words are here, not in the strings bundle (size budget)
@@ -62,6 +63,7 @@ function JobCard({ t, lang, j, onSave }) {
           : <Big to={`/me/simple/jobs/${j.id}`} label={t('simple.j.apply')} ink testid="sx-job-apply" />}
         <button type="button" className="sx-big" aria-pressed={j.saved} disabled={busy} onClick={save} data-testid="sx-job-save"><span>{j.saved ? t('simple.j.saved') : t('simple.j.save')}</span></button>
       </div>
+      {!j.demo && j.slug && <ShareButton url={`${window.location.origin}/jobs/${j.slug}`} title={j.title} text={`${j.title} · ${j.company}`} className="sx-big sx-share" testid="sx-job-share" />}
     </article>
   );
 }

@@ -1,7 +1,25 @@
 // The dashboard's building blocks in the new design (round P, Phase 2B): white glass cards with a header, status
 // chips, friendly empty states with a small dotted picture, skeletons, a score ring, progress bars, a status pipeline,
 // stat tiles, grouped form cards and a sticky action bar for phones. Styles: styles/me-kit.css.
+import { useEffect } from 'react';
 import { Still } from '../newhome/ParticleStage';
+
+/** A link's #part (a setup step's "/me/profile#skills") scrolls to that section once the page has drawn it (Batch C
+ * items 21, 22). ids: the hash's word -> the element id on this page. */
+export function useHashScroll(ready, ids = {}) {
+  useEffect(() => {
+    if (!ready || typeof window === 'undefined') return undefined;
+    const h = decodeURIComponent(window.location.hash.slice(1));
+    if (!h) return undefined;
+    const id = setTimeout(() => {
+      const el = document.getElementById(ids[h] || h);
+      if (!el) return;
+      el.scrollIntoView({ block: 'start' });
+      el.querySelector('input, textarea, select, button')?.focus({ preventScroll: true });
+    }, 50);
+    return () => clearTimeout(id);
+  }, [ready]); // eslint-disable-line react-hooks/exhaustive-deps
+}
 
 /** A white glass card. title/sub: its header; icon: a small symbol in a tinted circle; actions: buttons on the right. */
 export function MeCard({ title, sub, icon, actions, children, tone, as: Tag = 'section', className = '', testid, label, headingLevel = 2, ...rest }) {

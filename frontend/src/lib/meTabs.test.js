@@ -18,3 +18,25 @@ describe('phone bottom bar', () => {
     expect(inMore(tabs)).toContain('auto');
   });
 });
+
+describe('side menu groups (Batch C items 23, 24)', async () => {
+  const { ME_NAV, MORE_GROUP, meGroups } = await import('../pages/me/MeLayout');
+  for (const student of [false, true]) {
+    it(`${student ? 'students' : 'job seekers'}: every link exactly once, a few groups, More last`, () => {
+      const g = meGroups(student);
+      const keys = g.flatMap(([, k]) => k);
+      expect(keys.slice().sort()).toEqual(ME_NAV.map(([k]) => k).sort());
+      expect(g.length).toBeLessThanOrEqual(5);
+      expect(g.at(-1)[0]).toBe(MORE_GROUP);
+      expect(keys.length - g.at(-1)[1].length).toBeLessThanOrEqual(15); // shown before More
+    });
+  }
+  it('students: learning, internships and skill checks first, then the resume, then jobs', () => {
+    const keys = meGroups(true).flatMap(([, k]) => k);
+    const at = (k) => keys.indexOf(k);
+    expect(at('learn')).toBeLessThan(at('programs'));
+    expect(at('programs')).toBeLessThan(at('skills'));
+    expect(at('skills')).toBeLessThan(at('resumes'));
+    expect(at('resumes')).toBeLessThan(at('jobs'));
+  });
+});

@@ -28,6 +28,7 @@ import { BarChart, HBars, PageHead } from '../AdminUI';
 import { Loading, day, emptyIf, http, useAction, useApi, when } from './common';
 import { SortTh, useSort } from './sort';
 import { auditText } from './auditText';
+import { switchTo } from '../../../lib/adminViews';
 import Kiosks from '../../org/Kiosks';
 import Branding from '../../org/Branding';
 import RecruiterLinks from '../../org/RecruiterLinks';
@@ -548,9 +549,10 @@ async function csvBlob(ctx, body, sort = 'name') {
 }
 
 /** Admin -> Organizations: the demo college with made-up students (sales demos and testing; not in real numbers). */
-function DemoOrg({ onOpen, reload }) {
+export function DemoOrg({ onOpen, reload }) {
   const toast = useToast();
   const [busy, run] = useAction(toast);
+  const [ask, setAsk] = useState(false); // the site's own confirm (the browser's native box froze the page: Batch A item 2)
   return (
     <section className="mcard ao-card ao-demo" aria-label="Demo organization" data-testid="demo-org">
       <header className="mcard-h"><span className="mcard-ic" aria-hidden="true"><IcSpark /></span><span className="mcard-ht"><strong className="mcard-title">Demo organization</strong><span className="mcard-sub">For testing and sales demos. Marked Demo and left out of real numbers.</span></span><span className="mcard-actions"><Chip tone="warn">Made-up data</Chip></span></header>
@@ -558,9 +560,18 @@ function DemoOrg({ onOpen, reload }) {
       <div className="ao-demo-actions">
         <button type="button" className="btn btn-signal" disabled={busy} onClick={() => run(async () => { const r = await http('/api/admin/demo-org', { method: 'POST' }); reload(); onOpen(r.orgId); }, 'Demo organization ready')}>Create / reset demo</button>
         <button type="button" className="btn btn-outline" disabled={busy} onClick={() => run(async () => { const r = await http('/api/admin/demo-org', { method: 'POST' }); window.location.assign(r.recruiterPath); })}>Reset and open as a recruiter</button>
-        <button type="button" className="btn btn-outline" disabled={busy} data-testid="demo-as-coordinator" onClick={() => { if (!window.confirm('Reset the demo college and open it as its coordinator? You stay signed in as admin: use Back to Admin at the top to come back.')) return; run(async () => { const r = await http('/api/admin/demo-org/coordinator', { method: 'POST' }); window.location.assign(r.path); }); }}>Reset and open as coordinator</button>
+        <button type="button" className="btn btn-outline" disabled={busy} data-testid="demo-as-coordinator" onClick={() => setAsk(true)}>Reset and open as coordinator</button>
         <button type="button" className="btn btn-outline ao-danger-btn" disabled={busy} onClick={() => run(async () => { await http('/api/admin/demo-org', { method: 'DELETE' }); reload(); }, 'Demo organization removed')}>Remove demo</button>
       </div>
+      {ask && (
+        <Dialog title="Reset and open as coordinator" showTitle onClose={() => setAsk(false)}>
+          <p className="small" style={{ margin: 0 }}>This resets the demo college to its starting data and opens it as its coordinator. You stay signed in as admin: use Back to Admin at the top to come back.</p>
+          <div className="row g8" style={{ justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+            <button type="button" className="btn btn-outline" disabled={busy} onClick={() => setAsk(false)}>Cancel</button>
+            <button type="button" className="btn btn-signal" disabled={busy} data-testid="demo-as-coordinator-yes" onClick={() => run(async () => { await http('/api/admin/demo-org', { method: 'POST' }); await switchTo('college'); })}>{busy ? 'Opening…' : 'Reset and open'}</button>
+          </div>
+        </Dialog>
+      )}
     </section>
   );
 }

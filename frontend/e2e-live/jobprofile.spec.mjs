@@ -309,3 +309,9 @@ function docxOf(paragraphs) {
   const doc = `<?xml version="1.0"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>${body}</w:body></w:document>`;
   return Buffer.from(zipSync({ 'word/document.xml': strToU8(doc), 'word/_rels/document.xml.rels': strToU8('<?xml version="1.0"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>') }));
 }
+
+test('a setup step link to /me/profile#skills opens at the Skills section (Batch C item 22)', async ({ page }) => {
+  await signIn(page);
+  await page.goto('/me/profile#skills');
+  await expect(page.getByRole('heading', { name: 'Skills', level: 2 })).toBeInViewport();
+});

@@ -52,3 +52,4 @@
   .qs-actions .btn { flex: 1 1 100%; }
 }
 .qs-reward-ic { vertical-align: -3px; flex: none; }
+.qs-job .job-actions { margin-top: 8px; } /* View / Apply / Save on each result (Batch C item 17) */

@@ -81,8 +81,10 @@ async def test_scores_on_cards_and_page_best_match_and_cache(client, db, outbox)
     assert by["Data Analyst"]["experience"] == "ok" and by["Data Analyst"]["city"] == "Chennai"
     assert by["Java Developer"]["missing"] == ["Java", "Spring"] and by["Java Developer"]["place"] == "other"
     assert by["Remote BI Intern"]["place"] == "remote"
-    # newest first by default; best match on request
-    assert [j["title"] for j in r["items"]][0] == "Remote BI Intern"
+    # Batch B: best match first by default when signed in with a resume; newest on request
+    assert [j["title"] for j in r["items"]] == ["Remote BI Intern", "Data Analyst", "Java Developer"]
+    newest = (await client.get("/api/jobs", params={"sort": "new"})).json()
+    assert [j["title"] for j in newest["items"]] == ["Remote BI Intern", "Java Developer", "Data Analyst"]
     r = (await client.get("/api/jobs", params={"sort": "match"})).json()
     # both 100 (all skills, level OK, Chennai / remote): the newer first; the Java job last
     assert [j["title"] for j in r["items"]] == ["Remote BI Intern", "Data Analyst", "Java Developer"]

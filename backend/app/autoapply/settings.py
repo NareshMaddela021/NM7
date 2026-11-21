@@ -13,7 +13,6 @@ Every change is in the activity log.
 """
 
 import math
-from collections import Counter
 from datetime import timedelta
 from typing import Any, Literal
 
@@ -22,12 +21,11 @@ from pydantic import Field, field_validator
 
 from app.audit import audit
 from app.auth.deps import CustomerAuth
-from app.core.db import DB, JOBS, RESUMES, USERS
+from app.core.db import DB, RESUMES, USERS
 from app.core.errors import ApiError
 from app.core.schemas import CamelModel
 from app.core.time import now
 from app.jobs.model import EXPERIENCE, JOB_TYPES
-from app.jobs.public import live_filter
 from app.jobsearch import skills as dictionary
 from app.me.service import ms
 from app.orgs.ats import ats_score
@@ -217,17 +215,23 @@ async def pause(body: PauseIn, auth: CustomerAuth, db: DB) -> dict[str, Any]:
 
 @router.get("/suggest")
 async def suggest(auth: CustomerAuth, db: DB) -> dict[str, Any]:
-    titles = Counter()
-    async for j in db[JOBS].find(live_filter(), {"title": 1}).sort("posted_at", -1).limit(500):
-        titles[" ".join(j["title"].split())[:60]] += 1
+    """Batch B: clean role names (the role finder's roles, then roles that fit the resume, then common roles) and the
+    resume's own skills; never raw titles from the board."""
+    from app.jobs.titles import role_names, roles_for_resume
+
     r = await resume_for(db, auth.user.id)
-    mine = []
+    mine, fitting = [], []
     if r:
         from app.jobsearch.facts import resume_text
 
-        mine = [s for s in dictionary.find(resume_text(r.get("data") or {}))][:15]
+        text = resume_text(r.get("data") or {})
+        mine = [s for s in dictionary.find(text)][:15]
+        fitting = roles_for_resume(set(mine), text)
     from app.seek.roles import suggested_roles  # Phase 6 S1: the role finder's three roles come first
 
     found = await suggested_roles(db, auth.user.id)
-    rest = [t for t, _ in titles.most_common(30) if t.lower() not in {f.lower() for f in found}]
-    return {"roles": [*found, *rest], "fromRoleFinder": found, "skills": mine}
+    roles: list[str] = []
+    for name in [*found, *fitting, *role_names()]:
+        if name.lower() not in {x.lower() for x in roles}:
+            roles.append(name)
+    return {"roles": roles[:30], "fromRoleFinder": found, "skills": mine}

@@ -44,6 +44,9 @@ for (const [label, opts] of SIZES) {
       await expect(card.getByTestId('sx-job-salary')).toContainText('₹25,000–35,000 a month');
       await expect(card.getByTestId('sx-job-trust')).toContainText('Verified company');
       await expect(card.getByTestId('sx-job-match')).toHaveText(/\d+% match/);
+      // Batch C item 18: View and Share on each card
+      await expect(card.getByTestId('sx-job-view')).toHaveAttribute('href', /^\/jobs\//);
+      await expect(card.getByTestId('sx-job-share')).toBeVisible();
       await card.getByTestId('sx-job-say').click();
       await expect.poll(() => page.evaluate(() => window.__spoken.at(-1))).toContain(`Data Analyst ${tag}. Simpleco ${tag} Pvt Ltd.`);
       expect(await noSideScroll(page)).toBe(true);

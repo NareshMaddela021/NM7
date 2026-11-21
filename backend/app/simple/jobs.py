@@ -21,6 +21,7 @@ from app.autoapply.settings import gate, settings_of
 from app.core.db import APPLICATIONS, AUTO_ITEMS, DB, JOBS, SAVED_JOBS, USERS
 from app.jobs import fit as fitmod
 from app.jobs.public import badges, live_filter, public_out
+from app.jobs.titles import display_title
 from app.site import get_site
 
 router = APIRouter(prefix="/api/me/simple/jobs", tags=["easy dashboard"])
@@ -39,11 +40,29 @@ def reason(m: dict[str, Any]) -> dict[str, Any]:
     return {"key": "level", "vars": {}}
 
 
+def round_pay(n: float) -> int:
+    """Batch C item 18: a clear round number a month (₹29,167 -> ₹29,000): to the nearest 500, 100 under ₹5,000."""
+    step = 100 if n < 5000 else 500
+    return int(round(n / step) * step) or step
+
+
 def per_month(s: dict[str, Any] | None) -> dict[str, int] | None:
     if not s or (s.get("min") is None and s.get("max") is None):
         return None
     div = 12 if s.get("period", "yearly") == "yearly" else 1
-    return {k: round(s[k] / div) for k in ("min", "max") if s.get(k) is not None}
+    out = {k: round_pay(s[k] / div) for k in ("min", "max") if s.get(k) is not None}
+    if out.get("min") is not None and out.get("min") == out.get("max"):
+        out.pop("max")  # "From ₹20,000 a month", not "₹20,000–20,000"
+    return out
+
+
+def same_job(j: dict[str, Any]) -> tuple[str, str]:
+    """The same job posted twice (or by two sources) counts once: its title and company, in any case and spacing."""
+
+    def norm(x: Any) -> str:
+        return " ".join(str(x or "").lower().split())
+
+    return norm(j.get("title")), norm((j.get("company") or {}).get("name"))
 
 
 async def top_jobs(db, uid: str, demo: bool = False) -> tuple[str, list[dict[str, Any]]]:
@@ -61,6 +80,8 @@ async def top_jobs(db, uid: str, demo: bool = False) -> tuple[str, list[dict[str
     )
     scored = await fitmod.fits(db, uid, person, pool, save=False)
     pool.sort(key=lambda j: -scored[j["_id"]]["score"])
+    seen: set[tuple[str, str]] = set()
+    pool = [j for j in pool if not (same_job(j) in seen or seen.add(same_job(j)))]  # no duplicates (Batch C item 18)
     return "on", [{"job": j, "match": scored[j["_id"]]} for j in pool[:TOP]]
 
 
@@ -84,7 +105,7 @@ async def simple_jobs(db: DB, auth: CustomerAuth) -> dict[str, Any]:
             {
                 "id": j["_id"],
                 "slug": j["slug"],
-                "title": j["title"],
+                "title": display_title(j),
                 "company": j["company"]["name"],
                 "place": "remote" if j.get("remote") else ", ".join((j.get("locations") or [])[:2]),
                 "match": m["score"],
