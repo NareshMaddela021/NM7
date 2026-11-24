@@ -86,7 +86,7 @@ export function Terms() {
       `${PLANS.expert.name} — ${inr(PLANS.expert.price)}: ${PLANS.expert.blurb}.`,
       `${PLANS.launch.name} — ${inr(PLANS.launch.price)}: ${PLANS.launch.blurb}.`,
       `Add-ons: ${Object.values(ADDONS).map((a) => `${a.name} (${inr(a.price)})`).join(', ')}.`,
-    ], 'What each plan includes is shown on the page where you buy it. That description is part of these terms. Some features are still being tested and may not be on for your account yet.', <>Companies and colleges also follow our {companyTermsLink}.</>]],
+    ], 'What each plan includes is shown on the page where you buy it. That description is part of these terms. Auto Apply 2.0 is live for everyone; some skill-check and vetting features are still being tested and may not be on for your account yet.', <>Companies and colleges also follow our {companyTermsLink}.</>]],
     ['Prices and payment', [`Prices are in Indian rupees and include GST. You pay through ${PROMISES.paymentProvider} by UPI, card, netbanking or wallet; we never see your card, UPI or bank details.`, 'A GST invoice is emailed to you after each payment and stays in My orders. Upgrades charge only the difference between plans.']],
     ['How expert orders work', [[
       `After payment, a verified expert in your field accepts the order and you answer a few intake questions.`,
@@ -135,7 +135,7 @@ export function Terms() {
 
 export function Privacy() {
   return <Page updated={LEGAL_UPDATED} title="Privacy Policy" intro={`How ${L.company} collects, uses and protects your personal data on ${L.site}, in line with the Digital Personal Data Protection Act, 2023 and the Information Technology Act, 2000.`} sections={[
-    ['Who we are', [`${L.company} runs Nm7 and decides how your personal data on Nm7 is used.${L.address ? ` Registered office: ${L.address}.` : ''} Some features below are still being tested and may not be on for your account yet; this policy covers them anyway.`]],
+    ['Who we are', [`${L.company} runs Nm7 and decides how your personal data on Nm7 is used.${L.address ? ` Registered office: ${L.address}.` : ''} Auto Apply 2.0, including email applications from apply.nm7.si and the replies companies send back, is live for everyone. Some skill-check and vetting features below are still being tested and may not be on for your account yet; this policy covers them anyway.`]],
     ['What we collect', [[
       'Account details: name, email, mobile number, password (stored encrypted).',
       'If you sign in with Google: your Google account ID, email, name and picture link. Never your Google password.',
@@ -199,7 +199,7 @@ export function Privacy() {
       'Messages and calls about jobs, only if you agree: Meta (WhatsApp) and Bolna (AI phone calls).',
       'Checks, only when you use them: Amazon Web Services (face check, Mumbai), Microsoft Azure (spoken English pronunciation), Setu (DigiLocker documents), Judge0 (running your code in coding tasks), and Surepass (checking companies’ business registration).',
       'Error reports: Sentry, to find and fix errors.',
-      'Blog: Hygraph stores our blog articles (no personal data from your account).',
+      'Blog: Hygraph stores our older blog articles, which nm7.si/blog shows (no personal data from your account).',
       `Cloud hosting and storage providers that run Nm7${L.hosting ? ` (${L.hosting})` : ''}.`,
       'Authorities, when the law requires it.',
     ], 'Some of these providers process data outside India. We do not sell your personal data and we do not share it for advertising.']],
