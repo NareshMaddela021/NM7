@@ -9,6 +9,7 @@ describe('page titles', () => {
     expect(metaFor('/me/orders')).toMatchObject({ title: 'My orders', noindex: true });
     expect(metaFor('/nope')).toMatchObject({ title: 'Page not found', noindex: true });
     expect(metaFor('/expert-terms')).toMatchObject({ title: 'Expert terms', noindex: false });
+    expect(metaFor('/company-terms')).toMatchObject({ title: 'Terms for companies and colleges', noindex: false }); // not the private /company dashboard
     expect(metaFor('/me/messages').title).toBe('Messages');
     expect(metaFor('/admin').title).toBe('Dashboard · Admin');
     expect(metaFor('/admin/payments').title).toBe('Payments & invoices · Admin');

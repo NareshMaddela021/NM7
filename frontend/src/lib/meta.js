@@ -78,6 +78,7 @@ export const ROUTE_META = [
   [/^\/refund-policy/, 'Refund & cancellation policy', 'When and how Nm7 refunds orders.'],
   [/^\/delivery-policy/, 'Delivery policy', 'How and when Nm7 delivers your resume.'],
   [/^\/expert-terms/, 'Expert terms', 'Terms for resume experts working with Nm7.'],
+  [/^\/company-terms/, 'Terms for companies and colleges', 'The terms for companies hiring on Nm7 and for colleges and organizations using it.'],
   [/^\/contact/, 'Contact us', 'How to reach Nm7.'],
   [/^\/blog(\/|$)/, 'Resume & job-search blog', 'Practical resume, ATS and interview advice for India from the Nm7 team.'],
 ];

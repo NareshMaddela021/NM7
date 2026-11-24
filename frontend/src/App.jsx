@@ -93,6 +93,7 @@ const Privacy = named(legal, 'Privacy');
 const RefundPolicy = named(legal, 'RefundPolicy');
 const DeliveryPolicy = named(legal, 'DeliveryPolicy');
 const ExpertTerms = named(legal, 'ExpertTerms');
+const CompanyTerms = named(legal, 'CompanyTerms');
 const Contact = named(legal, 'Contact');
 const MeLayout = lazy(() => import('./pages/me/MeLayout'));
 const MeHome = lazy(() => import('./pages/me/MeHome'));
@@ -268,7 +269,7 @@ function ToNewHome() {
 const SCREENS = [
   ['/', 'Home · free scan'], ['/scan', 'Scan report'], ['/checkout', 'Checkout'], 
   ['/login', 'Sign in'], ['/signup', 'Sign up'], ['/admin/login', 'Admin login (two-step)'], ['/orders/RS-1117/intake', 'Intake questions'], ['/orders/RS-1117/refund', 'Refund request'], ['/editor', 'Editor'],
-  ['/builder', 'Resume builder'], ['/me', 'Customer · dashboard'], ['/me/orders/RS-1117', 'Customer · order'], ['/me/resumes', 'Customer · my resumes'], ['/me/profile', 'Customer · Job Profile'], ['/me/jobs', 'Customer · applications'], ['/me/ats', 'Customer · ATS & job match'], ['/me/launch', 'Customer · Career Launch'], ['/r/sai-varsha', 'Public resume link'], ['/expert', 'Expert home'], ['/expert/orders', 'Expert orders'], ['/expert/orders/RS-1117', 'Expert workspace · builder'], ['/orders/RS-1117/review', 'Customer · review draft'], ['/expert/earnings', 'Expert earnings'], ['/expert/profile', 'Expert profile · join'], ['/admin', 'Admin · dashboard'], ['/admin/orders', 'Admin · orders'], ['/admin/experts?tab=applications', 'Admin · expert applications'], ['/admin/payments?tab=payouts', 'Admin · payouts'], ['/expert/test', 'Expert · test task (sign in as Ravi)'], ['/terms', 'Terms'], ['/privacy', 'Privacy policy'], ['/refund-policy', 'Refund policy'], ['/expert-terms', 'Expert terms'], ['/contact', 'Contact us'],
+  ['/builder', 'Resume builder'], ['/me', 'Customer · dashboard'], ['/me/orders/RS-1117', 'Customer · order'], ['/me/resumes', 'Customer · my resumes'], ['/me/profile', 'Customer · Job Profile'], ['/me/jobs', 'Customer · applications'], ['/me/ats', 'Customer · ATS & job match'], ['/me/launch', 'Customer · Career Launch'], ['/r/sai-varsha', 'Public resume link'], ['/expert', 'Expert home'], ['/expert/orders', 'Expert orders'], ['/expert/orders/RS-1117', 'Expert workspace · builder'], ['/orders/RS-1117/review', 'Customer · review draft'], ['/expert/earnings', 'Expert earnings'], ['/expert/profile', 'Expert profile · join'], ['/admin', 'Admin · dashboard'], ['/admin/orders', 'Admin · orders'], ['/admin/experts?tab=applications', 'Admin · expert applications'], ['/admin/payments?tab=payouts', 'Admin · payouts'], ['/expert/test', 'Expert · test task (sign in as Ravi)'], ['/terms', 'Terms'], ['/privacy', 'Privacy policy'], ['/refund-policy', 'Refund policy'], ['/expert-terms', 'Expert terms'], ['/company-terms', 'Terms for companies and colleges'], ['/contact', 'Contact us'],
 ];
 
 /** Shown only in the shareable preview build: says it's sample data and lets you jump to any screen. */
@@ -435,6 +436,7 @@ export default function App() {
         <Route path="/refund-policy" element={<RefundPolicy />} />
         <Route path="/delivery-policy" element={<DeliveryPolicy />} />
         <Route path="/expert-terms" element={<ExpertTerms />} />
+        <Route path="/company-terms" element={<CompanyTerms />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/blog" element={<BlogList />} />
         <Route path="/blog/page/:page" element={<BlogList />} />

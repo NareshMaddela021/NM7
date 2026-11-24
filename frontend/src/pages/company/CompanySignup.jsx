@@ -392,7 +392,7 @@ function ReviewStep({ t, company, setCompany, run, busy, go, onDone }) {
       <p className="small cs-note" style={{ margin: 0 }}>{t('co.levels')}</p>
       <label className="cs-tick">
         <input type="checkbox" value="terms" checked={terms} onChange={(e) => setTerms(e.target.checked)} />
-        <span className="small">{t('co.terms')} <Link to="/terms">{t('co.termsLink')}</Link></span>
+        <span className="small">{t('co.terms')} <Link to="/company-terms" target="_blank">{t('co.termsLink')}</Link></span>
       </label>
       <div className="cs-actions">
         <button type="button" className="btn btn-outline" onClick={() => go(3)}>{t('co.back')}</button>

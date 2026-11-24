@@ -22,7 +22,7 @@ export const olderBase = () => String(process.env.BLOG_API_BASE || process.env.V
 /** Pages that are always in the sitemap (the blog adds its own). */
 export const STATIC_PAGES = [
   ['/', 'weekly', '1.0'], ['/builder', 'monthly', '0.8'], ['/templates', 'monthly', '0.8'], ['/blog', 'daily', '0.8'], ['/jobs', 'daily', '0.9'], ['/for-companies', 'monthly', '0.6'], ['/contact', 'yearly', '0.4'], ['/for-orgs', 'monthly', '0.7'], ['/partners', 'monthly', '0.5'], ['/pricing', 'monthly', '0.6'],
-  ['/terms', 'yearly', '0.3'], ['/privacy', 'yearly', '0.3'], ['/refund-policy', 'yearly', '0.3'], ['/delivery-policy', 'yearly', '0.3'], ['/expert-terms', 'yearly', '0.3'],
+  ['/terms', 'yearly', '0.3'], ['/privacy', 'yearly', '0.3'], ['/refund-policy', 'yearly', '0.3'], ['/delivery-policy', 'yearly', '0.3'], ['/expert-terms', 'yearly', '0.3'], ['/company-terms', 'yearly', '0.3'],
 ];
 
 /** JSON safe to put inside a <script> element (no "</script>", no HTML comments). */

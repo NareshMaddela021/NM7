@@ -61,7 +61,7 @@ test('each page has its own title and description', async ({ page }) => {
 });
 
 test('legal and contact pages show no [placeholders]', async ({ page }) => {
-  for (const path of ['/contact', '/terms', '/privacy', '/refund-policy', '/delivery-policy', '/expert-terms']) {
+  for (const path of ['/contact', '/terms', '/privacy', '/refund-policy', '/delivery-policy', '/expert-terms', '/company-terms']) {
     await page.goto(path);
     const text = await page.locator('main').innerText();
     expect(text, path).not.toMatch(/\[[A-Za-z][^\]]*\]/);
