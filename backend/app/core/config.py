@@ -134,6 +134,15 @@ class Settings(BaseSettings):
     judge0_rapidapi_key: str = ""
     judge0_auth_token: str = ""
 
+    # Blog: the older articles in the Hygraph project "Team Nm7" (model BlogPost), read-only and published content only,
+    # merged into nm7.si/blog by the site build (GET /api/blog/legacy, app/blog). HYGRAPH_TOKEN is a read-only Permanent
+    # Auth Token of that project (default stage Published), set in Render; never printed, logged or returned. Without
+    # it the source is off and the blog shows only its own posts. HYGRAPH_ENDPOINT is the project's Content API URL
+    # (Project settings > Endpoints). The posts are kept in memory for BLOG_CACHE_MINUTES.
+    hygraph_token: str = ""
+    hygraph_endpoint: str = "https://api-ap-south-1.hygraph.com/v2/cmtxihlft00uf06v1drejgj89/master"
+    blog_cache_minutes: int = 360
+
     # Razorpay — empty until keys exist
     razorpay_key_id: str = ""
     razorpay_key_secret: str = ""

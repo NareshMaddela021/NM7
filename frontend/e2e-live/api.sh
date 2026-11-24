@@ -5,6 +5,9 @@ cd "$(dirname "$0")/../../backend"
 export APP_ENV=dev MONGODB_DB=nm7_e2e SECRET_KEY=e2e-only-secret ENCRYPTION_KEY= CORS_ORIGINS=http://localhost:5182 COOKIE_SAMESITE=lax \
   EMAIL_PROVIDER=resend RESEND_API_KEY= RAZORPAY_KEY_ID= RAZORPAY_KEY_SECRET= RAZORPAY_WEBHOOK_SECRET=e2e-webhook-secret ADMIN_SETUP_TOKEN=
 export MONGODB_URI="${TEST_MONGODB_URI:-mongodb://127.0.0.1:27017/?replicaSet=rs0}"
+# The blog's older articles: the Hygraph stand-in started by e2e-live/build-with-blog.mjs, with a made-up token (the
+# stand-in accepts anything; the real read-only token is set only in Render).
+export HYGRAPH_ENDPOINT=http://localhost:5199/legacy HYGRAPH_TOKEN=e2e-made-up-token
 uv run python -m tests.e2e_seed reset
 # "Sign in with Google" test tokens: a key made now (the Google test signs with it); the client ID is accepted but kept
 # out of the site flags, so no other test sees a Google button. Both are ignored when APP_ENV is prod.

@@ -1,9 +1,11 @@
-// A stand-in for Hygraph's Content API with the test posts (src/lib/blog/fixtures/hygraph.js).
+// A stand-in for Hygraph's Content API with the test posts (src/lib/blog/fixtures/hygraph.js); `blogPosts` queries
+// (the older articles of the "Team Nm7" project, which the API reads with its token) get OLDER_RAW.
 import { createServer } from 'node:http';
-import { CATEGORIES, POSTS } from '../src/lib/blog/fixtures/hygraph.js';
+import { CATEGORIES, OLDER_RAW, POSTS } from '../src/lib/blog/fixtures/hygraph.js';
 
 export function answer(body, { posts = POSTS, categories = CATEGORIES } = {}) {
   const v = body.variables || {};
+  if (body.query.includes('blogPosts(')) return { data: { blogPosts: OLDER_RAW.slice(v.skip || 0, (v.skip || 0) + (v.first || 100)) } };
   return body.query.includes('post(where')
     ? { data: { post: posts.find((p) => p.slug === v.slug) || null } }
     : { data: { posts: posts.slice(v.skip || 0, (v.skip || 0) + (v.first || 100)), categories } };

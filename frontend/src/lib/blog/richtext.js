@@ -66,6 +66,13 @@ export function richTextToHtml(doc) {
   return kids.map(node).join('');
 }
 
+/** An article's questions and answers (also in its FAQPage JSON-LD, so they must be on the page too), escaped. */
+export function faqToHtml(faq) {
+  if (!Array.isArray(faq) || !faq.length) return '';
+  const items = faq.filter((q) => q?.question && q?.answer).map((q) => `<h3>${esc(q.question)}</h3><p>${esc(q.answer)}</p>`).join('');
+  return items ? `<section class="blog-faq" aria-labelledby="blog-faq-h"><h2 id="blog-faq-h">Frequently asked questions</h2>${items}</section>` : '';
+}
+
 export function plainText(doc) {
   const out = [];
   const walk = (n) => { if (!n) return; if (typeof n.text === 'string') out.push(n.text); (n.children || []).forEach(walk); };

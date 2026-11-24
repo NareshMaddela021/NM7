@@ -33,6 +33,11 @@ describe('live answers only ever add posts (merge by slug)', async () => {
     expect(m.posts.map((x) => x.slug)).toEqual(['c', 'b', 'a']);
     expect(m.categories.map((x) => x.slug)).toEqual(['ats', 'freshers']);
   });
+  it('a live post the build merged away (moved slug or same title) is not added back', () => {
+    const b = { ...built, aliases: { old: 'a' } };
+    const m = mergeIndex(b, { live: true, posts: [p('old', '2026-10-16'), { ...p('a-copy', '2026-10-16'), title: 'A!' }, p('c', '2026-10-16')], categories: [] });
+    expect(m.posts.map((x) => x.slug)).toEqual(['c', 'b', 'a']);
+  });
   it('no built list (or an empty one) -> the live list', () => {
     expect(mergeIndex(null, { live: true, posts: [p('c', '2026-10-16')], categories: [] }).posts).toHaveLength(1);
     expect(mergeIndex({ posts: [], categories: built.categories }, { live: true, posts: [p('c', '2026-10-16')], categories: [] }).categories).toEqual(built.categories);
