@@ -40,6 +40,16 @@ for (const [label, opts] of SIZES) {
       await expect(hire).not.toContainText('undefined');
       const scores = (await page.getByTestId('co-hire-score').allInnerTexts()).map((x) => parseInt(x.replace(/\D/g, ''), 10));
       expect(scores).toEqual([...scores].sort((x, y) => y - x));
+      // demo match fix: the demo people agreed to matching, so the leaders show a high match with every must-have met
+      // (never "50% match" with "hasn't agreed to matching yet")
+      expect(scores[0]).toBeGreaterThanOrEqual(85);
+      expect(scores[0]).toBeLessThanOrEqual(95);
+      const first = page.getByTestId('co-hire-row').first();
+      await expect(first.getByTestId('crit-line')).toContainText('4 of 4 must-haves');
+      await expect(hire.getByTestId('crit-noconsent')).toHaveCount(0);
+      await first.getByTestId('crit-why').click();
+      await expect(first.getByTestId('crit-list')).toContainText('Met');
+      expect(await first.getByTestId('crit-quote').count()).toBeGreaterThanOrEqual(4); // each answer quotes its evidence
       if (await page.getByTestId('co-hire-more').count()) {
         await page.getByTestId('co-hire-more').click();
         expect(await page.getByTestId('co-hire-row').count()).toBeGreaterThan(10);

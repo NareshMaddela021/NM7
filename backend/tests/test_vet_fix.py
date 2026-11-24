@@ -114,7 +114,7 @@ async def test_hire_demo_badges_add_no_per_person_writes(db, monkeypatch):
     monkeypatch.setattr(AsyncCollection, "insert_one", one)
     monkeypatch.setattr(AsyncCollection, "insert_many", many)
     await hire_demo.seed_people(db)
-    assert calls["one"] == 0 and calls["many"] <= 6, calls
+    assert calls["one"] == 0 and calls["many"] <= 8, calls  # + the matching consents and Work preferences
 
 
 # --- 2. typing speed and impossible speed ------------------------------------------------------------------------
