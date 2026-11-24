@@ -3,6 +3,7 @@
 // empty or over 10 minutes old, and its answer is MERGED in by slug: it can add newer posts, never remove or hide
 // the built ones (a stale CDN answer once said `posts: []` while 30 posts were published).
 import { fetchBlog, fetchPost, summary } from './hygraph';
+import { normTitle } from './merge';
 
 let embedded;
 function pageData() {
@@ -44,12 +45,15 @@ export function liveIndex() {
 
 const bySlug = (list) => new Map((list || []).map((x) => [x.slug, x]));
 const newestFirst = (a, b) => String(b.publishedAt || '').localeCompare(String(a.publishedAt || ''));
-/** The built list plus whatever the live list adds (by slug). Never fewer posts or categories than were built. */
+/** The built list plus whatever the live list adds (by slug). Never fewer posts or categories than were built. A live
+ * post the build merged away (an old slug that moved, or the same title as a built post) is not added back. */
 export function mergeIndex(built, fresh) {
   if (!fresh?.posts) return built;
   if (!built?.posts?.length) return { ...fresh, categories: fresh.categories?.length ? fresh.categories : built?.categories || [] };
   const posts = bySlug(built.posts);
-  for (const p of fresh.posts) if (!posts.has(p.slug)) posts.set(p.slug, p);
+  const titles = new Set(built.posts.map((p) => normTitle(p.title)));
+  const moved = built.aliases || {};
+  for (const p of fresh.posts) if (!posts.has(p.slug) && !moved[p.slug] && !titles.has(normTitle(p.title))) posts.set(p.slug, p);
   const cats = bySlug(built.categories);
   for (const c of fresh.categories || []) if (!cats.has(c.slug)) cats.set(c.slug, c);
   return { ...built, live: true, posts: [...posts.values()].sort(newestFirst), categories: [...cats.values()] };

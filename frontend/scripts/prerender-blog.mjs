@@ -5,11 +5,19 @@
 // page, plus the data the app uses when it takes over (dist/blog/data.json, dist/blog/<slug>/post.json) and
 // dist/sitemap.xml. If Hygraph can't be reached the build still succeeds: a warning is logged, /blog is written
 // as an empty shell and the app reads the blog from Hygraph in the browser instead.
+// The older articles (Hygraph project "Team Nm7") come from the API on Render (GET /api/blog/legacy at BLOG_API_BASE,
+// else VITE_API_BASE), which holds the read-only token, rebrands them and drops duplicates; they are merged in here
+// (src/lib/blog/merge.js: one post per slug and per title). Lists are split into pages of PER_PAGE
+// (/blog/page/2, /blog/category/<slug>/page/2); an old slug that moved gets a small page sending readers on.
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { PER_PAGE, buildEndpoint, fetchCategories, fetchPosts, fmtDate, relatedPosts, summary } from '../src/lib/blog/hygraph.js';
-import { esc, richTextToHtml } from '../src/lib/blog/richtext.js';
-import { BLOG_DESC, BLOG_TITLE, ORIGIN, categoryJsonLd, categoryMeta, listJsonLd, listMeta, postJsonLd, postMeta } from '../src/lib/blog/seo.js';
+import { esc, faqToHtml, richTextToHtml } from '../src/lib/blog/richtext.js';
+import { BLOG_DESC, BLOG_TITLE, ORIGIN, categoryJsonLd, categoryMeta, listJsonLd, listMeta, pagePath, postJsonLd, postMeta } from '../src/lib/blog/seo.js';
+import { fetchOlder, mergePosts, scrubOldDomain, withPostCategories } from '../src/lib/blog/merge.js';
+
+/** Where the older articles come from: the API (BLOG_API_BASE, else VITE_API_BASE); empty = not read. */
+export const olderBase = () => String(process.env.BLOG_API_BASE || process.env.VITE_API_BASE || '').trim();
 
 /** Pages that are always in the sitemap (the blog adds its own). */
 export const STATIC_PAGES = [
@@ -58,16 +66,41 @@ export const card = (p) => `<article class="blog-card"><a href="/blog/${esc(p.sl
 const filters = (categories, active) => `<nav class="blog-filters" aria-label="Categories"><a href="/blog"${active ? '' : ' aria-current="page"'}>All</a>${categories.map((c) => `<a href="/blog/category/${esc(c.slug)}"${active === c.slug ? ' aria-current="page"' : ''}>${esc(c.name)}</a>`).join('')}</nav>`;
 const empty = '<p class="blog-empty">First articles coming soon.</p>';
 
-export function listBody(posts, categories, active = null) {
+export const pageCount = (n) => Math.max(1, Math.ceil(n / PER_PAGE));
+/** "Newer articles · Page 2 of 5 · Older articles" (links crawlers follow to every article). */
+export function pager(base, page, pages) {
+  if (pages <= 1) return '';
+  const prev = page > 1 ? `<a href="${esc(pagePath(base, page - 1))}" rel="prev">Newer articles</a>` : '';
+  const next = page < pages ? `<a href="${esc(pagePath(base, page + 1))}" rel="next">Older articles</a>` : '';
+  return `<nav class="blog-pager" aria-label="Pages">${prev}<span>Page ${page} of ${pages}</span>${next}</nav>`;
+}
+
+export function listBody(posts, categories, active = null, page = 1) {
   const c = active && categories.find((x) => x.slug === active);
   const head = `<h1 class="display h2">${c ? esc(c.name) : esc(BLOG_TITLE)}</h1><p class="lead">${c ? `Articles on ${esc(c.name.toLowerCase())}.` : esc(BLOG_DESC)}</p>`;
-  return shell(`<div class="stack g16">${head}${filters(categories, active)}</div>${posts.length ? `<div class="blog-grid">${posts.map(card).join('')}</div>` : empty}`);
+  const shown = posts.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  const base = c ? `/blog/category/${c.slug}` : '/blog';
+  return shell(`<div class="stack g16">${head}${filters(categories, active)}</div>${posts.length ? `<div class="blog-grid">${shown.map(card).join('')}</div>${pager(base, page, pageCount(posts.length))}` : empty}`);
 }
+
+/** A small page for an old slug: sends the reader (and search engines) to the article it moved to. */
+export const movedPage = (to) => `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Moved · Nm7</title>
+    <meta name="robots" content="noindex, follow" />
+    <link rel="canonical" href="${esc(`${ORIGIN}/blog/${to}`)}" />
+    <meta http-equiv="refresh" content="0; url=/blog/${esc(to)}" />
+  </head>
+  <body><p>This article moved: <a href="/blog/${esc(to)}">read it here</a>.</p></body>
+</html>
+`;
 
 export function postBody(p, related) {
   const by = `<p class="blog-byline">${p.author ? `${esc(p.author.name)} · ` : ''}${esc(fmtDate(p.publishedAt))} · ${p.minutes} min read</p>`;
   const crumbs = `<nav class="blog-crumbs" aria-label="Breadcrumb"><a href="/blog">Blog</a>${p.category ? ` / <a href="/blog/category/${esc(p.category.slug)}">${esc(p.category.name)}</a>` : ''}</nav>`;
-  const art = `<article class="blog-article">${crumbs}<h1 class="display h2">${esc(p.title)}</h1>${by}${p.cover ? `<img class="blog-cover" src="${esc(p.cover.url)}" alt="" decoding="async"${p.cover.width && p.cover.height ? ` width="${p.cover.width}" height="${p.cover.height}"` : ''}>` : ''}<div class="blog-content">${richTextToHtml(p.content)}</div></article>`;
+  const art = `<article class="blog-article">${crumbs}<h1 class="display h2">${esc(p.title)}</h1>${by}${p.cover ? `<img class="blog-cover" src="${esc(p.cover.url)}" alt="" decoding="async"${p.cover.width && p.cover.height ? ` width="${p.cover.width}" height="${p.cover.height}"` : ''}>` : ''}<div class="blog-content">${richTextToHtml(p.content)}${faqToHtml(p.faq)}</div></article>`;
   const cta = '<aside class="blog-cta" aria-label="Free resume scan"><strong>Is your resume ATS-ready?</strong><span>See your score and every issue in seconds.</span><a class="btn btn-ink" href="/pricing#scan">Scan your resume free</a></aside>';
   const rel = related.length ? `<section class="blog-related" aria-labelledby="blog-related-h"><h2 id="blog-related-h">Related articles</h2><div class="blog-grid">${related.map(card).join('')}</div></section>` : '';
   return shell(`<div class="blog-layout">${art}${cta}</div>${rel}`);
@@ -98,34 +131,56 @@ const SLUG = /^[a-z0-9][a-z0-9-]*$/i; // only safe folder names
 
 /** Writes the blog pages and the sitemap into `dist`. Never throws on a Hygraph problem: it logs exactly what went
  * wrong (endpoint, HTTP status, GraphQL errors) for posts and for categories separately. */
-export async function prerenderBlog({ dist, endpoint = buildEndpoint(), fetchImpl = globalThis.fetch, log = console, now = Date.now() } = {}) {
+export async function prerenderBlog({ dist, endpoint = buildEndpoint(), fetchImpl = globalThis.fetch, log = console, now = Date.now(), apiBase = olderBase(), apiFetch = fetchImpl } = {}) {
   const template = readFileSync(join(dist, 'index.html'), 'utf8');
   const opts = { endpoint, fetchImpl };
   const why = (e) => e.message;
   log.info?.(`[blog] reading Hygraph at ${endpoint}`);
-  const [postsRes, catsRes] = await Promise.allSettled([fetchPosts(opts), fetchCategories(opts)]);
+  if (apiBase) log.info?.(`[blog] reading the older articles from ${apiBase}/api/blog/legacy`);
+  const [postsRes, catsRes, olderRes] = await Promise.allSettled([fetchPosts(opts), fetchCategories(opts), apiBase ? fetchOlder(apiBase, { fetchImpl: apiFetch }) : Promise.resolve(null)]);
+  const older = olderRes.status === 'fulfilled' && olderRes.value ? olderRes.value : { configured: false, posts: [], aliases: {} };
+  if (olderRes.status === 'rejected') log.warn(`[blog] WARNING: the older articles could not be read from the API: ${why(olderRes.reason)}. Only the blog's own posts were pre-rendered.`);
+  else if (olderRes.value && !older.configured) log.info?.('[blog] older articles: off (HYGRAPH_TOKEN is not set on the API)');
+  else if (olderRes.value) log.info?.(`[blog] older articles: ${older.posts.length}`);
   if (postsRes.status === 'fulfilled') log.info?.(`[blog] posts: ${postsRes.value.length} published (${postsRes.value.map((p) => p.slug).join(', ') || 'none'})`);
   else log.warn(`[blog] WARNING: the posts query failed: ${why(postsRes.reason)}. No articles were pre-rendered; /blog/data.json says posts: null so the site reads Hygraph in the browser.`);
   if (catsRes.status === 'fulfilled') log.info?.(`[blog] categories: ${catsRes.value.length} (${catsRes.value.map((c) => c.slug).join(', ') || 'none'})`);
   else log.warn(`[blog] WARNING: the categories query failed: ${why(catsRes.reason)}. Category pages were not written.`);
 
-  const ok = postsRes.status === 'fulfilled';
-  const posts = (ok ? postsRes.value : []).filter((p) => SLUG.test(p.slug));
-  const skipped = (ok ? postsRes.value : []).filter((p) => !SLUG.test(p.slug));
+  // the blog's own posts must have come through; the older ones alone still make a blog when they did not
+  const ok = postsRes.status === 'fulfilled' || older.posts.length > 0;
+  const own = postsRes.status === 'fulfilled' ? postsRes.value : [];
+  const merged = mergePosts(own, older.posts, older.aliases);
+  const all = merged.posts.map(scrubOldDomain);
+  if (older.posts.length) log.info?.(`[blog] merged: ${own.length} own + ${older.posts.length} older = ${all.length} articles (${Object.keys(merged.aliases).length} old slugs point to another article)`);
+  const posts = all.filter((p) => SLUG.test(p.slug));
+  const skipped = all.filter((p) => !SLUG.test(p.slug));
   if (skipped.length) log.warn(`[blog] WARNING: skipped posts whose slug isn’t a-z, 0-9 and dashes: ${skipped.map((p) => JSON.stringify(p.slug)).join(', ')}`);
-  const categories = (catsRes.status === 'fulfilled' ? catsRes.value : []).filter((c) => SLUG.test(c.slug));
+  const categories = withPostCategories(catsRes.status === 'fulfilled' ? catsRes.value : [], older.posts).filter((c) => SLUG.test(c.slug));
+  const live = new Set(posts.map((p) => p.slug));
+  const aliases = Object.fromEntries(Object.entries(merged.aliases).filter(([from, to]) => SLUG.test(from) && live.has(to)));
   const list = posts.map(summary);
   const builtAt = new Date(now).toISOString();
-  const data = ok ? { builtAt, posts: list, categories } : null;
+  const data = ok ? { builtAt, posts: list, categories, ...(Object.keys(aliases).length ? { aliases } : {}) } : null;
+  // a big list is not put into every list page (hundreds of KB); the app reads /blog/data.json instead
+  const listData = data && data.posts.length <= EMBED_LIST_MAX ? data : null;
+  const pages = (n) => Array.from({ length: pageCount(n) }, (_, i) => i + 1);
 
-  write(join(dist, 'blog', 'index.html'), page(template, listMeta(), ok ? listBody(posts, categories) : shell(''), { jsonLd: listJsonLd(), data }));
+  for (const n of ok ? pages(posts.length) : [1]) {
+    const file = n > 1 ? join(dist, 'blog', 'page', String(n), 'index.html') : join(dist, 'blog', 'index.html');
+    write(file, page(template, listMeta(n), ok ? listBody(posts, categories, null, n) : shell(''), { jsonLd: listJsonLd(), data: listData }));
+  }
   // always there (no 404): `posts: null` tells the app to read the blog from Hygraph itself
   write(join(dist, 'blog', 'data.json'), JSON.stringify(data || { builtAt, posts: null, categories: categories.length ? categories : null }));
   if (ok) {
     for (const c of categories) {
       const mine = posts.filter((p) => p.category?.slug === c.slug);
-      write(join(dist, 'blog', 'category', c.slug, 'index.html'), page(template, categoryMeta(c, mine.length), listBody(mine, categories, c.slug), { jsonLd: categoryJsonLd(c), data }));
+      for (const n of pages(mine.length)) {
+        const dir = n > 1 ? join(dist, 'blog', 'category', c.slug, 'page', String(n)) : join(dist, 'blog', 'category', c.slug);
+        write(join(dir, 'index.html'), page(template, categoryMeta(c, mine.length, n), listBody(mine, categories, c.slug, n), { jsonLd: categoryJsonLd(c), data: listData }));
+      }
     }
+    for (const [from, to] of Object.entries(aliases)) write(join(dist, 'blog', from, 'index.html'), movedPage(to));
     for (const p of posts) {
       const related = relatedPosts(p, posts);
       write(join(dist, 'blog', p.slug, 'index.html'), page(template, postMeta(p), postBody(p, related), { jsonLd: postJsonLd(p), data: postData(data, p) }));
@@ -134,7 +189,7 @@ export async function prerenderBlog({ dist, endpoint = buildEndpoint(), fetchImp
   }
   write(join(dist, 'sitemap.xml'), sitemap(posts, categories));
   log.info?.(`[blog] ${ok ? `pre-rendered ${posts.length} post${posts.length === 1 ? '' : 's'} and ${categories.length} categories` : 'no posts pre-rendered'}; sitemap written`);
-  return { ok, posts: posts.length, categories: categories.length, postsError: ok ? null : postsRes.reason.message, categoriesError: catsRes.status === 'fulfilled' ? null : catsRes.reason.message };
+  return { ok, posts: posts.length, older: older.posts.length, aliases: Object.keys(aliases).length, categories: categories.length, postsError: postsRes.status === 'fulfilled' ? null : postsRes.reason.message, categoriesError: catsRes.status === 'fulfilled' ? null : catsRes.reason.message, olderError: olderRes.status === 'rejected' ? olderRes.reason.message : null };
 }
 
 export { PER_PAGE };

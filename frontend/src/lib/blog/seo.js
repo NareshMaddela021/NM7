@@ -23,11 +23,14 @@ export function postMeta(p) {
     modified: p.updatedAt,
   };
 }
-export const listMeta = () => ({ title: `${BLOG_TITLE} · ${SITE}`, description: BLOG_DESC, canonical: `${ORIGIN}/blog`, image: DEFAULT_IMAGE, type: 'website' });
-export const categoryMeta = (c, count) => ({
-  title: `${c.name} · Blog · ${SITE}`,
+/** Page 2 and on of a list: /blog/page/2, /blog/category/ats/page/2 (page 1 is the list itself). */
+export const pagePath = (base, page = 1) => (page > 1 ? `${base}/page/${page}` : base);
+const pageNote = (page) => (page > 1 ? ` · Page ${page}` : '');
+export const listMeta = (page = 1) => ({ title: `${BLOG_TITLE}${pageNote(page)} · ${SITE}`, description: BLOG_DESC, canonical: `${ORIGIN}${pagePath('/blog', page)}`, image: DEFAULT_IMAGE, type: 'website' });
+export const categoryMeta = (c, count, page = 1) => ({
+  title: `${c.name}${pageNote(page)} · Blog · ${SITE}`,
   description: clip(`Articles on ${c.name.toLowerCase()} from the Nm7 blog: practical resume and job-search advice for India.`, 160),
-  canonical: categoryUrl(c.slug),
+  canonical: `${ORIGIN}${pagePath(`/blog/category/${c.slug}`, page)}`,
   image: DEFAULT_IMAGE,
   type: 'website',
   noindex: count === 0,

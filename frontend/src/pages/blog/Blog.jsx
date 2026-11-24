@@ -1,17 +1,18 @@
-// The blog: /blog (newest first, 12 at a time), /blog/category/:slug and /blog/:slug, plus the home page strip.
+// The blog: /blog (newest first, 12 at a time, /blog/page/:page), /blog/category/:slug(/page/:page), search (?q=)
+// and /blog/:slug, plus the home page strip.
 // The build pre-renders these pages as static HTML for search engines (scripts/prerender-blog.mjs); here the app
 // takes over with the same markup.
 import { PageArt } from '../../components/PageHero';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, Navigate, useParams, useSearchParams } from 'react-router-dom';
 import Header from '../../components/Header';
 import SiteFooter from '../../components/SiteFooter';
 import { Spinner } from '../../components/ui';
 import { usePageMeta } from '../../lib/meta';
 import { freshIndex, getIndex, getPost, liveIndex, mergeIndex, needsLive } from '../../lib/blog/data';
 import { PER_PAGE, fmtDate, relatedPosts } from '../../lib/blog/hygraph';
-import { richTextToHtml } from '../../lib/blog/richtext';
-import { BLOG_DESC, BLOG_TITLE, categoryMeta, postMeta } from '../../lib/blog/seo';
+import { faqToHtml, richTextToHtml } from '../../lib/blog/richtext';
+import { BLOG_DESC, BLOG_TITLE, categoryMeta, pagePath, postMeta } from '../../lib/blog/seo';
 
 function useAsync(fn, deps) {
   const [st, setSt] = useState({ loading: true });
@@ -92,17 +93,47 @@ export function BlogNotFound() {
   );
 }
 
-/** /blog and /blog/category/:slug */
+/** Does a post match every word of a search? (title, excerpt and category) */
+export function matches(p, q) {
+  const hay = `${p.title} ${p.excerpt} ${p.category?.name || ''}`.toLowerCase();
+  return q.toLowerCase().split(/\s+/).filter(Boolean).every((w) => hay.includes(w));
+}
+
+function Pager({ base, page, pages }) {
+  if (pages <= 1) return null;
+  return (
+    <nav className="blog-pager" aria-label="Pages">
+      {page > 1 && <Link to={pagePath(base, page - 1)} rel="prev">Newer articles</Link>}
+      <span>Page {page} of {pages}</span>
+      {page < pages && <Link to={pagePath(base, page + 1)} rel="next">Older articles</Link>}
+    </nav>
+  );
+}
+
+/** /blog, /blog/page/:page, /blog/category/:slug and /blog/category/:slug/page/:page; ?q= searches every article */
 export function BlogList() {
-  const { slug } = useParams();
+  const { slug, page: pageParam } = useParams();
+  const [params, setParams] = useSearchParams();
+  const q = (params.get('q') || '').trim();
+  const page = pageParam ? Number(pageParam) : 1;
   const st = useBlogIndex();
   const [shown, setShown] = useState(PER_PAGE);
-  useEffect(() => setShown(PER_PAGE), [slug]);
+  useEffect(() => setShown(PER_PAGE), [slug, page, q]);
   const cat = slug && st.data?.categories.find((c) => c.slug === slug);
-  const posts = useMemo(() => (st.data ? st.data.posts.filter((p) => !slug || p.category?.slug === slug) : []), [st.data, slug]);
-  const m = cat ? categoryMeta(cat, posts.length) : null;
-  usePageMeta(cat ? { title: m.title.replace(/ · Nm7$/, ''), description: m.description, noindex: m.noindex } : { title: BLOG_TITLE, description: BLOG_DESC });
+  const inCat = useMemo(() => (st.data ? st.data.posts.filter((p) => !slug || p.category?.slug === slug) : []), [st.data, slug]);
+  const posts = useMemo(() => (q ? inCat.filter((p) => matches(p, q)) : inCat), [inCat, q]);
+  const pages = Math.max(1, Math.ceil(inCat.length / PER_PAGE));
+  const start = q ? 0 : (page - 1) * PER_PAGE;
+  const base = slug ? `/blog/category/${slug}` : '/blog';
+  const m = cat ? categoryMeta(cat, inCat.length, page) : null;
+  usePageMeta(cat ? { title: m.title.replace(/ · Nm7$/, ''), description: m.description, noindex: m.noindex } : { title: page > 1 ? `${BLOG_TITLE} · Page ${page}` : BLOG_TITLE, description: BLOG_DESC });
   if (slug && st.data && !cat) return <BlogNotFound />;
+  if (pageParam && (!Number.isInteger(page) || page < 2 || (st.data && page > pages))) return <BlogNotFound />;
+  const search = (e) => {
+    e.preventDefault();
+    const v = new FormData(e.currentTarget).get('q')?.toString().trim() || '';
+    setParams(v ? { q: v } : {});
+  };
   return (
     <Frame>
       <div className="stack g16">
@@ -114,15 +145,24 @@ export function BlogList() {
             {st.data.categories.map((c) => <Link key={c.slug} to={`/blog/category/${c.slug}`} aria-current={slug === c.slug ? 'page' : undefined}>{c.name}</Link>)}
           </nav>
         )}
+        {st.data && inCat.length > PER_PAGE && (
+          <form className="blog-search" role="search" onSubmit={search}>
+            <input key={q} type="search" name="q" defaultValue={q} aria-label="Search articles" placeholder="Search articles" />
+            <button type="submit" className="btn btn-outline">Search</button>
+            {q && <Link to={base}>Clear</Link>}
+          </form>
+        )}
+        {q && st.data && <p className="blog-found" role="status">{posts.length === 1 ? '1 article found' : `${posts.length} articles found`} for “{q}”</p>}
       </div>
       {st.loading && <Loading />}
       {st.error && <Failed />}
       {st.data && (posts.length === 0
-        ? <p className="blog-empty">{cat ? `No articles on ${cat.name.toLowerCase()} yet — first articles coming soon.` : 'First articles coming soon.'}</p>
+        ? <p className="blog-empty">{q ? 'No articles match your search. Try other words.' : cat ? `No articles on ${cat.name.toLowerCase()} yet — first articles coming soon.` : 'First articles coming soon.'}</p>
         : (
           <>
-            <div className="blog-grid">{posts.slice(0, shown).map((p) => <PostCard key={p.slug} p={p} />)}</div>
-            {posts.length > shown && <button type="button" className="btn btn-outline btn-lg" style={{ alignSelf: 'center' }} onClick={() => setShown(shown + PER_PAGE)}>Load more articles</button>}
+            <div className="blog-grid">{posts.slice(start, start + shown).map((p) => <PostCard key={p.slug} p={p} />)}</div>
+            {posts.length > start + shown && <button type="button" className="btn btn-outline btn-lg" style={{ alignSelf: 'center' }} onClick={() => setShown(shown + PER_PAGE)}>Load more articles</button>}
+            {!q && shown === PER_PAGE && <Pager base={base} page={page} pages={pages} />}
           </>
         ))}
     </Frame>
@@ -133,15 +173,19 @@ export function BlogList() {
 export function BlogPost() {
   const { slug } = useParams();
   const st = useAsync(async () => {
+    const idx0 = await getIndex().catch(() => null);
+    const moved = idx0?.aliases?.[slug];
+    if (moved) return { moved, post: null, related: [] }; // an old slug: the article it moved to
     const [post, idx] = await Promise.all([getPost(slug), freshIndex().catch(() => null)]);
     return { post, related: post && idx ? relatedPosts(post, idx.posts) : [] };
   }, [slug]);
   const p = st.data?.post;
   const m = p ? postMeta(p) : null;
   usePageMeta(p ? { title: m.title.replace(/ · Nm7$/, ''), description: m.description } : { title: 'Blog', description: BLOG_DESC });
-  const html = useMemo(() => (p ? richTextToHtml(p.content) : ''), [p]);
+  const html = useMemo(() => (p ? richTextToHtml(p.content) + faqToHtml(p.faq) : ''), [p]);
   const body = useRef(null);
   const toc = useToc(body, html);
+  if (st.data?.moved) return <Navigate to={`/blog/${st.data.moved}`} replace />;
   if (st.data && !p) return <BlogNotFound />;
   return (
     <Frame>

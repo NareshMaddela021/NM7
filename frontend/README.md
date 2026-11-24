@@ -184,8 +184,29 @@ orders (checkout writes the server's order id, invoice number and payment id int
 - CI runs a contract test against the live Hygraph APIs (`scripts/hygraph-contract.test.mjs`): the queries must be
   valid and the build step must pre-render every published post.
 
-- With more than 60 posts, post pages carry only their own data (not the whole list), so each page stays small; the
-  app reads the list from `/blog/data.json`.
+- With more than 60 posts, post pages and list pages carry only their own data (not the whole list), so each page
+  stays small; the app reads the list from `/blog/data.json`. Lists show 12 at a time: the build writes
+  `/blog/page/<n>` and `/blog/category/<slug>/page/<n>` (with Newer / Older links crawlers follow), and with more than
+  12 articles the list has a search box (`/blog?q=…`, title, excerpt and category).
+
+### The older articles (Hygraph project "Team Nm7", about 772 articles)
+- They live in a second Hygraph project ("Team Nm7", model **Blog Post**, Markdown `body`). The **API on Render** reads
+  them (published stage only) with a read-only token, turns the Markdown into the same rich-text tree, rebrands them
+  for nm7.si (Asuraa / Team Asuraa / asuraa.in become Nm7 / Team Nm7 / nm7.si; old asuraa.in links go to the matching
+  `nm7.si/blog/<slug>` or to `https://nm7.si`; asuraa.ai is left alone) and keeps them in memory for 6 hours
+  (`backend/app/blog`, `GET /api/blog/legacy`). The browser never talks to that project and never sees the token.
+- The build reads them from the API (`BLOG_API_BASE`, else `VITE_API_BASE`) and merges them with this blog's posts
+  (`src/lib/blog/merge.js`): one article per slug and per title, the newer one kept. An old slug that was merged away
+  gets a small page that sends readers on. No page, data file or sitemap entry may contain "asuraa.in" (tested).
+- **Switch it on:** in Hygraph, project **Team Nm7** → **Project settings → Access → Permanent Auth Tokens** → **Add
+  token** (name e.g. `nm7-site-read`, default stage **Published**) → **Content API** permissions: **Read**, model
+  **Blog Post**, stage **Published** only. Copy the token and paste it only into **Render → nm7-api → Environment** as
+  `HYGRAPH_TOKEN` (never in chat or in the repository). If the project's Content API URL is not
+  `https://ap-south-1.cdn.hygraph.com/content/cmtxihlft00uf06v1drejgj89/master`, set `HYGRAPH_ENDPOINT` there too (Project
+  settings → Endpoints). Save (Render redeploys), then redeploy the site once on Vercel so the build pre-renders them.
+  Nothing new is needed on Vercel. The build log then says `[blog] merged: 36 own + N older = M articles`.
+- asuraa.ai mentions are not changed; admins can list them at `GET /api/admin/blog/flags`, or run
+  `HYGRAPH_TOKEN=… uv run python -m app.blog.flags` in `backend/`.
 
 ### New posts go live by themselves (rebuild on publish)
 1. Vercel → the **nm7** project → **Settings → Git → Deploy Hooks** → name `hygraph-publish`, branch = the production

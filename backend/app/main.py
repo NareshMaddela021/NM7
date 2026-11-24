@@ -37,6 +37,7 @@ from app.autoapply.ats import router as ats_router
 from app.billing import invoice_router as billing_docs
 from app.billing import migrate as billing_migrate
 from app.billing import router as billing
+from app.blog import legacy as blog_legacy
 from app.certs.router import router as certs_router
 from app.college import alumni as college_alumni
 from app.college import campuses as college_campuses
@@ -338,6 +339,8 @@ def create_app() -> FastAPI:
     app.include_router(job_share.preview_router)  # /api/jobs/{slug}/preview (link preview for share robots)
     app.include_router(jobs_public.router)  # /api/jobs, /api/jobs/{slug}, the jobs sitemap (J3)
     app.include_router(jobs_public.me_router)  # /api/me/saved-jobs
+    app.include_router(blog_legacy.router)  # /api/blog/legacy: the older articles (Hygraph Team Nm7) for the build
+    app.include_router(blog_legacy.admin)  # /api/admin/blog/flags: asuraa.ai mentions to check
     app.include_router(jobs_apply.router)  # /api/jobs/{id}/apply (J5)
     app.include_router(jobs_apply.me_router)  # /api/me/job-followups
     app.include_router(jobs_apply.public)  # /api/public/jobs/stop-followups
