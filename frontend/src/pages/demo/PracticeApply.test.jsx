@@ -85,6 +85,13 @@ describe('practice apply pages', () => {
       }
     }
     expect(STEP_TEXT(1, 4)).toBe('Practice step 1 of 4: nothing was sent.');
+    // the framed practice form may be shown in a frame on nm7.si itself (only that page; every other page stays unframeable)
+    const framed = vercel.headers.find((h) => h.source === '/demo/apply/framed-portal');
+    const csp = framed.headers.find((h) => h.key === 'Content-Security-Policy').value;
+    expect(csp).toContain("frame-ancestors 'self'");
+    expect(csp).toContain("frame-src 'self' ");
+    expect(framed.headers).toContainEqual({ key: 'X-Frame-Options', value: 'SAMEORIGIN' });
+    expect(vercel.headers[0].headers.find((h) => h.key === 'Content-Security-Policy').value).toContain("frame-ancestors 'none'");
     for (const file of ['./practiceSystems.js', './PracticeSystem.jsx']) expect(src(file).replace(/^\s*\/\/.*$/gm, '')).not.toMatch(BRANDS);
   });
 });
