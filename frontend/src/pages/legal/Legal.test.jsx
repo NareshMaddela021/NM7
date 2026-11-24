@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { MemoryRouter } from 'react-router-dom';
@@ -92,5 +93,9 @@ describe('legal pages', () => {
     const out = html(RefundPolicy);
     expect(out).toContain('Plans for colleges and organizations');
     expect(out).toContain('Nm7 takes no payment from companies');
+  });
+  it('no line is left as a decision to confirm ("?? "): every business decision is final', () => {
+    const src = readFileSync(new URL('./Legal.jsx', import.meta.url), 'utf8');
+    expect(src).not.toMatch(/['`]\?\? [A-Z]/);
   });
 });
