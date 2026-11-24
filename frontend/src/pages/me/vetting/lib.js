@@ -126,6 +126,25 @@ export function useSignals(ref, { on = true, onPaste } = {}) {
   }, [on, ref]);
 }
 
+/* ---------- how a written answer was typed (counts and times only, never what was typed) ---------- */
+
+export const PAUSE_MS = 5000; // a gap longer than this between key presses is thinking time, not typing time
+
+/** A new typing record for a task opened at `openedAt` (ms). */
+export const newTyping = (openedAt = Date.now()) => ({ openedAt, keys: 0, firstKeyMs: null, typingMs: 0, lastKeyAt: 0 });
+
+/** Counts one key press at `at` (ms): the first key's delay from the task opening, and typing time without long pauses. */
+export function noteKey(ty, at = Date.now()) {
+  if (ty.firstKeyMs === null) ty.firstKeyMs = Math.max(0, at - ty.openedAt);
+  else ty.typingMs += Math.min(PAUSE_MS, Math.max(0, at - ty.lastKeyAt));
+  ty.keys += 1;
+  ty.lastKeyAt = at;
+  return ty;
+}
+
+/** The part of the task submit body the server checks typing speed with. */
+export const typingBody = (ty) => ({ keys: Math.min(200_000, ty.keys), typingMs: Math.round(ty.typingMs), ...(ty.firstKeyMs !== null ? { firstKeyMs: Math.round(ty.firstKeyMs) } : {}) });
+
 /* ---------- saved in this tab, so a reload resumes ---------- */
 
 export const RUN_KEY = 'nm7.vet.run';

@@ -135,7 +135,8 @@ def result_out(a: dict[str, Any], v: dict[str, Any] | None = None, t: datetime |
         "againAt": ms(a["started_at"] + E.RETAKE), "canRetry": a["started_at"] + E.RETAKE <= t,
         "strict": bool(a.get("strict")), "kind": a.get("kind", "full"),
         "integrityNote": ("We couldn't confirm this result, so a free retest is offered. This doesn't mean anything is wrong."
-                          if integ == "retest" else "Nothing unusual was noticed." if done else None),
+                          if integ == "retest" else "A few things were noticed, so a person may look at this attempt. Nothing is decided by this, and your result stands."
+                          if integ == "watch" and done else "Nothing unusual was noticed." if done else None),
         "improve": [{"topic": k, "score": v, "learn": f"/me/learn?skill={k}", "practice": "/me/practice"}
                     for k, v in sorted(topics.items(), key=lambda kv: kv[1])[:3] if v < 75] if done else [],
     }  # fmt: skip
@@ -513,8 +514,10 @@ async def _finish(db, a: dict[str, Any], answers: dict[str, int], times: dict[st
         shared = bool(await db[SKILL_ATTEMPTS].find_one(
             {"skill": a["skill"], "user_id": {"$ne": a["user_id"]}, "started_at": {"$gte": since},
              "$or": [{"fp.device": a["fp"]["device"]}]}, {"_id": 1}))  # fmt: skip
+    fp = E.fast_paper(picked, answers, (t - a["started_at"]).total_seconds())  # the server's clock, not the page's
     signals = {
-        **(a.get("signals") or {}), **sig, "fastAnswers": E.fast_answers(picked, times),
+        **(a.get("signals") or {}), **sig, "fastAnswers": E.fast_answers(picked, times), "fastPaper": fp["fast"],
+        "paperSeconds": fp["seconds"], "paperReading": fp["reading"], "paperAnswered": fp["answered"],
         "samePosition": E.same_position(shown), "patternMatch": match, "sharedDevice": shared,
         "resumeMismatch": E.resume_mismatch(a["band"], m["byDifficulty"]), "strict": bool(a.get("strict")),
         "pauses": int(a.get("pauses") or 0),
@@ -663,6 +666,11 @@ class TaskIn(CamelModel):
     pasted_chars: int = Field(0, ge=0, le=100_000)
     blurs: int = Field(0, ge=0, le=10000)
     blur_ms: int = Field(0, ge=0, le=86_400_000)
+    # Vetting fix batch: how the written answer was typed (counts and times only, never what was typed)
+    keys: int | None = Field(None, ge=0, le=200_000)  # key presses in the answer box
+    first_key_ms: int | None = Field(None, ge=0, le=86_400_000)  # task opened → first key press
+    typing_ms: int | None = Field(None, ge=0, le=86_400_000)  # time spent typing (long pauses left out)
+    pastes: int = Field(0, ge=0, le=10000)
 
 
 def speech_measures(transcript: str, seconds: float | None) -> dict[str, Any]:
@@ -731,6 +739,13 @@ async def task_submit(aid: str, body: TaskIn, auth: CustomerAuth, db: DB) -> dic
     sig = dict(a.get("signals") or {})
     sig.update(pastedChars=body.pasted_chars, taskChars=len(answer), blurs=int(sig.get("blurs") or 0) + body.blurs,
                blurMs=int(sig.get("blurMs") or 0) + body.blur_ms)  # fmt: skip
+    if task["type"] != "proof" and not speech:  # a written answer: typing speed on the server's clock (fix batch)
+        secs = (t - tk["started_at"]).total_seconds()
+        ty = E.typing_check(chars=len(answer), pasted=body.pasted_chars, elapsed_s=secs, keys=body.keys,
+                            first_key_ms=body.first_key_ms, typing_ms=body.typing_ms)  # fmt: skip
+        sig.update(taskSeconds=round(secs), cps=ty["cps"], typingImpossible=ty["impossible"], untypedText=ty["untyped"],
+                   taskPastes=body.pastes, **{k: v for k, v in (("keys", body.keys), ("firstKeyMs", body.first_key_ms),
+                                                                ("typingMs", body.typing_ms)) if v is not None})  # fmt: skip
     if len(answer.split()) >= 30:
         async for o in db[SKILL_ATTEMPTS].find(
             {"skill": a["skill"], "user_id": {"$ne": a["user_id"]}, "task.answer": {"$exists": True},

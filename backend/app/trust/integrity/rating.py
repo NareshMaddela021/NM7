@@ -109,6 +109,20 @@ KINDS: dict[str, Kind] = {
         "V2 test",
     ),
     "pauses": Kind(0.5, 1.0, "Paused the test more than allowed", "The test was paused more than allowed.", "V2 test"),
+    "typing_speed": Kind(
+        1.5,
+        3.0,
+        "Impossible speed: the written practical task arrived faster than a person can type",
+        "Your practical task answer arrived faster than people can type.",
+        "V2 test",
+    ),
+    "untyped_text": Kind(
+        1.0,
+        2.0,
+        "The written practical task appeared with very few key presses and no paste",
+        "Most of your practical task answer appeared without typing (for example autofill or dictation).",
+        "V2 test",
+    ),
     # V3 AI interview
     "iv_paste": Kind(
         1.5,

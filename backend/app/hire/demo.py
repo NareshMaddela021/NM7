@@ -7,6 +7,11 @@
        support role in Hyderabad; three interview times tomorrow; one candidate who accepted an invite, attended an
        interview yesterday and has an offer waiting. One live-job slot stays free, so Post a job works. Signs this browser in as the demo company's main admin → {session}.
 
+Vetting fix batch: eight of the 30 hold a current "Skill verified" (L2) badge, written exactly as the real flow writes
+it (a vetting_verified record plus the verified_skills entry on the person): four for the Customer Support Executive
+bulk post, two for Junior Data Analyst (SQL) and two for Software Engineer Trainee (Java), so Hire now shows the badges
+and its "Skill verified only" filter finds people. The plain "Reset and open as company" adds the same 30 people.
+
 Demo people can't sign in (no password), get no email (demo addresses end in .invalid and demo accounts are skipped),
 are shown only to demo companies, and are never on the job board, a company page, the supply map or a sitemap.
 """
@@ -37,10 +42,13 @@ from app.core.db import (
     SKILL_ATTEMPTS,
     SKILL_QUESTIONS,
     USERS,
+    VETTING_VERIFIED,
 )  # fmt: skip
 from app.core.time import IST, now
 from app.hire.skillcheck import ensure_bank
 from app.hire.templates import TEMPLATES
+from app.hire.vetting import engine as E
+from app.hire.vetting.roles import BY_TEST
 from app.jobs.apply import FOLLOW_AFTER, app_key, job_page
 from app.jobs.model import JobIn, slug_for, to_doc
 from app.site import get_site
@@ -55,6 +63,14 @@ LAST = ["Rao", "Kumar", "Reddy", "Sharma", "Naidu", "Khan", "Iyer", "Patel", "Da
 CITIES = ["Hyderabad", "Hyderabad", "Hyderabad", "Bengaluru", "Vijayawada", "Pune"]
 EDU = {"10th": "SSC (10th)", "12th": "Intermediate (12th)", "iti": "ITI", "diploma": "Diploma",
        "graduate": "B.Com", "postgraduate": "MBA"}  # fmt: skip
+# the demo company's own jobs (companies/demo.py) that badge holders suit: Junior Data Analyst and Software Engineer
+# Trainee; people 27-30 are these (they would otherwise repeat a trade from people 11-14)
+SE_TRAINEE = {"id": "software-trainee", "domain": "IT", "title": "Software Engineer Trainee", "education": "graduate",
+              "skills": ["Java", "SQL", "Git"], "test": "Java"}  # fmt: skip
+SWAP = {26: ("data-analyst", "Hyderabad"), 27: ("data-analyst", "Hyderabad"), 28: ("software-trainee", "Hyderabad"),
+        29: ("software-trainee", "Pune")}  # fmt: skip
+# person index → (MCQ score, practical task score) of their "Skill verified" badge for their template's test
+VERIFIED = {1: (88, 80), 3: (82, 72), 5: (76, 68), 7: (91, 84), 26: (86, 80), 27: (78, 70), 28: (84, 76), 29: (80, 72)}
 
 
 async def remove(db) -> None:
@@ -67,6 +83,7 @@ async def remove(db) -> None:
         (SKILL_ATTEMPTS, "user_id"),
         (HIRE_EVENTS, "user_id"),
         (APPLICATIONS, "user_id"),
+        (VETTING_VERIFIED, "user_id"),
     ):
         await db[coll].delete_many({field: mine})
     await db[HIRE_PROFILES].delete_many({"_id": mine})
@@ -91,20 +108,30 @@ def _resume(name: str, city: str, tpl: dict[str, Any], years: int) -> dict[str, 
     }
 
 
-async def create(db) -> dict[str, Any]:
-    out = await company_demo.create(db)  # a fresh demo company first
+def _badge(uid: str, test: str, years: int, scores: tuple[int, int], at) -> tuple[dict[str, Any], dict[str, Any]]:
+    """A "Skill verified" (L2) badge as router.award writes it: the vetting_verified record and the person's
+    verified_skills entry."""
+    role = BY_TEST[test]
+    band = E.band_for_years(years)
+    rec = {"user_id": uid, "test": test, "slug": role["slug"], "role": role["role"], "band": band, "score": scores[0],
+           "task_score": scores[1], "at": at, "expires_at": at + E.VALID, "attempt_id": None, "demo": True}  # fmt: skip
+    entry = {"skill": test, "role": role["slug"], "at": at, "band": band, "score": scores[0], "task": scores[1],
+             "expires_at": rec["expires_at"], "source": "v2"}  # fmt: skip
+    return rec, entry
+
+
+async def seed_people(db) -> list[str]:
+    """The 30 made-up people who are ready to join (a clean copy each time), one insert per collection."""
     await remove(db)
     await ensure_bank(db)
     t = now()
-    cid = company_demo.COMPANY_ID
-    await db[COMPANIES].update_one({"_id": cid}, {"$set": {"review.state": "approved",
-                                                          "verified_until": t + timedelta(days=365)}})  # fmt: skip
     tpls = TEMPLATES
     cs = next(x for x in tpls if x["id"] == "customer-support")
+    by_id = {x["id"]: x for x in [*tpls, SE_TRAINEE]}
     # Batch A (20 Nov live test: this timed out on the live server while the plain reset worked): the 30 people were
     # ~150 one-by-one writes; now one insert per collection, and each test's questions are read once
-    people, users, resumes, profiles, attempts, events = [], [], [], [], [], []
-    tests = sorted({tp["test"] for tp in tpls if tp["test"]})
+    people, users, resumes, profiles, attempts, events, badges = [], [], [], [], [], [], []
+    tests = sorted({tp["test"] for tp in [*tpls, SE_TRAINEE] if tp["test"]})
     qids = {k: [q["_id"] for q in await db[SKILL_QUESTIONS].find({"skill": k, "active": True}, {"_id": 1}).limit(10).to_list(10)]
             for k in tests}  # fmt: skip
     for i in range(30):
@@ -112,8 +139,20 @@ async def create(db) -> dict[str, Any]:
         name = f"{FIRST[i]} {LAST[i % len(LAST)]}"
         uid = f"hire-demo-{i + 1:02d}"
         city = CITIES[i % len(CITIES)] if i >= 10 else "Hyderabad"
-        users.append({"_id": uid, "email": f"{uid}@{DOMAIN}", "email_lc": f"{uid}@{DOMAIN}", "name": name, "role": "customer",
-                      "password_hash": "", "demo": True, "created_at": t - timedelta(days=20 + i)})  # fmt: skip
+        if i in SWAP:
+            tpl, city = by_id[SWAP[i][0]], SWAP[i][1]
+        user = {"_id": uid, "email": f"{uid}@{DOMAIN}", "email_lc": f"{uid}@{DOMAIN}", "name": name, "role": "customer",
+                "password_hash": "", "demo": True, "created_at": t - timedelta(days=20 + i)}  # fmt: skip
+        confirmed = t - timedelta(hours=i)
+        if i in VERIFIED:
+            rec, entry = _badge(uid, tpl["test"], i % 3, VERIFIED[i], t - timedelta(days=5 + i))
+            badges.append(rec)
+            # the level the ladder would store (V1): L2 "Skill verified", ready now; confirmed in the last hour, so a
+            # cached ready shortlist for the role and city never leaves them out (shortlist.candidates)
+            user |= {"verified_skills": [entry], "vetting": {"level": 2, "ready_now": True, "visible": True,
+                     "next": ["Pass the AI screening interview"], "skill_verified": [tpl["test"]], "at": t}}  # fmt: skip
+            confirmed = t - timedelta(minutes=5 + i)
+        users.append(user)
         resumes.append({"_id": f"r-{uid}", "user_id": uid, "key": "r1", "name": "Main", "active": True,
                         "data": _resume(name, city, tpl, i % 3), "template": "classic",
                         "created_at": t, "updated_at": t})  # fmt: skip
@@ -123,7 +162,7 @@ async def create(db) -> dict[str, Any]:
             else {"amount": 3 + (i % 3) * 0.5, "unit": "lpa"}
         )
         profiles.append({"_id": uid, "on": True, "consent_at": t - timedelta(days=2),
-                         "confirmed_at": t - timedelta(hours=i), "join_date": (t + timedelta(days=7 + i % 20)).astimezone(IST).date().isoformat(),
+                         "confirmed_at": confirmed, "join_date": (t + timedelta(days=7 + i % 20)).astimezone(IST).date().isoformat(),
                          "cities": [city], "remote": i % 7 == 0, "salary": salary, "notice_days": [0, 0, 15, 30][i % 4],
                          "job_types": ["full_time"], "paused_at": None, "updated_at": t})  # fmt: skip
         if tpl["test"] and i % 2 == 0:  # a shared skill check for half of those with a test
@@ -139,9 +178,20 @@ async def create(db) -> dict[str, Any]:
                         "at": t - timedelta(days=30 + k)} for k, kind in enumerate(kinds)]  # fmt: skip
         people.append(uid)
     for coll, docs in ((USERS, users), (RESUMES, resumes), (HIRE_PROFILES, profiles), (SKILL_ATTEMPTS, attempts),
-                       (HIRE_EVENTS, events)):  # fmt: skip
+                       (HIRE_EVENTS, events), (VETTING_VERIFIED, badges)):  # fmt: skip
         if docs:
             await db[coll].insert_many(docs, ordered=False)
+    return people
+
+
+async def create(db) -> dict[str, Any]:
+    out = await company_demo.create(db)  # a fresh demo company first
+    people = await seed_people(db)
+    t = now()
+    cid = company_demo.COMPANY_ID
+    await db[COMPANIES].update_one({"_id": cid}, {"$set": {"review.state": "approved",
+                                                          "verified_until": t + timedelta(days=365)}})  # fmt: skip
+    cs = next(x for x in TEMPLATES if x["id"] == "customer-support")
     # the bulk post: customer support, 50 openings, Hyderabad
     body = JobIn.model_validate({
         "title": cs["title"], "company": {"name": company_demo.NAME, "website": company_demo.SITE},

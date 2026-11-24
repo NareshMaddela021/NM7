@@ -32,7 +32,7 @@ export function SpokenChoice({ d, mode, lang, on, onChange }) {
   return (
     <div className="stack g8" data-testid="sp-choice">
       <label className="vet-check">
-        <input type="checkbox" checked={on} onChange={(e) => tick(e.target.checked)} data-testid="sp-tick" />
+        <input type="checkbox" checked={on} onChange={(e) => tick(e.target.checked)} aria-label="Also measure my spoken English (optional)" data-testid="sp-tick" />
         <span><strong>Also measure my spoken English (optional)</strong>
           <span className="xs muted" style={{ display: 'block' }}>You get a band from A1 to C2 with scores for pronunciation, fluency, grammar and comprehension, on your profile. It never changes your interview score, and nobody is rejected because of it.</span>
         </span>

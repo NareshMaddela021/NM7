@@ -767,6 +767,21 @@ async def main(cmd: str, *args: str) -> dict:
                 upsert=True,
             )
         return {"n": len(uids)}
+    if cmd == "vet-passed":  # Vetting fix batch: a passed V2 test (82/100, clean), its practical task not opened yet
+        from bson import ObjectId
+
+        from app.hire.vetting.roles import BY_TEST
+
+        mail, test = args
+        u = await db["users"].find_one({"email": mail})
+        aid, t = ObjectId(), now() - timedelta(hours=1)
+        await db["skill_attempts"].insert_one({
+            "_id": aid, "v": 2, "user_id": u["_id"], "skill": test, "slug": BY_TEST[test]["slug"], "kind": "full",
+            "lang": "en", "band": "fresher", "integrity": {"level": "clean"}, "remaining_ms": 0, "topics": {},
+            "started_at": t - timedelta(minutes=12), "last_seen": t, "submitted_at": t, "score": 82, "right": 15,
+            "total": 18, "share": False,
+        })  # fmt: skip
+        return {"id": str(aid)}
     if cmd in ("trust-t9-task", "trust-t9-attempt"):  # Vetting Trust T9: a task answer behind a badge / a past attempt
         from bson import ObjectId
 

@@ -124,14 +124,14 @@ function Setup({ r, d, onCancel, onGo }) {
           {mode === 'voice' && !canSpeak && <span className="xs" style={{ color: '#92400e' }}>This browser can’t turn speech into text, so you will type instead. Chrome on Android works well for speaking.</span>}
         </fieldset>
         <label className="vet-check">
-          <input type="checkbox" checked={extra} onChange={(e) => setExtra(e.target.checked)} data-testid="iv-extra" />
+          <input type="checkbox" checked={extra} onChange={(e) => setExtra(e.target.checked)} aria-label="I need extra time" data-testid="iv-extra" />
           <span><strong>I need extra time</strong><span className="xs muted" style={{ display: 'block' }}>For a disability, reading difficulty or a slow phone: 1½ times the time for each answer. It doesn’t change your score.</span></span>
         </label>
         {d.spoken && canSpeak && <Suspense fallback={null}><SpokenChoice d={d.spoken} mode={mode} lang={lang} on={spoken} onChange={setSpoken} /></Suspense>}
         <Suspense fallback={null}><SnapshotChoice kind="interview" /></Suspense>
         <Suspense fallback={null}><Pledge kind="interview" lang={lang} onChange={setPledge} /></Suspense>
         <label className="vet-check">
-          <input type="checkbox" checked={ok} onChange={(e) => setOk(e.target.checked)} data-testid="iv-agree" />
+          <input type="checkbox" checked={ok} onChange={(e) => setOk(e.target.checked)} aria-label="I agree: I have read how the interview works and what is kept" data-testid="iv-agree" />
           <span><strong>I agree</strong>: I have read how the interview works and what is kept.</span>
         </label>
         <p className="xs muted" style={{ margin: 0 }}>Find a quiet place with a steady connection. If it drops, come back to carry on.</p>
