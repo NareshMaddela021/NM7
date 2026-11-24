@@ -26,8 +26,16 @@
       "destination": "/blog/index.html"
     },
     {
+      "source": "/blog/page/:page",
+      "destination": "/blog/page/:page/index.html"
+    },
+    {
       "source": "/blog/category/:slug",
       "destination": "/blog/category/:slug/index.html"
+    },
+    {
+      "source": "/blog/category/:slug/page/:page",
+      "destination": "/blog/category/:slug/page/:page/index.html"
     },
     {
       "source": "/blog/:slug",

@@ -62,3 +62,65 @@ export function fakeHygraph({ posts = POSTS, categories = CATEGORIES, fail = fal
   fn.calls = calls;
   return fn;
 }
+
+/* ---------- the older articles (Hygraph project "Team Nm7", model BlogPost, Markdown body) ---------- */
+
+const older = (o) => ({
+  id: o.slug, slug: o.slug, title: o.title, excerpt: o.excerpt || `About ${o.title}.`, seoTitle: null, metaDescription: o.metaDescription || null,
+  category: o.category || 'Govt Jobs', body: o.body || 'Short article.', faq: o.faq || null,
+  publishedAt: o.publishedAt || '2025-03-01T05:00:00.000Z', updatedAt: o.updatedAt || o.publishedAt || '2025-03-01T05:00:00.000Z', createdAt: o.publishedAt || '2025-03-01T05:00:00.000Z',
+});
+
+/** As Hygraph stores them (what the API reads with its token; e2e-live/hygraph-mock.mjs answers these). */
+export const OLDER_RAW = [
+  older({
+    slug: 'govt-job-resume', title: 'Resume for government jobs by Team Asuraa', metaDescription: 'How Asuraa writes a resume for PSU and government jobs.',
+    body: '*Last updated: March 2025 · By the Asuraa Team*\n\n## Why Asuraa wrote this\n\nRead [our keyword guide](https://asuraa.in/blog/psu-interview-tips) and visit [asuraa.in](https://www.asuraa.in/).\nOur sister product [Asuraa AI](https://asuraa.ai) is separate. Mail hello@asuraa.in.',
+    faq: [{ question: 'Is Asuraa free?', answer: 'Yes, everything on asuraa.in is free.' }],
+  }),
+  older({ slug: 'psu-interview-tips', title: 'PSU interview tips', category: 'Interviews', publishedAt: '2025-04-01T05:00:00.000Z', body: 'Prepare well. See [the guide](/blog/govt-job-resume).' }),
+  // the same slug as the site's own post, older: the site's own post stays
+  older({ slug: 'ats-keywords', title: 'ATS keywords (old)', publishedAt: '2024-05-01T05:00:00.000Z' }),
+  // the same title as the site's own post, older: dropped, its slug goes to the site's post
+  older({ slug: 'ats-friendly-resume-guide', title: 'How to make an ATS-friendly resume!', publishedAt: '2024-06-01T05:00:00.000Z' }),
+];
+
+const leaf = (text) => ({ text });
+/** As GET /api/blog/legacy?content=1 answers them (rebranded and deduplicated by the API). One string still says
+ * "asuraa.in" on purpose: the build must scrub it too. */
+export const OLDER_API = [
+  {
+    id: 'psu-interview-tips', slug: 'psu-interview-tips', title: 'PSU interview tips', excerpt: 'About PSU interview tips.', seoTitle: '', seoDescription: '',
+    cover: null, category: { name: 'Interviews', slug: 'interviews' }, author: null, publishedAt: '2025-04-01T05:00:00.000Z', updatedAt: '2025-04-01T05:00:00.000Z',
+    content: { children: [{ type: 'paragraph', children: [leaf('Prepare well. See '), { type: 'link', href: 'https://nm7.si/blog/govt-job-resume', children: [leaf('the guide')] }, leaf('.')] }] },
+    faq: [], source: 'legacy',
+  },
+  {
+    id: 'govt-job-resume', slug: 'govt-job-resume', title: 'Resume for government jobs by Team Nm7', excerpt: 'About Resume for government jobs by Team Nm7.', seoTitle: '', seoDescription: 'How Nm7 writes a resume for PSU and government jobs.',
+    cover: null, category: { name: 'Govt Jobs', slug: 'govt-jobs' }, author: null, publishedAt: '2025-03-01T05:00:00.000Z', updatedAt: '2025-03-01T05:00:00.000Z',
+    content: { children: [
+      { type: 'heading-two', children: [leaf('Why Nm7 wrote this')] },
+      { type: 'paragraph', children: [leaf('Read '), { type: 'link', href: 'https://nm7.si/blog/psu-interview-tips', children: [leaf('our keyword guide')] }, leaf(' and visit '), { type: 'link', href: 'https://nm7.si', children: [leaf('nm7.si')] }, leaf('. Left over: www.asuraa.in/blog. Our sister product '), { type: 'link', href: 'https://asuraa.ai', children: [leaf('Asuraa AI')] }, leaf(' is separate.')] },
+    ] },
+    faq: [{ question: 'Is Nm7 free?', answer: 'Yes, everything on nm7.si is free.' }], source: 'legacy',
+  },
+  { ...{ id: 'ats-keywords', slug: 'ats-keywords', title: 'ATS keywords (old)', excerpt: 'Old.', cover: null, category: { name: 'Govt Jobs', slug: 'govt-jobs' }, author: null, publishedAt: '2024-05-01T05:00:00.000Z', updatedAt: '2024-05-01T05:00:00.000Z', content: { children: [{ type: 'paragraph', children: [leaf('Old.')] }] }, faq: [], source: 'legacy' } },
+  { ...{ id: 'ats-friendly-resume-guide', slug: 'ats-friendly-resume-guide', title: 'How to make an ATS-friendly resume!', excerpt: 'Old.', cover: null, category: { name: 'Govt Jobs', slug: 'govt-jobs' }, author: null, publishedAt: '2024-06-01T05:00:00.000Z', updatedAt: '2024-06-01T05:00:00.000Z', content: { children: [{ type: 'paragraph', children: [leaf('Old.')] }] }, faq: [], source: 'legacy' } },
+];
+
+/** fetch() stand-in for the API's GET /api/blog/legacy (pages of `per_page`). */
+export function fakeOlderApi({ posts = OLDER_API, aliases = { 'what-is-asuraa': 'what-is-nm7' }, configured = true, fail = false } = {}) {
+  const calls = [];
+  const fn = async (url) => {
+    calls.push(url);
+    if (fail) throw new Error('connect ECONNREFUSED');
+    const u = new URL(url);
+    const per = Number(u.searchParams.get('per_page') || 50);
+    const page = Number(u.searchParams.get('page') || 1);
+    const list = configured ? posts : [];
+    const body = { configured, error: null, total: list.length, page, pages: Math.max(1, Math.ceil(list.length / per)), posts: list.slice((page - 1) * per, page * per), aliases: configured ? aliases : {} };
+    return { ok: true, status: 200, json: async () => JSON.parse(JSON.stringify(body)) };
+  };
+  fn.calls = calls;
+  return fn;
+}

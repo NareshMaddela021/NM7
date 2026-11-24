@@ -51,10 +51,25 @@ test('blog: pre-rendered static pages are served (not the app shell), real 404s,
   expect((await page.request.get('/blog/category/no-such-category')).status()).toBe(404);
   const sitemap = await (await page.request.get('/sitemap.xml')).text();
   expect(sitemap).toContain('<loc>https://nm7.si/blog/ats-friendly-resume</loc><lastmod>2026-10-12T08:30:00.000Z</lastmod>');
+  // the older articles (Team Nm7) came through the API, rebranded, merged without duplicates; no "asuraa.in" anywhere
+  const older = await page.request.get('/blog/govt-job-resume');
+  expect(older.status()).toBe(200);
+  const olderHtml = await older.text();
+  expect(olderHtml).toContain('<title>Resume for government jobs by Team Nm7 · Nm7</title>');
+  expect(olderHtml).toContain('<link rel="canonical" href="https://nm7.si/blog/govt-job-resume" />');
+  expect(olderHtml).toContain('<a href="https://nm7.si/blog/psu-interview-tips">our keyword guide</a>');
+  expect(olderHtml).toContain('href="https://asuraa.ai"'); // the separate product: untouched
+  expect(olderHtml).toContain('"@type":"FAQPage"');
+  expect(sitemap).toContain('<loc>https://nm7.si/blog/govt-job-resume</loc>');
+  expect(sitemap).not.toContain('ats-friendly-resume-guide'); // same title as an own post: merged away
+  const data = await (await page.request.get('/blog/data.json')).text();
+  expect(JSON.parse(data).posts).toHaveLength(5);
+  for (const text of [olderHtml, sitemap, data, await (await page.request.get('/blog')).text(), await (await page.request.get('/blog/psu-interview-tips')).text()]) expect(text).not.toMatch(/asuraa\.in/i);
+  expect(await (await page.request.get('/blog/ats-friendly-resume-guide')).text()).toContain('url=/blog/ats-friendly-resume');
 
   await page.addInitScript(() => { window.__csp = []; document.addEventListener('securitypolicyviolation', (e) => window.__csp.push(`${e.violatedDirective} ${e.blockedURI}`)); });
   await page.goto('/blog');
-  await expect(page.locator('main .blog-card')).toHaveCount(3);
+  await expect(page.locator('main .blog-card')).toHaveCount(5);
   await page.getByRole('link', { name: /How to make an ATS-friendly resume/ }).click();
   await expect(page.getByRole('heading', { level: 1, name: 'How to make an ATS-friendly resume' })).toBeVisible();
   await page.goto('/blog/ats-keywords'); // straight in: the app takes over the static page

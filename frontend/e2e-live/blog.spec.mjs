@@ -168,3 +168,49 @@ test('live Hygraph answers posts: [] (stale CDN) but the build has posts → lis
   await homeBottom(page);
   await expect(page.getByRole('region', { name: 'From the blog' }).locator('.blog-card')).toHaveCount(3);
 });
+
+test('many articles (own + older ones): search, pages of 12 with Older / Newer links, categories, old slugs move on', async ({ page }) => {
+  await blog(page);
+  const at = (i) => new Date(Date.UTC(2026, 8, 30) - i * 86_400_000).toISOString();
+  const posts = Array.from({ length: 30 }, (_, i) => ({
+    slug: `older-${i}`, title: i === 7 ? 'Resume for government jobs' : `Older article ${i}`, excerpt: 'From the older blog.', publishedAt: at(i), updatedAt: at(i),
+    minutes: 3, cover: null, author: null, source: 'legacy', category: i % 3 === 0 ? { name: 'Govt Jobs', slug: 'govt-jobs' } : CATEGORIES[0],
+  }));
+  const categories = [...CATEGORIES, { name: 'Govt Jobs', slug: 'govt-jobs' }];
+  await page.route('**/blog/data.json', (route) => route.fulfill({ json: { builtAt: new Date().toISOString(), posts, categories, aliases: { 'old-govt-guide': 'older-7' } } }));
+  await page.route('**/blog/older-7/post.json', (route) => route.fulfill({ json: { ...posts[7], content: { children: [{ type: 'paragraph', children: [{ text: 'Write it for Nm7 readers.' }] }] }, faq: [{ question: 'Is Nm7 free?', answer: 'Yes.' }] } }));
+
+  await page.goto('/blog');
+  await expect(cards(page)).toHaveCount(12);
+  const pager = page.getByRole('navigation', { name: 'Pages' });
+  await expect(pager).toContainText('Page 1 of 3');
+  await pager.getByRole('link', { name: 'Older articles' }).click();
+  await expect(page).toHaveURL(/\/blog\/page\/2$/);
+  await expect(page).toHaveTitle('Resume & job-search blog · Page 2 · Nm7');
+  await expect(cards(page).first()).toContainText('Older article 12');
+  await expect(pager).toContainText('Page 2 of 3');
+  await pager.getByRole('link', { name: 'Newer articles' }).click();
+  await expect(page).toHaveURL(/\/blog$/);
+
+  const search = page.getByRole('searchbox', { name: 'Search articles' });
+  await search.fill('government');
+  await page.getByRole('button', { name: 'Search' }).click();
+  await expect(page).toHaveURL(/\/blog\?q=government$/);
+  await expect(page.getByRole('status')).toHaveText('1 article found for “government”');
+  await expect(cards(page)).toHaveCount(1);
+  await search.fill('nothing like this');
+  await page.getByRole('button', { name: 'Search' }).click();
+  await expect(page.getByText('No articles match your search. Try other words.')).toBeVisible();
+
+  await page.getByRole('navigation', { name: 'Categories' }).getByRole('link', { name: 'Govt Jobs' }).click();
+  await expect(page).toHaveURL(/\/blog\/category\/govt-jobs$/);
+  await expect(cards(page)).toHaveCount(10);
+  await page.goto('/blog/page/9');
+  await expect(page.getByRole('heading', { name: 'This page doesn’t exist.' })).toBeVisible();
+
+  await page.goto('/blog/old-govt-guide'); // an old slug: the article it moved to
+  await expect(page).toHaveURL(/\/blog\/older-7$/);
+  await expect(page.getByRole('heading', { level: 1, name: 'Resume for government jobs' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 2, name: 'Frequently asked questions' })).toBeVisible();
+  await expect(page.getByText('Write it for Nm7 readers.')).toBeVisible();
+});

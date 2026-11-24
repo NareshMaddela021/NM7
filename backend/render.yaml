@@ -50,6 +50,10 @@ services:
         sync: false
       - key: ANTHROPIC_MODEL # cheapest model for reading photos; an unusable answer is retried once on claude-sonnet-5-5
         value: claude-haiku-5-5
+      # Blog: the older articles in the Hygraph project "Team Nm7" (app/blog). A read-only Permanent Auth Token of that
+      # project, default stage Published (Content API: read Blog Post, Published). Without it the blog shows only its own posts.
+      - key: HYGRAPH_TOKEN
+        sync: false
       - key: RAZORPAY_KEY_ID
         sync: false
       - key: RAZORPAY_KEY_SECRET

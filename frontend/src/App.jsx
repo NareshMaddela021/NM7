@@ -437,7 +437,9 @@ export default function App() {
         <Route path="/expert-terms" element={<ExpertTerms />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/blog" element={<BlogList />} />
+        <Route path="/blog/page/:page" element={<BlogList />} />
         <Route path="/blog/category/:slug" element={<BlogList />} />
+        <Route path="/blog/category/:slug/page/:page" element={<BlogList />} />
         <Route path="/blog/:slug" element={<BlogPost />} />
         <Route path="/admin" element={<RequireAuth role="admin"><ADMIN.Layout /></RequireAuth>}>
           <Route index element={<ADMIN.Dashboard />} />
