@@ -24,9 +24,7 @@ function el(tag, attrs = {}, ...kids) {
   return n;
 }
 
-function show(...nodes) {
-  app.replaceChildren(...nodes);
-}
+function show(...nodes) { app.replaceChildren(...nodes.filter((n) => n != null && n !== false)); }
 
 async function activeTab() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
