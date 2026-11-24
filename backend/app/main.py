@@ -29,6 +29,7 @@ from app.autoapply import inbound as auto_inbound
 from app.autoapply import items as auto_items
 from app.autoapply import onetap as auto_onetap
 from app.autoapply import replies as auto_replies
+from app.autoapply import reviewer as cws_reviewer
 from app.autoapply import settings as auto_settings
 from app.autoapply import summary as auto_summary
 from app.autoapply import v2 as auto_v2
@@ -365,6 +366,7 @@ def create_app() -> FastAPI:
     app.include_router(auto_replies.router)  # /api/me/auto-apply/v2/inbox (A7 replies inbox, behind the switch)
     app.include_router(auto_weekly.router)  # /api/me/auto-apply/v2/week (A7 weekly summary, behind the switch)
     app.include_router(auto_onetap.router)  # /api/me/auto-apply/v2/onetap and /helper (A6 one tap, behind the switch)
+    app.include_router(cws_reviewer.router)  # /api/admin/auto-apply/cws-reviewer (the Chrome Web Store reviewer)
     app.include_router(auto_onetap.helper)  # /api/helper: the Nm7 Apply helper (Chrome extension), its own token
     app.include_router(auto_inbound.router)  # /api/webhooks/resend (A3: replies, bounces, complaints)
     app.include_router(auto_inbound.public)  # /api/public/auto-apply/opt-out (A3: the employer's opt-out)

@@ -7,6 +7,7 @@ import { Spinner, useToast } from '../../../components/ui';
 import { Kpi, PageHead, Panel } from '../AdminUI';
 import { langsShown, useLang } from '../../../lib/i18n';
 import { Loading, http, useAction, useApi, when } from './common';
+import CwsReviewer from './CwsReviewer';
 import '../../../styles/me-kit.css';
 import '../../../styles/admin-jobs.css';
 
@@ -96,6 +97,7 @@ export function LiveAutoApply() {
             <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start', maxWidth: '100%', whiteSpace: 'normal', textAlign: 'left', height: 'auto', minHeight: 40 }} disabled={busy} onClick={() => demo('/api/admin/seek/demo', { who: 'meera' })} data-testid="aa-demo-meera">Reset and open as student (Phase 6: Meera, learning and proving skills)</button>
             <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start', maxWidth: '100%', whiteSpace: 'normal', textAlign: 'left', height: 'auto', minHeight: 40 }} disabled={busy} onClick={() => demo('/api/admin/seek/demo', { who: 'arjun' })} data-testid="aa-demo-arjun">Reset and open as student (Phase 6: Arjun, day 10 at a new job)</button>
           </section>
+          <CwsReviewer toast={toast} />
         </div>
       )}</Loading>
     </div>

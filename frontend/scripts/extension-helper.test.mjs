@@ -235,3 +235,115 @@ describe('never submits', () => {
     expect(box.Nm7Fill(KIT, null)).toEqual({ blocked: true });
   });
 });
+
+// The Chrome Web Store review: the practice pages on nm7.si (src/pages/demo/PracticeApply.jsx) that the review
+// account's kits link to. The helper must work there: nm7.si is no job board, the kit's applyHost matches the page,
+// every field of the practice form is filled from the kit, and the submit listener offers "Mark as applied on Nm7".
+describe('the practice pages for the Chrome Web Store review', () => {
+  const REVIEW_KIT = {
+    id: 'kit-review',
+    job: { title: 'Junior Data Analyst', company: 'Demo Tech Solutions' },
+    applyHost: 'nm7.si',
+    coverNote: 'I build Excel and Power BI reports.',
+    resume: { name: 'Priya_Sharma_Resume.pdf' },
+    answers: [],
+    fields: [
+      { key: 'full_name', value: 'Priya Sharma (demo)' }, { key: 'first_name', value: 'Priya' }, { key: 'last_name', value: 'Sharma (demo)' },
+      { key: 'email', value: 'chrome-review@nm7.si' }, { key: 'phone', value: '+91 90000 12345' }, { key: 'city', value: 'Pune' },
+      { key: 'linkedin', value: 'https://linkedin.com/in/priya-sharma-demo' }, { key: 'degree', value: 'B.Com Computer Applications' },
+      { key: 'college', value: 'Demo College of Commerce (demo)' }, { key: 'grad_year', value: '2024' }, { key: 'notice', value: '30 days' },
+    ],
+  };
+
+  it('nm7.si is never blocked and the manifest needs no new permission (activeTab + scripting)', () => {
+    for (const h of ['nm7.si', 'www.nm7.si']) expect(B.isBlocked(h)).toBe(false);
+    const m = JSON.parse(read('manifest.json'));
+    expect(m.version).toBe('1.0.0');
+    expect(m.permissions).toEqual(['activeTab', 'scripting', 'storage']);
+    expect(m.content_scripts).toBeUndefined();
+  });
+
+  it('fills every field of the practice form from the kit', async () => {
+    const { FIELDS } = await import('../src/pages/demo/practiceForm.js');
+    const fields = FIELDS.map(([name, label, type, autocomplete]) => f({
+      tag: type === 'textarea' ? 'textarea' : 'input', type, name, id: `pa-${name}`, label: label + (FIELDS.find((x) => x[0] === name)[4] ? ' *' : ''),
+      autocomplete,
+    }));
+    const p = M.planFill(fields, REVIEW_KIT, 'nm7.si');
+    expect(p.skip).toEqual([]);
+    const got = Object.fromEntries(p.fill.map((x) => [FIELDS[x.index][0], x.value]));
+    expect(got).toEqual({
+      full_name: 'Priya Sharma (demo)', email: 'chrome-review@nm7.si', phone: '+91 90000 12345', city: 'Pune',
+      linkedin: 'https://linkedin.com/in/priya-sharma-demo', notice_period: '30 days', degree: 'B.Com Computer Applications',
+      resume: 'Priya_Sharma_Resume.pdf', cover_note: 'I build Excel and Power BI reports.',
+    });
+  });
+
+  it('the popup picks the kit for the page (applyHost nm7.si) and the submit listener marks it submitted', async () => {
+    const popup = read('popup.js');
+    const sameSite = new Function(`${popup.match(/function sameSite\([\s\S]*?\n\}/)[0]}; return sameSite;`)();
+    expect(sameSite(REVIEW_KIT.applyHost, 'nm7.si')).toBe(true);
+    expect(sameSite(REVIEW_KIT.applyHost, 'www.nm7.si')).toBe(true);
+    const { FIELDS } = await import('../src/pages/demo/practiceForm.js');
+    const typed = [];
+    const listeners = {};
+    const proto = {};
+    Object.defineProperty(proto, 'value', { set(v) { typed.push(v); }, configurable: true });
+    const inputs = FIELDS.filter(([, , type]) => type !== 'file').map(([name, label, type]) => ({
+      tagName: type === 'textarea' ? 'TEXTAREA' : 'INPUT', type, id: `pa-${name}`, value: '', labels: [{ textContent: label }], disabled: false, readOnly: false,
+      getAttribute: (k) => ({ type, name }[k] ?? null), closest: () => null, getBoundingClientRect: () => ({ width: 100, height: 20 }),
+      focus() {}, blur() {}, dispatchEvent: (e) => { if (/submit|click/.test(e.type)) throw new Error('pressed'); return true; },
+    }));
+    const sent = [];
+    const box = {
+      location: { hostname: 'nm7.si' },
+      document: {
+        querySelectorAll: (q) => (q.startsWith('input') ? inputs : []), querySelector: () => null, getElementById: () => null,
+        addEventListener: (t, fn, o) => { listeners[t] = { fn, o }; }, createElement: () => ({ style: {}, setAttribute() {}, appendChild() {}, append() {}, addEventListener() {}, remove() {} }),
+        documentElement: { appendChild() {} },
+      },
+      getComputedStyle: () => ({ visibility: 'visible' }),
+      HTMLInputElement: { prototype: proto }, HTMLTextAreaElement: { prototype: proto },
+      Event: class { constructor(type) { this.type = type; } }, chrome: { runtime: { sendMessage: (m) => sent.push(m) } },
+    };
+    box.globalThis = box;
+    vm.createContext(box);
+    for (const p of ['src/blocklist.js', 'src/fieldmap.js', 'src/content.js']) vm.runInContext(read(p), box);
+    const r = box.Nm7Fill(REVIEW_KIT, null);
+    expect(r.blocked).toBeUndefined();
+    expect(r.filled).toBe(8);
+    expect(typed).toContain('chrome-review@nm7.si');
+    listeners.submit.fn({});
+    expect(sent).toContainEqual({ type: 'nm7-submitted', kitId: 'kit-review' });
+  });
+});
+
+describe('the Chrome Web Store test instructions (docs/extension/test-instructions.md)', () => {
+  const doc = readFileSync(join(EXT, '..', 'docs', 'extension', 'test-instructions.md'), 'utf8');
+  const box = doc.match(/```\n([\s\S]*?)\n```/)[1];
+  const code = (p) => readFileSync(join(EXT, '..', p), 'utf8');
+
+  it('fit the 1,000-character box with the password added, and say how long they are', () => {
+    expect(box.length + 1 + 27).toBeLessThan(1000);
+    expect(doc).toContain(`${box.length} characters without the password`);
+    expect(box).toContain('Username: chrome-review@nm7.si');
+    expect(box).toContain('Password: see below');
+  });
+
+  it('use the real words on the screens and the real links', () => {
+    const popup = read('popup.js'); const content = read('src/content.js');
+    for (const [words, where] of [
+      ['Make a pairing code', code('frontend/src/pages/me/AutoApplyOneTap.jsx')], ['Nm7 Apply helper', code('frontend/src/pages/me/AutoApplyOneTap.jsx')],
+      ['Jobs ready', code('frontend/src/pages/me/AutoApplyV2.jsx')], ['Pairing code from Nm7', popup], ['Connect', popup],
+      ['Fill this page', popup], ['Mark as applied on Nm7', content], ['Submit application', code('frontend/src/pages/demo/PracticeApply.jsx')],
+      ['Practice form: nothing was sent', code('frontend/src/pages/demo/practiceForm.js')],
+    ]) {
+      expect(box, words).toContain(words);
+      expect(where, words).toContain(words);
+    }
+    expect(box).toContain('https://nm7.si/login');
+    expect(box).toContain('https://nm7.si/me/auto-apply/v2?tab=ready');
+    expect(box).toContain('https://nm7.si/demo/apply/customer-support-executive');
+    expect(code('backend/app/core/reviewer.py')).toMatch(/PRACTICE = \(\n\s+\("customer-support-executive"/); // its kit comes first
+  });
+});

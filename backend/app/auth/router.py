@@ -1,5 +1,6 @@
 """Sign-up, email verification, login, logout and password reset for customers and experts."""
 
+import logging
 from datetime import timedelta
 
 from fastapi import APIRouter, Request, Response
@@ -23,7 +24,7 @@ from app.auth.service import (
     normalize_phone,
 )
 from app.auth.sessions import SESSION_COOKIE, clear_cookie, client_ip, revoke_all, set_cookie, start_session
-from app.core import rate_limit
+from app.core import rate_limit, reviewer
 from app.core.db import DB, SESSIONS, USERS
 from app.core.email import MailerDep, require_email, send_safely
 from app.core.errors import ApiError
@@ -208,6 +209,13 @@ async def login(body: LoginIn, request: Request, response: Response, db: DB, mai
         user.password_hash = await hash_password(body.password)
         await db[USERS].update_one({"_id": user.id}, {"$set": {"password_hash": user.password_hash}})
     await rate_limit.clear(db, keys[0])
+    if reviewer.is_reviewer(user):  # the Chrome Web Store reviewer: the same 2 jobs ready every time
+        from app.autoapply import reviewer as review_account
+
+        try:
+            await review_account.reset(db)
+        except Exception:  # noqa: BLE001 — a failed reset never stops the sign-in (yesterday's demo data stays)
+            logging.getLogger("nm7.auth").exception("review account reset failed")
     await start_session(db, request, response, user)
     return UserOut.model_validate(user)
 
@@ -219,7 +227,8 @@ async def forgot_password(body: EmailIn, request: Request, db: DB, mailer: Maile
     await may_send_code(db, body.email, client_ip(request))
     user = await find_user(db, body.email)
     code = None
-    if user and user.role != "admin" and not user.disabled_at:  # admins reset from the command line
+    # admins reset from the command line; the Chrome Web Store review account only from Admin (app/core/reviewer.py)
+    if user and user.role != "admin" and not user.disabled_at and not reviewer.is_reviewer(user):
         code = await issue_code(db, user, "reset_password", client_ip(request))
     if user and code:
         await send_safely(mailer, emails.reset_password(user.email, user.name, code))
@@ -230,6 +239,8 @@ async def forgot_password(body: EmailIn, request: Request, db: DB, mailer: Maile
 async def reset_password(body: ResetIn, db: DB) -> Ok:
     check_new_password(body.password, body.password_confirm)
     user = await find_user(db, body.email)
+    if user and reviewer.is_reviewer(user):
+        raise ApiError(403, "review_account", reviewer.MESSAGE)
     if not user or user.role == "admin" or user.disabled_at:
         raise INVALID_CODE
     if not await check_code(db, user, "reset_password", body.code):

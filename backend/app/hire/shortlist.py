@@ -57,6 +57,7 @@ from app.core.db import (
 )
 from app.core.email import Email, MailerDep, send_safely
 from app.core.errors import ApiError
+from app.core.reviewer import is_reviewer
 from app.core.schemas import CamelModel
 from app.core.time import IST, now
 from app.hire.available import JOB_TYPES, available, wants_email
@@ -290,7 +291,7 @@ async def candidates(
     fits: list[tuple[dict[str, Any], dict[str, Any], str]] = []
     for p in profiles:
         u = users.get(p["_id"])
-        if not u or bool(u.get("demo")) != want_demo:
+        if not u or bool(u.get("demo")) != want_demo or is_reviewer(u):  # the Chrome Web Store review account: never
             continue
         where = place_ok(p, job)
         if not where:

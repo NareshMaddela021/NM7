@@ -35,6 +35,7 @@ from app.core.config import get_settings
 from app.core.db import APPLICATIONS, DB, JOBS, LOCKS, RESUMES, USERS
 from app.core.email import Email, Mailer, send_safely
 from app.core.errors import ApiError
+from app.core.reviewer import is_reviewer
 from app.core.schemas import CamelModel
 from app.core.security import keyed_hash, same
 from app.core.testusers import is_test_user
@@ -102,7 +103,7 @@ async def apply(job_id: str, body: ApplyIn, auth: CustomerAuth, db: DB) -> dict[
     key = app_key(job_id)
     company_job = bool(j.get("company_id")) and method == "nm7"
     # a real company must never see a made-up applicant (test users, demo people, an admin's personas)
-    if company_job and (is_test_user(uid) or auth.user.demo):
+    if company_job and (is_test_user(uid) or auth.user.demo or is_reviewer(uid)):
         raise ApiError(409, "test_user", "Test users can’t apply to a real company’s job. Try a job that applies "
                        "on another website or by email.")  # fmt: skip
     extra: dict[str, Any] = {}

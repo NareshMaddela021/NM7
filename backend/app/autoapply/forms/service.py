@@ -37,6 +37,7 @@ import httpx
 from app.audit import audit
 from app.autoapply import access
 from app.autoapply.forms import page, polite
+from app.core import reviewer
 from app.core.db import AUTO_COPIES, AUTO_ITEMS, COMPANIES, FORM_SITES, JOBS, USERS
 from app.core.time import now
 
@@ -139,8 +140,8 @@ async def remember(db, key: str, state: str, reason: str) -> None:
 
 async def route(db, u: dict[str, Any] | None, j: dict[str, Any], site: dict[str, Any]) -> str | None:
     """None when this job may go through the company-form channel, else why not (it stays one tap)."""
-    if not u or u.get("demo") or j.get("demo"):
-        return "demo"  # demo accounts never touch the network
+    if not u or u.get("demo") or j.get("demo") or reviewer.is_reviewer(u):
+        return "demo"  # demo accounts (and the Chrome Web Store review account) never touch the network
     url = str((j.get("apply") or {}).get("url") or "").strip()
     host = polite.host_of(url)
     if not host or not url.lower().startswith(("http://", "https://")):

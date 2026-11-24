@@ -145,6 +145,10 @@
       "destination": "/index.html"
     },
     {
+      "source": "/demo/apply/:slug",
+      "destination": "/index.html"
+    },
+    {
       "source": "/signup/:path*",
       "destination": "/index.html"
     },
@@ -280,6 +284,19 @@
     {
       "source": "/start/(.*)",
       "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        }
+      ]
+    },
+    {
+      "source": "/demo/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        },
         {
           "key": "X-Robots-Tag",
           "value": "noindex, nofollow"

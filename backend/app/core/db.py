@@ -117,6 +117,7 @@ FORM_SITES = "auto_form_sites"  # A5: _id = a company site (host, no www): form 
 AUTO_MORNINGS = "auto_mornings"  # _id = user:day: the morning "N jobs ready" list (items, count, seen, mailed)
 HELPER_CODES = "auto_helper_codes"  # _id = keyed hash of a pairing code for the Nm7 Apply helper: 10 minutes, one use
 HELPER_TOKENS = "auto_helper_tokens"  # one per paired browser: token hash, scope (kits, mark applied), expiry, revoked
+CWS_REVIEWER = "cws_reviewer"  # _id "account": the Chrome Web Store reviewer's password, encrypted (Admin only)
 TALENT_POOL = "talent_pool"  # a company's saved applicants (company_id, user_id), kept as long as the application
 JOB_REMOVALS = "job_removals"  # round J: "remove this job" requests from companies (Admin → Jobs → Removal requests)
 JOB_REPORTS = "job_reports"  # _id = user:job: a student's report of a job (3 from different people pause it)
@@ -296,6 +297,7 @@ COLLECTIONS = (
     AUTO_MORNINGS,
     HELPER_CODES,
     HELPER_TOKENS,
+    CWS_REVIEWER,
     HIRE_PROFILES,
     HIRE_INVITES,
     HIRE_USAGE,

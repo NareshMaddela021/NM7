@@ -34,6 +34,7 @@ from app.audit import audit
 from app.autoapply import access
 from app.autoapply.ats import adapters, darwinbox
 from app.autoapply.ats.base import MESSAGES, RANK, Adapter, PartnerError, Submission, client, map_status
+from app.core import reviewer
 from app.core.config import get_settings
 from app.core.db import APPLICATIONS, ATS_CONNECTIONS, ATS_DELIVERIES, AUTO_COPIES, AUTO_ITEMS, COMPANIES, JOBS, USERS
 from app.core.errors import ApiError
@@ -333,7 +334,7 @@ async def queue(db, u: dict[str, Any], it: dict[str, Any], j: dict[str, Any], si
     """Right after a 2.0 application was made on Nm7 for a job linked to the company's hiring system: queue it for
     the partner. → the partner mark for the tracker ({key, name, state}) or None (stays an Nm7 application only)."""
     link = j.get("partner_job") or None
-    if not link or not j.get("company_id"):
+    if not link or not j.get("company_id") or reviewer.is_reviewer(u):  # the review account: never a partner
         return None
     conn = await connection(db, j["company_id"])
     if not conn or conn["partner"] != link.get("partner"):
@@ -428,6 +429,9 @@ async def deliver_one(db, d: dict[str, Any], conn: dict[str, Any], site: dict[st
     t = now()
     u = await db[USERS].find_one({"_id": d["user_id"]}, access.PROJECTION)
     c = await db[COMPANIES].find_one({"_id": d["company_id"]}, {"members": 1, "demo": 1})
+    if reviewer.is_reviewer(d["user_id"]):  # the Chrome Web Store review account never reaches a hiring system
+        await _give_up(db, {"_id": d["_id"]}, "demo")
+        return "kept"
     if not access.pair_ok(u, c, site["auto_apply_v2"]):
         await _give_up(db, {"_id": d["_id"]}, "switch_off")
         return "kept"

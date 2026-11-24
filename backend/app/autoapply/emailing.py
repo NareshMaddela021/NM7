@@ -42,6 +42,7 @@ import httpx
 from bson import ObjectId
 from pymongo.errors import DuplicateKeyError
 
+from app.core import reviewer
 from app.core.config import get_settings
 from app.core.db import AUTO_ALIASES, AUTO_ITEMS, AUTO_MAIL, EMAIL_BLOCKS, SHARES, USERS
 from app.core.email import Email, send_safely
@@ -120,7 +121,7 @@ async def send(
     from app.jobs.apply import job_page
 
     to = (j.get("apply") or {}).get("email") or ""
-    if not to or await blocked(db, to):
+    if not to or reviewer.is_reviewer(u) or await blocked(db, to):  # the Chrome Web Store review account: never
         return None
     data = copy["data"]
     name = (data.get("personal") or {}).get("name") or u.get("name") or "A candidate"
@@ -406,6 +407,8 @@ def recipient(u: dict[str, Any], company_addr: str, v2: dict[str, Any]) -> tuple
 
 async def ready_reason(db, u: dict[str, Any], j: dict[str, Any], site: dict[str, Any]) -> str | None:
     """Why this email job can't go by email for this candidate (None = it can): then it is "Ready" for one tap."""
+    if reviewer.is_reviewer(u):  # the Chrome Web Store review account (app/core/reviewer.py): never by email
+        return "demo"
     if why := channel_off():
         return why
     if u.get("demo") or j.get("demo"):
@@ -493,6 +496,8 @@ async def _send_one(
     db, mailer, *, u, j, item_id, kind, to, test, subject, text, html, attachments, source
 ) -> dict[str, Any] | None:
     """One 2.0 email from the candidate's apply address, logged in auto_mail (the unique index: once per kind)."""
+    if reviewer.is_reviewer(u):  # the Chrome Web Store review account never sends anything (app/core/reviewer.py)
+        return None
     name = (u.get("name") or "").strip() or "A candidate"
     sender = await apply_address(db, u)
     company_addr = (j.get("apply") or {}).get("email", "").lower()

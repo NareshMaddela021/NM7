@@ -24,6 +24,9 @@ class Settings(BaseSettings):
     secret_key: str = "dev-only-secret-change-me"
     # Encrypts authenticator secrets. Falls back to SECRET_KEY; changing it breaks existing admin authenticators.
     encryption_key: str = ""
+    # The Chrome Web Store reviewer's password (app/autoapply/reviewer.py). Empty (the default): Admin → Auto Apply
+    # makes a strong random one. Set: that one is used (Admin still shows it to the owner, never anyone else).
+    cws_reviewer_password: str = ""
     cors_origins: Annotated[list[str], NoDecode] = ["http://localhost:5173"]
     # Extra allowed origins as a full-match regex, e.g. Vercel preview deployments. Keep it tied to your own
     # project and team, never all of *.vercel.app (anyone can deploy there). Empty = none.

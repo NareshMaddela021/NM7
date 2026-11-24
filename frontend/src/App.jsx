@@ -175,6 +175,7 @@ const OrgInvite = named(portal, 'OrgInvite');
 const AcceptTransfer = lazy(() => import('./pages/org/Transfer'));
 const DemoLogin = lazy(() => import('./pages/org/DemoLogin'));
 const DemoStudentLogin = lazy(() => import('./pages/me/DemoStudentLogin'));
+const PracticeApply = lazy(() => import('./pages/demo/PracticeApply')); // the Chrome Web Store review's practice forms
 const NewHome = lazy(() => import('./pages/newhome/NewHome')); // /: the 3D home page (round P)
 const OldHome = lazy(() => import('./pages/Home')); // /old-home: the previous home page, not indexed, kept to compare until removed
 const PricingPage = lazy(() => import('./pages/PricingPage')); // /pricing: prices, the free scan, organization plans
@@ -523,6 +524,7 @@ export default function App() {
         <Route path="/org/transfer" element={C(<AcceptTransfer />)} />
         <Route path="/org/demo-login" element={<DemoLogin />} />
         <Route path="/demo-student" element={<DemoStudentLogin />} />
+        <Route path="/demo/apply/:slug" element={<PracticeApply />} />
         <Route path="/pricing" element={<PricingPage />} />
         <Route path="/for-orgs" element={<ForOrgs />} />
         <Route path="/status" element={<StatusPage />} />
