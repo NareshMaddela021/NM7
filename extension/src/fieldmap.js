@@ -59,7 +59,7 @@
     work: [
       [/currently|present|current.?(role|job|employer)|i work here/, 'current'],
       [/company|employer|organi[sz]ation/, 'company'],
-      [/title|designation|role|position/, 'title'],
+      [/title|designation|role|position|job function/, 'title'],
       [/location|city/, 'location'],
       [/from|start|joined|begin/, 'from'],
       [/\bto\b|end|until|till|left/, 'to'],

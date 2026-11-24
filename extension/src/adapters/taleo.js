@@ -7,7 +7,7 @@ globalThis.Nm7Adapters.register({
   name: 'taleo',
   label: 'Taleo',
   hosts: [/(^|\.)taleo\.net$/],
-  signature: '[id*="dv_cs_candidate"], #requisitionDescriptionInterface, .taleo-form',
+  signature: '[id*="dv_cs_candidate"], [id*="dv_cs_experience"], [id*="dv_cs_education"], #requisitionDescriptionInterface',
   login: '#dialogTemplate-dialogForm-login-name1, [id$="login-password"], #loginForm',
   step: '.titlepage, #et-ef-content-ftf-flowTitle, h1.flowTitle',
   fields: [

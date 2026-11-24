@@ -17,7 +17,6 @@ export const COLLEGES = ['Demo College of Commerce (demo)', 'Demo Institute of T
 const DEGREES = ['Select one', 'Bachelor of Commerce (B.Com)', 'Bachelor of Technology (B.Tech)', 'Bachelor of Science (B.Sc)', 'Bachelor of Arts (B.A)', 'Master of Business Administration (MBA)', 'Other'];
 const NOTICE = ['Select one', 'Immediately', '15 days', '30 days', '60 days', '90 days'];
 const YEARS = ['Year', '2020', '2021', '2022', '2023', '2024', '2025', '2026'];
-const MONTHS = ['Month', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const GENDER = ['Select one', 'Female', 'Male', 'Prefer not to say'];
 const ASK = 'Describe a time you solved a difficult problem for a customer.';
 

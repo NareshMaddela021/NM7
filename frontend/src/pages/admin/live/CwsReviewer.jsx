@@ -10,7 +10,7 @@ export function ReviewerCard({ d, password, busy, onShow, onHide, onReset, onCop
   return (
     <section className="card-sm stack g8 adx-demo" aria-label="Chrome Web Store reviewer" data-testid="aa-cws">
       <strong className="small">Chrome Web Store reviewer</strong>
-      <span className="xs muted">A made-up person (Priya Sharma, demo) for Google’s review of the Nm7 Apply helper. She signs in with email and password, always has the same 2 jobs ready, and nothing is ever sent for her. She can’t change her password or email, delete the account or pay. Paste the password into the Test instructions tab of the Chrome Web Store dashboard.</span>
+      <span className="xs muted">A made-up person (Priya Sharma, demo) for Google’s review of the Nm7 Apply helper. She signs in with email and password, always has the same 3 jobs ready (one on a multi-step practice form), and nothing is ever sent for her. She can’t change her password or email, delete the account or pay. Paste the password into the Test instructions tab of the Chrome Web Store dashboard.</span>
       {!d.exists ? (
         <button type="button" className="btn btn-outline" style={{ alignSelf: 'flex-start' }} disabled={busy} onClick={onReset} data-testid="aa-cws-create">Create the reviewer account</button>
       ) : (

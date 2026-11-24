@@ -201,7 +201,7 @@
       + '#nm7-marks .nm7-badge{position:absolute;font:600 11px/1.3 system-ui,sans-serif;color:#fff;padding:1px 6px;border-radius:6px;white-space:nowrap}'
       + '#nm7-marks .nm7-chip{position:absolute;pointer-events:auto;display:flex;gap:6px;flex-wrap:wrap;align-items:center;background:#fff;color:#111827;border:2px solid #6d28d9;border-radius:8px;padding:6px 8px;font:13px/1.3 system-ui,sans-serif;box-shadow:0 4px 14px rgba(0,0,0,.18);max-width:420px}'
       + '#nm7-marks .nm7-chip button,#nm7-status button{font:inherit;font-weight:600;border-radius:6px;border:1px solid #111827;background:#fff;color:#111827;padding:6px 10px;min-height:32px;cursor:pointer}'
-      + '#nm7-status{position:fixed;left:12px;bottom:12px;z-index:2147483647;max-width:min(560px,calc(100vw - 24px));background:#111827;color:#fff;font:14px/1.35 system-ui,sans-serif;padding:8px 10px;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,.25);display:flex;gap:8px;align-items:center;flex-wrap:wrap}'
+      + `#nm7-status{position:fixed;${globalThis.top === globalThis.self ? 'right:12px;top:12px' : 'left:12px;bottom:12px'};z-index:2147483647;max-width:min(560px,calc(100vw - 24px));background:#111827;color:#fff;font:14px/1.35 system-ui,sans-serif;padding:8px 10px;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,.25);display:flex;gap:8px;align-items:center;flex-wrap:wrap}`
       + '#nm7-status .nm7-count{background:transparent;color:#fff;border-color:#fff}';
     (document.head || document.documentElement).appendChild(s);
   }
