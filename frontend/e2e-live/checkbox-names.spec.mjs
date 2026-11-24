@@ -1,9 +1,11 @@
 // Every checkbox and radio button has a name a screen reader can say (Batch E item 50): its own label text, an
 // aria-label or aria-labelledby, never nothing (a screen reader then reads its value, "on"). Visits the job seeker
 // dashboard pages, the builder, the company dashboard tabs, a college coordinator's portal and the admin console;
-// desktop and a 390 px phone.
+// desktop and a 390 px phone. Vetting fix batch: the skill check pages too (the consent tick, the start dialog with the
+// honesty pledge and "I need extra time", a passed result with the practical task's pledge and "Show this score to
+// companies hiring now").
 import { expect, test } from '@playwright/test';
-import { PASSWORD, adminLogin, asTestPerson, login, seed } from './helpers.mjs';
+import { PASSWORD, adminLogin, asTestPerson, email, login, seed } from './helpers.mjs';
 import { SIZES, call, college, json } from './college.mjs';
 
 const ME = ['/me', '/me/profile', '/me/settings', '/me/jobs', '/me/auto-apply', '/me/learn', '/me/practice', '/me/roles', '/me/skill-checks', '/me/programs', '/me/hire', '/me/simple'];
@@ -62,6 +64,54 @@ for (const [size, opts] of SIZES) {
     const c = await college(browser, opts, `cbn${size[0]}`, { students: 1, prefix: 'cb' });
     for (const p of ['', '/dashboard', '/drives', '/offers', '/team', '/placement']) { await c.coord.goto(`/org/${c.org.id}${p}`); await settle(c.coord); found.push(...await unnamed(c.coord, `/org${p}`)); }
     await c.close();
+    expect(found).toEqual([]);
+  });
+}
+
+for (const [size, opts] of SIZES) {
+  test(`skill check ticks have names: the pledge and Show this score (${size})`, async ({ browser }) => {
+    test.setTimeout(180_000);
+    const found = [];
+    const mail = email(`cbv-${size}-${Date.now().toString(36)}`);
+    seed('customer', mail, 'Asha Pledge', PASSWORD);
+    seed('vetting-tester', mail);
+    seed('trust-tester', mail); // the honesty pledge is part of Vetting Trust
+    seed('trust-face', mail, 'no');
+    const page = await (await browser.newContext(opts)).newPage();
+    await login(page, mail);
+    await page.waitForURL('**/me');
+    await page.goto('/me/settings'); // the age gate comes before any consent
+    const card = page.getByTestId('tc-card');
+    await expect(card).toBeVisible({ timeout: 20_000 });
+    await card.getByTestId('tc-dob').fill('1999-04-12');
+    await card.getByTestId('tc-age-save').click();
+    await expect(card.getByTestId('tc-age')).toHaveCount(0);
+    // the consent card, then the start dialog with the pledge
+    await page.goto('/me/skill-checks');
+    const consent = page.getByTestId('vt-consent');
+    await expect(consent.getByTestId('vt-consent-tick')).toHaveAccessibleName('I understand what is checked during the test');
+    found.push(...await unnamed(page, '/me/skill-checks consent'));
+    await consent.getByTestId('vt-consent-tick').check();
+    await consent.getByTestId('vt-consent-go').click();
+    await expect(consent).toHaveCount(0);
+    await page.getByTestId('vt-search').fill('data analyst');
+    await page.getByTestId('sk-list').getByTestId('sk-start-SQL').click();
+    const dlg = page.getByTestId('vt-start');
+    const pledge = dlg.getByTestId('pledge-skill');
+    await expect(pledge.getByTestId('pledge-text')).toBeVisible({ timeout: 20_000 });
+    await expect(pledge.getByTestId('pledge-tick')).toHaveAccessibleName(/\w{3,}/);
+    await expect(pledge.getByTestId('pledge-tick')).not.toHaveAccessibleName(/^on$/i);
+    await expect(dlg.getByTestId('vt-extra')).toHaveAccessibleName('I need extra time');
+    found.push(...await unnamed(page, 'skill check start dialog'));
+    // a passed test: the practical task's pledge and "Show this score to companies hiring now"
+    const { id } = seed('vet-passed', mail, 'Excel');
+    await page.goto(`/me/skill-checks/${id}`);
+    const task = page.getByTestId('pledge-task');
+    await expect(task.getByTestId('pledge-tick')).toBeVisible({ timeout: 20_000 });
+    await expect(task.getByTestId('pledge-tick')).toHaveAccessibleName(/\w{3,}/);
+    await expect(task.getByTestId('pledge-tick')).not.toHaveAccessibleName(/^on$/i);
+    await expect(page.getByTestId('vt-share')).toHaveAccessibleName('Show this score to companies hiring now');
+    found.push(...await unnamed(page, '/me/skill-checks result'));
     expect(found).toEqual([]);
   });
 }

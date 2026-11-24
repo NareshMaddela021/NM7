@@ -203,7 +203,7 @@ async def after_run(db, mailer, u: dict[str, Any], day: str, weekly: bool = True
     if fresh.get("auto_summary_day") != day and (c["applied"] or c["newToday"]):
         parts = [f"Applied {c['applied']}", f"{c['needsAnswer']} need your answer", f"{c['ready']} ready to apply"]
         if c["waiting"]:
-            parts.append(f"{c['waiting']} waiting for your Approve")
+            parts.append(f"{c['waiting']} waiting for your approval")
         mail = _mail(
             fresh,
             "Auto Apply today: " + " · ".join(parts[:3]),

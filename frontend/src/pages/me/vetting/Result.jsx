@@ -56,7 +56,7 @@ function TaskState({ r, onOpen, appeals, onRefresh }) {
         {t.status === 'open' && r.retake && <Suspense fallback={null}><Pledge kind="task" lang={r.lang} onChange={setPledge} /></Suspense>}
         {t.status === 'open' && cl && !cl.given && (
           <label className="vet-toggle" data-testid="vt-replay-consent">
-            <input type="checkbox" checked={replayOk} onChange={(e) => setReplayOk(e.target.checked)} data-testid="vt-replay-tick" />
+            <input type="checkbox" checked={replayOk} onChange={(e) => setReplayOk(e.target.checked)} aria-label={`Optional: ${cl.title}`} data-testid="vt-replay-tick" />
             <span><strong>Optional: {cl.title}.</strong> We record your typing in this editor only to show reviewers how the solution was written. <span className="xs muted">{cl.text}</span></span>
           </label>
         )}
@@ -217,7 +217,7 @@ export default function Result({ id, initial, onRetest }) {
 
       {!r.retest && (
         <label className="vet-toggle">
-          <input type="checkbox" checked={!!r.share} onChange={(e) => share(e.target.checked)} data-testid="vt-share" />
+          <input type="checkbox" checked={!!r.share} onChange={(e) => share(e.target.checked)} aria-label="Show this score to companies hiring now" data-testid="vt-share" />
           <span>Show this score to companies hiring now <span className="xs muted">(a “Skill verified” badge is always shown once earned)</span></span>
         </label>
       )}

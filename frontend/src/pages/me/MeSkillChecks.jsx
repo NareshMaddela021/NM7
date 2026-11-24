@@ -62,7 +62,7 @@ function ConsentCard({ onDone }) {
     <MeCard tone="flat" icon={<IcLock />} title="Before your first test: what we check" sub="So results are fair for everyone, the test page notices a few things while you take it." testid="vt-consent" id="vt-consent">
       <ConsentList />
       <label className="vet-check">
-        <input type="checkbox" checked={ok} onChange={(e) => setOk(e.target.checked)} data-testid="vt-consent-tick" />
+        <input type="checkbox" checked={ok} onChange={(e) => setOk(e.target.checked)} aria-label="I understand what is checked during the test" data-testid="vt-consent-tick" />
         <span>I understand what is checked during the test</span>
       </label>
       {err && <p className="error" role="alert">{err}</p>}
@@ -165,7 +165,7 @@ function StartDialog({ r, cat, preset, needConsent, onConsent, onClose, onGo }) 
           </fieldset>
         )}
         <label className="vet-check">
-          <input type="checkbox" checked={extra} onChange={(e) => setExtra(e.target.checked)} data-testid="vt-extra" />
+          <input type="checkbox" checked={extra} onChange={(e) => setExtra(e.target.checked)} aria-label="I need extra time" data-testid="vt-extra" />
           <span><strong>I need extra time</strong><span className="xs muted" style={{ display: 'block' }}>1½ times the time. It doesn’t change your score.</span></span>
         </label>
         <Suspense fallback={null}><SnapshotChoice kind="skill" /></Suspense>
@@ -173,7 +173,7 @@ function StartDialog({ r, cat, preset, needConsent, onConsent, onClose, onGo }) 
           <div className="stack g8">
             <details className="vet-more"><summary className="small"><strong>What the test page checks</strong> (read more)</summary><ConsentList /></details>
             <label className="vet-check">
-              <input type="checkbox" checked={ok} onChange={(e) => setOk(e.target.checked)} data-testid="vt-consent-tick-dialog" />
+              <input type="checkbox" checked={ok} onChange={(e) => setOk(e.target.checked)} aria-label="I understand what is checked during the test" data-testid="vt-consent-tick-dialog" />
               <span>I understand what is checked during the test</span>
             </label>
           </div>
@@ -225,14 +225,14 @@ function RenewDialog({ r, needConsent, onConsent, onClose, onGo }) {
           </fieldset>
         )}
         <label className="vet-check">
-          <input type="checkbox" checked={extra} onChange={(e) => setExtra(e.target.checked)} />
+          <input type="checkbox" checked={extra} onChange={(e) => setExtra(e.target.checked)} aria-label="I need extra time" />
           <span><strong>I need extra time</strong><span className="xs muted" style={{ display: 'block' }}>1½ times the time. It doesn’t change your score.</span></span>
         </label>
         {needConsent && (
           <div className="stack g8">
             <details className="vet-more"><summary className="small"><strong>What the test page checks</strong> (read more)</summary><ConsentList /></details>
             <label className="vet-check">
-              <input type="checkbox" checked={ok} onChange={(e) => setOk(e.target.checked)} />
+              <input type="checkbox" checked={ok} onChange={(e) => setOk(e.target.checked)} aria-label="I understand what is checked during the test" />
               <span>I understand what is checked during the test</span>
             </label>
           </div>

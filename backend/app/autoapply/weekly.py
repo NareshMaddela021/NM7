@@ -120,7 +120,7 @@ def _lines(w: dict[str, Any]) -> list[str]:
         lines.append(f"{w['ready']} job{'s are' if w['ready'] != 1 else ' is'} ready for you to apply to yourself.")
     if w["mode"] == "digest" and w["approvals"]:
         lines.append(f"This week's list: {w['approvals']} job{'s' if w['approvals'] != 1 else ''} waiting for your "
-                     "Approve. Nothing is sent until you approve.")  # fmt: skip
+                     "approval. Nothing is sent until you approve.")  # fmt: skip
         lines += [f"· {d['title']} at {d['company']}" + (f" (match {d['score']})" if d.get("score") is not None else "")
                   for d in w["digest"]]  # fmt: skip
     return lines

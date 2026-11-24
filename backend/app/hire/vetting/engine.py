@@ -209,7 +209,79 @@ POINTS = {
     "shared_device": "Same device or network as another account taking this test",
     "resume_mismatch": "Experience claimed doesn't match easy-question results",
     "pauses": "Paused the test more than allowed",
+    "typing_speed": "The written answer arrived faster than a person can type",
+    "untyped_text": "Most of the written answer appeared without key presses or a paste",
 }
+
+# Vetting fix batch: typing speed on written practical tasks, measured on the server's clock (the page can't speed it
+# up). Fast typists manage about 8 characters a second for a short while; 15 a second over a long answer is beyond
+# anyone. Short answers are never judged on speed. Text that appeared with very few key presses and no paste (autofill,
+# dictation, another tool) is a weak signal: it only matters together with another one.
+TYPING_MIN_CHARS = 400
+TYPING_MAX_CPS = 15
+KEYS_MIN_SHARE = 0.3  # key presses at least this share of the characters not pasted
+FAST_PAPER_SHARE = 0.25  # the whole test in under a quarter of the time it takes to read the questions answered
+
+
+def typing_check(*, chars: int, pasted: int, elapsed_s: float, keys: int | None, first_key_ms: int | None,
+                 typing_ms: int | None) -> dict[str, Any]:  # fmt: skip
+    """`elapsed_s` from the server (task opened → answer sent). The window is measured from the first key press when
+    the page reports one inside that time (reading the brief first is never counted as typing time); the page can only
+    make the window shorter, never longer. `keys` None (an older page): text without key presses isn't judged."""
+    elapsed = max(1.0, float(elapsed_s))
+    window = elapsed
+    if first_key_ms is not None and 0 <= first_key_ms / 1000 < elapsed:
+        window = max(1.0, elapsed - first_key_ms / 1000)
+    cps = chars / window
+    typed = max(0, chars - pasted)
+    return {
+        "cps": round(cps, 1),
+        "window": round(window),
+        "impossible": chars >= TYPING_MIN_CHARS and cps > TYPING_MAX_CPS,
+        "untyped": keys is not None and typed >= TYPING_MIN_CHARS and keys < typed * KEYS_MIN_SHARE,
+    }
+
+
+def fast_paper(questions: list[dict[str, Any]], answers: dict[str, int], elapsed_s: float) -> dict[str, Any]:
+    """The whole test, on the server's clock: sent in under a quarter of the reading time of the questions answered
+    (5 or more answers)."""
+    done = [q for q in questions if str(q["_id"]) in answers]
+    reading = sum(reading_seconds(q["question"], q["options"]) for q in done)
+    return {"fast": len(done) >= 5 and elapsed_s < FAST_PAPER_SHARE * reading, "answered": len(done),
+            "seconds": round(elapsed_s), "reading": round(reading)}  # fmt: skip
+
+
+def _span(seconds: float) -> str:
+    s = round(seconds)
+    return f"{s} second{'' if s == 1 else 's'}" if s < 120 else f"{round(s / 60)} minutes"
+
+
+def explain(sig: dict[str, Any]) -> list[str]:
+    """Plain sentences with the numbers behind the speed signals, for the integrity evidence (Admin only)."""
+    out = []
+    chars, pasted = int(sig.get("taskChars") or 0), int(sig.get("pastedChars") or 0)
+    if sig.get("typingImpossible"):
+        first = sig.get("firstKeyMs")
+        line = f"About {chars:,} characters were sent {_span(sig.get('taskSeconds') or 0)} after the task opened"
+        if first is not None:
+            line += f" (the first key press came after {_span(first / 1000)})"
+        out.append(line + f": about {sig.get('cps', 0):g} characters a second. Fast typists manage about 8.")
+    if sig.get("untypedText"):
+        keys, typed = int(sig.get("keys") or 0), max(0, chars - pasted)
+        out.append(f"Only {keys:,} key presses for {typed:,} characters that were not pasted: the text may have come "
+                   "from autofill, dictation or another tool.")  # fmt: skip
+    if chars and pasted / chars > 0.3:
+        out.append(f"{pasted:,} of the {chars:,} characters in the answer were pasted.")
+    if sig.get("fastPaper"):
+        n, sent, read = (
+            int(sig.get("paperAnswered") or 0),
+            _span(sig.get("paperSeconds") or 0),
+            _span(sig.get("paperReading") or 0),
+        )
+        out.append(
+            f"The test ({n} answers) was sent {sent} after it started; reading those questions takes about {read}."
+        )
+    return out
 
 
 def integrity(sig: dict[str, Any]) -> dict[str, Any]:
@@ -237,6 +309,14 @@ def integrity(sig: dict[str, Any]) -> dict[str, Any]:
         pts["too_fast"] = 2
     elif fast >= 3:
         pts["too_fast"] = 1
+    if sig.get("fastPaper"):  # the server's own clock: one signal with the page's times above, counted once
+        pts["too_fast"] = 3
+    if sig.get("typingImpossible"):  # alone: Watch, with a plain reason
+        pts["typing_speed"] = 3
+        if "paste" in pts:  # pasted AND faster than anyone types: two signals together
+            pts["paste"] = max(pts["paste"], 2)
+    if sig.get("untypedText"):
+        pts["untyped_text"] = 2  # alone stays Clean (dictation, autofill); with impossible speed: Needs retest
     if sig.get("samePosition"):
         pts["same_position"] = 2
     if sig.get("patternMatch"):
@@ -252,7 +332,8 @@ def integrity(sig: dict[str, Any]) -> dict[str, Any]:
     total = sum(pts.values())
     level = "clean" if total <= 2 else "watch" if total <= 4 else "retest"
     serious = bool(pts.keys() & {"pattern_match", "text_match", "shared_device"})
-    return {"level": level, "points": total, "reasons": sorted(pts, key=lambda k: -pts[k]), "serious": serious}
+    return {"level": level, "points": total, "reasons": sorted(pts, key=lambda k: -pts[k]), "serious": serious,
+            "explain": explain(sig)}  # fmt: skip
 
 
 def same_position(shown: list[int]) -> bool:

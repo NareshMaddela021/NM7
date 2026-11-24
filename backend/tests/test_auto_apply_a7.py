@@ -348,7 +348,7 @@ async def test_weekly_digest_mode_email(client, outbox, db, monkeypatch):
     assert got["weekly"] is True
     m = [x for x in outbox.sent if x.to == EMAIL][-1]
     assert m.subject == "Your Auto Apply week · this week's list"
-    assert "This week's list: 2 jobs waiting for your Approve" in m.text
+    assert "This week's list: 2 jobs waiting for your approval" in m.text
     assert m.text.index("Junior Data Analyst at Orbit Labs (match 88)") < m.text.index("BI Analyst at Orbit Labs")
     assert "/me/auto-apply/v2?tab=approve" in m.text
     w = ok(await client.get(f"{V2}/week"))
