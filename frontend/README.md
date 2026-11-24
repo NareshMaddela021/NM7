@@ -202,7 +202,7 @@ orders (checkout writes the server's order id, invoice number and payment id int
   token** (name e.g. `nm7-site-read`, default stage **Published**) → **Content API** permissions: **Read**, model
   **Blog Post**, stage **Published** only. Copy the token and paste it only into **Render → nm7-api → Environment** as
   `HYGRAPH_TOKEN` (never in chat or in the repository). If the project's Content API URL is not
-  `https://api-ap-south-1.hygraph.com/v2/cmtxihlft00uf06v1drejgj89/master`, set `HYGRAPH_ENDPOINT` there too (Project
+  `https://ap-south-1.cdn.hygraph.com/content/cmtxihlft00uf06v1drejgj89/master`, set `HYGRAPH_ENDPOINT` there too (Project
   settings → Endpoints). Save (Render redeploys), then redeploy the site once on Vercel so the build pre-renders them.
   Nothing new is needed on Vercel. The build log then says `[blog] merged: 36 own + N older = M articles`.
 - asuraa.ai mentions are not changed; admins can list them at `GET /api/admin/blog/flags`, or run

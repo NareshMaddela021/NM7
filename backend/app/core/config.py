@@ -140,7 +140,7 @@ class Settings(BaseSettings):
     # it the source is off and the blog shows only its own posts. HYGRAPH_ENDPOINT is the project's Content API URL
     # (Project settings > Endpoints). The posts are kept in memory for BLOG_CACHE_MINUTES.
     hygraph_token: str = ""
-    hygraph_endpoint: str = "https://api-ap-south-1.hygraph.com/v2/cmtxihlft00uf06v1drejgj89/master"
+    hygraph_endpoint: str = "https://ap-south-1.cdn.hygraph.com/content/cmtxihlft00uf06v1drejgj89/master"
     blog_cache_minutes: int = 360
 
     # Razorpay — empty until keys exist
