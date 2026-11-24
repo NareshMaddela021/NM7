@@ -32,6 +32,7 @@ from pymongo.errors import DuplicateKeyError
 
 from app.audit import audit
 from app.autoapply.settings import gate, preview_left, resume_for
+from app.core import reviewer
 from app.core.db import APPLICATIONS, AUTO_COPIES, AUTO_ITEMS, AUTO_RUNS, COMPANIES, JOB_REPORTS, JOBS, USERS
 from app.core.time import IST, now
 from app.jobs import fit as fitmod
@@ -240,6 +241,8 @@ async def apply_nm7(
     company), or "Sent by email" with a copy of the email for an email job."""
     from app.companies import questions as qmod
 
+    if reviewer.is_reviewer(u):  # the Chrome Web Store review account never applies to anyone (app/core/reviewer.py)
+        return None
     t = now()
     a = u.get("auto_apply") or {}
     key = app_key(j["_id"])

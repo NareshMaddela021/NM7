@@ -133,6 +133,11 @@ cd extension
 zip -r ../nm7-apply-helper-1.0.0.zip . -x '.*'
 ```
 
+## Test instructions tab
+
+The reviewer's demo account and the text to paste are in [`test-instructions.md`](test-instructions.md) (the password
+is copied from Admin > Auto Apply > Chrome Web Store reviewer).
+
 ## For Naresh to check before submitting
 
 - The dashboard's data categories change from time to time. If it asks about **Location** or **Financial

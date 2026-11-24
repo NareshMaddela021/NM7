@@ -39,6 +39,7 @@ from app.core import rate_limit
 from app.core.config import get_settings
 from app.core.db import DB, TRUST_CONSENTS, USERS
 from app.core.errors import ApiError
+from app.core.reviewer import is_reviewer
 from app.core.schemas import CamelModel
 from app.core.security import keyed_hash, same
 from app.core.time import now
@@ -158,7 +159,8 @@ async def grant(db, uid: str, purpose: str, channel: str = "settings") -> dict[s
         {"$set": {"withdrawn_at": t, "withdraw_channel": "replaced"}},
     )  # fmt: skip  (an outdated version)
     await db[TRUST_CONSENTS].insert_one({"user_id": uid, "purpose": purpose, "version": p.version, "granted_at": t,
-                                         "withdrawn_at": None, "channel": channel})  # fmt: skip
+                                         "withdrawn_at": None, "channel": channel,
+                                         **({"demo": True} if is_reviewer(uid) else {})})  # fmt: skip
     await audit(
         db,
         uid,

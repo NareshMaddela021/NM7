@@ -8,6 +8,7 @@ from fastapi import Depends, Request, Response
 
 from app.auth.models import User, UserSession
 from app.auth.sessions import load_session
+from app.core import reviewer
 from app.core.db import DB
 from app.core.errors import ApiError
 
@@ -65,6 +66,8 @@ async def get_auth(request: Request, auth: Annotated[Auth | None, Depends(option
         raise REFUSED  # app/core/readonly.py refuses these before any route runs; this is the second lock
     if auth.session.demo_org_id and not demo_allowed(request.url.path, auth.session.demo_org_id):
         raise ApiError(403, "demo_only", "The demo coordinator can only open the demo college. Sign out to go back.")
+    if reviewer.is_reviewer(auth.user) and reviewer.blocked(request.method, request.url.path):
+        raise ApiError(403, "review_account", reviewer.MESSAGE)  # the Chrome Web Store reviewer (app/core/reviewer.py)
     return auth
 
 

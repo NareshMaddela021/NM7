@@ -179,6 +179,10 @@ async def send_safely(mailer: Mailer, msg: Email) -> bool:
 
     if is_test_address(msg.to):  # made-up addresses (test users, demo people, admin personas): never sent
         return True
+    from app.core.reviewer import is_reviewer_address
+
+    if is_reviewer_address(msg.to):  # the Chrome Web Store review account: never needs (or gets) an email
+        return True
     from app.core.readonly import READ_ONLY
 
     if READ_ONLY.get():  # an admin's read-only "View as this user": nothing is ever sent
