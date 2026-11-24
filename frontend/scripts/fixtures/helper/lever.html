@@ -1,0 +1,16 @@
+<!-- Fixture: the shape of a Lever posting's application page. Values are made up. -->
+<div class="application-page">
+  <form method="POST" action="https://jobs.example.test/apply" id="application-form">
+    <ul>
+      <li class="application-question"><label><div class="application-label">Resume/CV</div><input type="file" name="resume"></label></li>
+      <li class="application-question"><label><div class="application-label">Full name</div><input type="text" name="name"></label></li>
+      <li class="application-question"><label><div class="application-label">Email</div><input type="email" name="email"></label></li>
+      <li class="application-question"><label><div class="application-label">Phone</div><input type="text" name="phone"></label></li>
+      <li class="application-question"><label><div class="application-label">Current company</div><input type="text" name="org"></label></li>
+      <li class="application-question"><label><div class="application-label">LinkedIn URL</div><input type="text" name="urls[LinkedIn]"></label></li>
+      <li class="application-question"><label><div class="application-label">Additional information</div><textarea name="comments"></textarea></label></li>
+      <li class="application-question"><label><div class="application-label">What makes you a great fit for this team?</div><textarea name="cards[abc][field0]"></textarea></label></li>
+    </ul>
+    <button type="submit" class="template-btn-submit">Submit application</button>
+  </form>
+</div>

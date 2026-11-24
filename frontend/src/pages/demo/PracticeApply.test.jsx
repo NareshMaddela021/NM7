@@ -6,6 +6,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { PracticeForm } from './PracticeApply';
 import { FIELDS, JOBS, SENT_TEXT, practiceSubmit } from './practiceForm';
+import PracticeSystem, { SystemForm } from './PracticeSystem';
+import { SYSTEMS, STEP_TEXT } from './practiceSystems';
 import { STATIC_PAGES } from '../../../scripts/prerender-blog.mjs';
 
 const src = (p) => readFileSync(new URL(p, import.meta.url), 'utf8');
@@ -46,7 +48,7 @@ describe('practice apply pages', () => {
     expect(done).toHaveBeenCalledWith(true);
     for (const f of [fetch, xhr, beacon, setItem]) expect(f).not.toHaveBeenCalled();
     expect(SENT_TEXT).toBe('Practice form: nothing was sent.');
-    for (const file of ['./PracticeApply.jsx', './practiceForm.js']) {
+    for (const file of ['./PracticeApply.jsx', './practiceForm.js', './PracticeSystem.jsx', './practiceSystems.js']) {
       const code = src(file).replace(/^\s*\/\/.*$/gm, '');
       expect(code).not.toMatch(/fetch\(|XMLHttpRequest|sendBeacon|services\/http|localStorage|sessionStorage|WebSocket|<form[^>]*action/);
     }
@@ -62,5 +64,27 @@ describe('practice apply pages', () => {
     expect(app).toContain("const PracticeApply = lazy(() => import('./pages/demo/PracticeApply'))");
     expect(app).not.toMatch(/^import .*pages\/demo\//m);
     expect(src('../../../public/robots.txt')).not.toMatch(/demo\/apply/); // crawlers may fetch it to read noindex
+  });
+
+  it('the multi-step practice forms: made-up companies, no real brand names, steps, blocks, and nothing sent', () => {
+    const BRANDS = /workday|successfactors|\bsap\b|taleo|oracle|icims|darwinbox|keka|greenhouse|\blever\b|zoho|smartrecruiters/i;
+    expect(Object.keys(SYSTEMS)).toHaveLength(9);
+    for (const [slug, sys] of Object.entries(SYSTEMS)) {
+      expect(sys.company, slug).toMatch(/\(demo\)$/);
+      const html = renderToStaticMarkup(<PracticeSystem slug={slug} />);
+      const text = html.replace(/<[^>]+>/g, ' ');
+      expect(text, slug).not.toMatch(BRANDS);
+      expect(html, slug).not.toMatch(/action=|method=|<img|<svg/);
+      expect(html).toContain('Nothing you type here is sent or saved');
+      if (sys.framed) { expect(html).toContain(`src="/demo/apply/${slug}?embed=1"`); continue; }
+      for (let i = 0; i < sys.steps.length; i += 1) {
+        const step = renderToStaticMarkup(<SystemForm slug={slug} start={i} />);
+        expect(step).toContain(`Step ${i + 1} of ${sys.steps.length}`);
+        expect(step).toContain(i === sys.steps.length - 1 ? 'Submit application' : 'type="button"');
+        if ((sys.steps[i].blocks || []).length) expect(step).toContain('Add another');
+      }
+    }
+    expect(STEP_TEXT(1, 4)).toBe('Practice step 1 of 4: nothing was sent.');
+    for (const file of ['./practiceSystems.js', './PracticeSystem.jsx']) expect(src(file).replace(/^\s*\/\/.*$/gm, '')).not.toMatch(BRANDS);
   });
 });

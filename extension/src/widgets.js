@@ -125,7 +125,7 @@
     return found.filter((o) => isVisible(o) && !o.closest('[id^="nm7-"]') && String(o.textContent || '').trim());
   }
 
-  // Type the value, wait for the list, pick the best match. → { picked, exact, typed }
+  // Type the value, wait for the list, pick the best match. -> { picked, exact, typed }
   async function typeAndPick(el, value, adapter, match, wait = 1500) {
     if (el.list && el.list.options && el.list.options.length) { // a <datalist>: the value itself is the choice
       const opts = Array.from(el.list.options).map((o) => o.value || o.textContent);

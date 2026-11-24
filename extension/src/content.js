@@ -81,7 +81,7 @@
     return list.filter((b) => !list.some((o) => o !== b && o.contains(b)));
   }
 
-  // the repeating work / education blocks on the page, in page order → [{ kind, index, el }]
+  // the repeating work / education blocks on the page, in page order -> [{ kind, index, el }]
   function sectionsOf(adapter) {
     const out = [];
     for (const kind of ['work', 'education']) {
@@ -173,7 +173,7 @@
       if (!base.question) base.question = base.name;
     } else if (base.widget === 'select') {
       base.options = Array.from(el.options).map((o) => textOf(o));
-      base.filled = el.selectedIndex > 0 || (el.selectedIndex === 0 && !!el.value && !/^\s*(select|choose|--|please)/i.test(textOf(el.options[0])));
+      base.filled = el.selectedIndex > 0 || (el.selectedIndex === 0 && !!el.value && !/^\s*-*\s*(select|choose|pick|please|none|no selection)\b|^\s*-+\s*$/i.test(textOf(el.options[0])));
     } else if (base.widget === 'checkbox' || base.widget === 'listbutton') {
       base.filled = false;
     } else {

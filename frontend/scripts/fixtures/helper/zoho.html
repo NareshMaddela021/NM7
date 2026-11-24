@@ -1,0 +1,15 @@
+<!-- Fixture: the shape of a Zoho Recruit career-site apply form (API-name ids, a subform row). Values are made up. -->
+<form id="zr_apply_form">
+  <div class="zr-field"><label for="First_Name">First Name</label><input id="First_Name" name="First_Name"></div>
+  <div class="zr-field"><label for="Last_Name">Last Name</label><input id="Last_Name" name="Last_Name"></div>
+  <div class="zr-field"><label for="Email">Email</label><input id="Email" name="Email"></div>
+  <div class="zr-field"><label for="Mobile">Mobile</label><input id="Mobile" name="Mobile"></div>
+  <div class="zr-field"><label for="City">City</label><input id="City" name="City"></div>
+  <div class="zr-field"><label for="Highest_Qualification_Held">Highest Qualification Held</label><select id="Highest_Qualification_Held" name="Highest_Qualification_Held"><option value="-None-">-None-</option><option>Bachelors Degree</option><option>B.Com</option><option>Masters Degree</option></select></div>
+  <div data-subform="Experience_Details"><div class="zr-subform-row">
+    <label for="ed1">Company</label><input id="ed1" name="Experience_Details_Company_1">
+    <label for="ed2">Work Duration From</label><input id="ed2" name="Experience_Details_Work_Duration_From_1" placeholder="MM/YYYY">
+  </div></div>
+  <div class="zr-field"><label for="Resume">Resume</label><input type="file" id="Resume" name="Resume"></div>
+  <input type="submit" value="Submit">
+</form>

@@ -1,0 +1,20 @@
+<!-- Fixture: the shape of an iCIMS profile page (inside the careers site's frame): PersonProfileFields.* names and a
+     work-experience table row. Values are made up. -->
+<div class="iCIMS_MainWrapper">
+  <div class="iCIMS_PageHeader"><h1>Your Profile</h1></div>
+  <form name="profileForm">
+    <div class="iCIMS_InfoField"><label for="pf1">First Name</label><input id="pf1" name="PersonProfileFields.FirstName" type="text"></div>
+    <div class="iCIMS_InfoField"><label for="pf2">Last Name</label><input id="pf2" name="PersonProfileFields.LastName" type="text"></div>
+    <div class="iCIMS_InfoField"><label for="pf3">Email</label><input id="pf3" name="PersonProfileFields.Email" type="email"></div>
+    <div class="iCIMS_InfoField"><label for="pf4">Phone Number</label><input id="pf4" name="PersonProfileFields.PhoneNumber" type="tel"></div>
+    <div class="iCIMS_InfoField"><label for="pf5">Address</label><input id="pf5" name="PersonProfileFields.AddressStreet1" type="text"></div>
+    <div class="iCIMS_TableRow" data-table="WorkExperience">
+      <h3>Work Experience</h3>
+      <label for="we1">Employer</label><input id="we1" name="WorkExperience.0.Employer">
+      <label for="we2">Title</label><input id="we2" name="WorkExperience.0.Title">
+      <label for="we3">Start Date</label><input id="we3" type="month" name="WorkExperience.0.StartDate">
+    </div>
+    <div class="iCIMS_InfoField"><label for="pf6">What interests you about working in healthcare?</label><textarea id="pf6" name="Questions.q123"></textarea></div>
+    <input type="submit" value="Next">
+  </form>
+</div>

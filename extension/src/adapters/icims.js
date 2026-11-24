@@ -17,8 +17,8 @@ globalThis.Nm7Adapters.register({
     ['name', /^PersonProfileFields\.CoverLetter$/, 'cover'], ['name', /^(PersonProfileFields\.)?Resume(File)?$/i, 'resume'],
   ],
   sections: {
-    work: '.iCIMS_TableRow[data-table="WorkExperience"], fieldset.workexperience',
-    education: '.iCIMS_TableRow[data-table="Education"], fieldset.education',
+    work: '[data-table="WorkExperience"]',
+    education: '[data-table="Education"]',
   },
   sectionFields: {
     work: [

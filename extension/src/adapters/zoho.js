@@ -16,8 +16,8 @@ globalThis.Nm7Adapters.register({
     ['id', /^Highest_Qualification_Held$/, 'degree'], ['id', /^(Resume|resume_file)$/i, 'resume'],
   ],
   sections: {
-    work: '[data-subform="Experience_Details"] .zr-subform-row',
-    education: '[data-subform="Educational_Details"] .zr-subform-row',
+    work: '[data-subform="Experience_Details"] .zr-subform-row, .zr-subform-row[data-subform="Experience_Details"]',
+    education: '[data-subform="Educational_Details"] .zr-subform-row, .zr-subform-row[data-subform="Educational_Details"]',
   },
   sectionFields: {
     work: [

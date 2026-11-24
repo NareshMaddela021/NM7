@@ -20,7 +20,7 @@
 // box or choice the kit can't back, and a file input that isn't for the resume. Nothing here clicks or submits.
 (function () {
   const A = globalThis.Nm7Adapters || { byName: () => null, forHost: () => null };
-  const SENSITIVE = /gender|\bsex\b|pronoun|sexual|orientation|religio|caste|\bcategory\b|community|marital|spouse|date of birth|\bdob\b|birth|\bage\b|disab|handicap|impair|medical|health|pregnan|blood group|ethnic|\brace\b|veteran|military|nationality|citizenship|visa|work (permit|authori[sz]ation)|criminal|convict|arrest|aadha?ar|\bpan\b|passport|social security|\bssn\b|national id|voter|driving licen|(current|present|last|previous|past) (ctc|salary|compensation|pay|drawn)|salary (history|slip)|last drawn|payslip|father|mother|password|captcha|otp|one.?time|verification code|security (question|answer)/i;
+  const SENSITIVE = /gender|\bsex\b|pronoun|sexual|orientation|religio|caste|\bcategory\b|community|marital|spouse|date of birth|\bdob\b|birth|\bage\b|disab|handicap|impair|medical|health (condition|issue|problem|status|history)|pregnan|blood group|ethnic|\brace\b|veteran|military|nationality|citizenship|visa|work (permit|authori[sz]ation)|criminal|convict|arrest|aadha?ar|\bpan\b|passport|social security|\bssn\b|national id|voter|driving licen|(current|present|last|previous|past) (ctc|salary|compensation|pay|drawn)|salary (history|slip)|last drawn|payslip|father|mother|password|captcha|otp|one.?time|verification code|security (question|answer)/i;
   const SENSITIVE_OPTION = /^(male|female|transgender|non.?binary|hindu|muslim|christian|sikh|buddhist|jain|sc|st|obc|general|ews|married|unmarried|single|divorced|widowed)$/i;
   const CONSENT = /agree|consent|terms|privacy|policy|declar|certif|acknowledg|confirm|authori[sz]|accept|subscribe|newsletter|marketing|updates by|contact me|whatsapp|\bsms\b|true and correct|background (check|verification)/i;
   const SKIP_TYPES = new Set(['hidden', 'password', 'submit', 'button', 'image', 'reset', 'range', 'color', 'search']);
@@ -126,11 +126,16 @@
   }
 
   // how well an option's text matches a value: 1 exact, else the best of starts-with / contains / shared words
+  const nums = (s) => new Set(String(s).match(/\d+/g) || []);
+
   function score(option, value) {
     const o = words(option);
     if (!o) return 0;
     let best = 0;
+    const on = nums(o);
     for (const v of expand(value)) {
+      const vn = nums(v);
+      if (on.size && vn.size && ![...vn].some((n) => on.has(n))) continue; // "90 days" is never "30 days"
       for (const x of expand(o)) {
         if (x === v) return 1;
         if (x.startsWith(v) || v.startsWith(x)) best = Math.max(best, 0.85 * Math.min(x.length, v.length) / Math.max(x.length, v.length) + 0.1);
@@ -143,11 +148,11 @@
     return Math.min(best, 0.99);
   }
 
-  // the best option for a value → { index, score, exact } (index -1: nothing close enough)
+  // the best option for a value -> { index, score, exact } (index -1: nothing close enough)
   function matchOption(options, value, min = 0.5) {
     let best = { index: -1, score: 0, exact: false };
     (options || []).forEach((o, i) => {
-      if (/^\s*(select|choose|pick|--|please)/i.test(o) || !String(o).trim()) return;
+      if (/^\s*-*\s*(select|choose|pick|please|none|no selection)\b|^\s*-+\s*$/i.test(o) || !String(o).trim()) return;
       const s = score(o, value);
       if (s > best.score) best = { index: i, score: s, exact: s === 1 };
     });
@@ -202,7 +207,7 @@
     return '';
   }
 
-  // → { value, sure } or null; `part` is 'month' / 'year' for a split date
+  // -> { value, sure } or null; `part` is 'month' / 'year' for a split date
   function formatDate(raw, f, part) {
     const d = parseDate(raw);
     if (!d) return null;
@@ -294,7 +299,7 @@
     return null;
   }
 
-  // a value for this field from `value` (a string), by the kind of field → { value, option, sure } or null
+  // a value for this field from `value` (a string), by the kind of field -> { value, option, sure } or null
   function shape(f, key, value, how) {
     const strong = STRONG.has(key) && how !== 'answer';
     const base = how === 'site' || how === 'autocomplete' || strong;
