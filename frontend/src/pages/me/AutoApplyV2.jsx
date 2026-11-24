@@ -291,7 +291,7 @@ function Approvals({ toast, onChanged }) {
         <span className="small muted">{d.mode === 'digest' ? 'This week’s list' : 'This morning’s list'}: {d.items.length} job{d.items.length === 1 ? '' : 's'} ready, each tailored once and checked against your resume.</span>
         {d.items.length > 0 && <button type="button" className="btn btn-signal" disabled={!!busy} onClick={() => act('all', `${BASE}/approve-all`, (r) => `Sent ${r.applied}`)} data-testid="aa2-approve-all">Approve all</button>}
       </div>
-      {d.items.length === 0 ? <Empty compact title="Nothing waiting for your Approve">New matches appear here each morning.</Empty> : (
+      {d.items.length === 0 ? <Empty compact title="Nothing waiting for your approval">New matches appear here each morning.</Empty> : (
         <ul className="stack g8 aa2-list">
           {d.items.map((it) => (
             <li key={it.id} className="mcard mcard-tight stack g8" data-testid="aa2-approval">

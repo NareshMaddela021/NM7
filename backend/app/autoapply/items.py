@@ -1,6 +1,6 @@
 """What Auto Apply did and what waits for the student (Phase 3, A3 "Needs your answer" and the preview days).
 
-  GET  /api/me/auto-apply/items                         needs your answer · waiting for your Approve · applied
+  GET  /api/me/auto-apply/items                         needs your answer · waiting for your approval · applied
   POST /api/me/auto-apply/items/{id}/answer {answers, remember}   answer the job's questions: applies at once (within
                                                         today's limit; over it, first thing in the next run)
   POST /api/me/auto-apply/items/{id}/go                 a borderline match: apply anyway (same limits)

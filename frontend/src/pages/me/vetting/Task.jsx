@@ -5,13 +5,15 @@
 //   proof: work situations as big answer cards, then an optional photo of past work or a certificate (made smaller
 //          in the browser first)
 //   coding (Vetting Trust T14): the code editor, Run on the samples, Submit to the hidden tests (trust/Coding.jsx)
-// Pasted characters and time away from the page are counted (never blocked) and sent with the answer.
+// Pasted characters and time away from the page are counted (never blocked) and sent with the answer, with how the
+// written answer was typed: the number of key presses, when the first one came and the typing time (never the keys
+// themselves). The server compares these with its own clock.
 import { Suspense, lazy, useEffect, useRef, useState } from 'react';
 import { http } from '../../../services/http';
 import { appendSpeech, useSpeech } from '../../../lib/speechCore';
 import { lazyRetry } from '../../../lib/chunks';
 import { MeCard, Skel } from '../kit';
-import { API, SPEECH_LANG, clock, compressImage, emptySignals, useSignals, words } from './lib';
+import { API, SPEECH_LANG, clock, compressImage, emptySignals, newTyping, noteKey, typingBody, useSignals, words } from './lib';
 import { IcAlert, IcCamera, IcMic, IcStop } from '../../../components/icons';
 
 const Coding = lazy(lazyRetry(() => import('../trust/Coding'))); // Vetting Trust T14: a coding task (Trust only)
@@ -29,12 +31,12 @@ function useLeft(endsAt) {
   return left;
 }
 
-function Written({ text, setText, label }) {
+function Written({ text, setText, label, onKey }) {
   const n = words(text);
   return (
     <div className="field">
       <label className="label" htmlFor="vt-text">{label}</label>
-      <textarea id="vt-text" className="input vet-text" rows={10} maxLength={8000} value={text} onChange={(e) => setText(e.target.value)} data-testid="vt-task-text" />
+      <textarea id="vt-text" className="input vet-text" rows={10} maxLength={8000} value={text} onChange={(e) => setText(e.target.value)} onKeyDown={onKey} data-testid="vt-task-text" />
       <span className="xs muted" aria-live="polite">{n} word{n === 1 ? '' : 's'}</span>
     </div>
   );
@@ -137,7 +139,10 @@ export default function Task({ attempt, pledge, onDone, onCancel }) {
   const [sendErr, setSendErr] = useState('');
   const pasted = useRef(0);
   const sig = useRef(emptySignals());
+  const typing = useRef(null);
   useSignals(sig, { on: !!t, onPaste: (n) => { pasted.current += n; } });
+  useEffect(() => { if (t && !typing.current) typing.current = newTyping(); }, [t]);
+  const onKey = () => { if (typing.current) noteKey(typing.current); };
 
   useEffect(() => {
     http(`${API}/${attempt.id}/task/start`, { method: 'POST', ...(pledge ? { body: { pledge } } : {}) }).then(setT, (e) => setErr(e.message)); // T9: the honesty pledge
@@ -176,7 +181,10 @@ export default function Task({ attempt, pledge, onDone, onCancel }) {
       if (photo) body.photo = { type: photo.type, data: photo.data };
     } else if (voice) {
       body.transcript = transcript.trim(); body.seconds = seconds;
-    } else body.text = text.trim();
+    } else {
+      body.text = text.trim();
+      if (typing.current) Object.assign(body, typingBody(typing.current), { pastes: Math.min(10000, sig.current.pastes) });
+    }
     try { onDone(await http(`${API}/${attempt.id}/task/submit`, { method: 'POST', body, timeout: 60_000 })); } catch (e) { setSendErr(e.message); setBusy(false); }
   };
 
@@ -196,8 +204,8 @@ export default function Task({ attempt, pledge, onDone, onCancel }) {
       {t.type === 'proof' && <><Situations items={t.situations} picks={picks} setPicks={setPicks} />{t.photo && <PhotoPick photo={photo} setPhoto={setPhoto} />}</>}
       {t.type === 'voice' && (voice
         ? <Voice lang={attempt.lang} transcript={transcript} setTranscript={setTranscript} seconds={seconds} setSeconds={setSeconds} />
-        : <><p className="vet-note" role="note">Your browser can’t turn speech into text — please type your answer instead.</p><Written text={text} setText={setText} label="Your answer (type what you would say)" /></>)}
-      {(t.type === 'tech' || t.type === 'written') && <Written text={text} setText={setText} label="Your answer" />}
+        : <><p className="vet-note" role="note">Your browser can’t turn speech into text — please type your answer instead.</p><Written text={text} setText={setText} onKey={onKey} label="Your answer (type what you would say)" /></>)}
+      {(t.type === 'tech' || t.type === 'written') && <Written text={text} setText={setText} onKey={onKey} label="Your answer" />}
 
       {left === 0 && <p className="small" style={{ color: '#92400e', margin: 0 }}>The time is up. Please send what you have now.</p>}
       {sendErr && <p className="error" role="alert">{sendErr}</p>}

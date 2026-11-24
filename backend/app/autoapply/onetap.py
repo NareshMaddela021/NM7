@@ -406,7 +406,7 @@ async def _mail_morning(db, uid: str, site: dict[str, Any], day: str, n: int, ma
     c = await today_counts(db, uid, day)  # A7: today's summary rides along (one routine email a day)
     if c["applied"] or c["needsAnswer"] or c["waiting"]:
         lines.append(f"Today Auto Apply sent {c['applied']} · {c['needsAnswer']} question(s) wait for your answer"
-                     + (f" · {c['waiting']} wait for your Approve" if c["waiting"] else "") + ".")  # fmt: skip
+                     + (f" · {c['waiting']} wait for your approval" if c["waiting"] else "") + ".")  # fmt: skip
     mail = _mail(fresh, f"{n} job{'s' if n != 1 else ''} ready to apply", lines,
                  [("Open my jobs ready list", "/me/auto-apply/v2?tab=ready")])  # fmt: skip
     if await send_safely(mailer, mail):

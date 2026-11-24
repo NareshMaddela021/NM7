@@ -9,7 +9,8 @@ marked demo, so it is never on the job board, a company page, search or a sitema
 Made-up people only: the admins' addresses end in demo.nm7.invalid (no email can reach them); the applicants are the
 demo college's made-up students. Auto Apply 2.0 (A2): three of them arrive "Sent by Auto Apply" (match score with 3
 reasons, a cover note, notice period, expected salary and the tailored resume), and the two live jobs show the
-per-job Auto Apply controls.
+per-job Auto Apply controls. Opening it also adds the Hire in 60 minutes demo's 30 made-up people who are ready to
+join (hire/demo.py seed_people), eight of them "Skill verified", so Hire now and its "Skill verified only" filter work.
 """
 
 from datetime import timedelta
@@ -450,9 +451,13 @@ async def open_demo(request: Request, response: Response, db: DB, auth: AdminAut
     await rate_limit.check(db, f"demo-company:{auth.user.id}", [(10, timedelta(hours=1))])
     await rate_limit.record(db, f"demo-company:{auth.user.id}")
     from app.core.heavy import heavy_or_busy
+    from app.hire import demo as hire_demo
 
     async with heavy_or_busy(db):  # one heavy job at a time (app/core/heavy.py)
         out = await create(db)
+        # the made-up people who are ready to join, some "Skill verified" for the live jobs, so Hire now has people
+        # (one insert per collection, as in the Hire in 60 minutes demo)
+        out["candidates"] = len(await hire_demo.seed_people(db))
     session = await issue_session(db, MAIN[0], MAIN[1], request=request)
     await audit(db, auth.user.id, "demo_company_open", target=COMPANY_ID, data=out, ip=client_ip(request))
     from app.admin.views import company_view

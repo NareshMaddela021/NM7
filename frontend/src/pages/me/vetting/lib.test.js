@@ -2,7 +2,7 @@
 // and the device hash (a short SHA-256, never the raw browser details).
 import { webcrypto } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
-import { badgeLine, clock, renewState, devtoolsOpen, fingerprint, fitSize, questionAnnounce, totalAnnounce, words } from './lib';
+import { badgeLine, clock, renewState, devtoolsOpen, fingerprint, fitSize, newTyping, noteKey, questionAnnounce, totalAnnounce, typingBody, words } from './lib';
 
 describe('vetting helpers', () => {
   it('clocks and word counts', () => {
@@ -57,5 +57,16 @@ describe('vetting helpers', () => {
     expect(renewState({ expiresAt: now - 10 * d, expired: true }, now)).toEqual({ open: true, daysLeft: -10, expired: true });
     expect(renewState({ expiresAt: now - 31 * d, expired: true }, now).open).toBe(false);
     expect(renewState({ expiresAt: now + 5 * d, held: true }, now).open).toBe(false);
+  });
+
+  it('counts how a written answer was typed: key presses, the first key and typing time without long pauses', () => {
+    const ty = newTyping(1000);
+    expect(typingBody(ty)).toEqual({ keys: 0, typingMs: 0 }); // nothing typed: no first key time
+    noteKey(ty, 4000); // the first key 3 s after the task opened
+    noteKey(ty, 4200);
+    noteKey(ty, 4500);
+    noteKey(ty, 64_500); // a minute of thinking counts as 5 s at most
+    expect(typingBody(ty)).toEqual({ keys: 4, firstKeyMs: 3000, typingMs: 200 + 300 + 5000 });
+    expect(JSON.stringify(typingBody(ty))).not.toMatch(/[a-z]{2,}":"/); // numbers only, never what was typed
   });
 });

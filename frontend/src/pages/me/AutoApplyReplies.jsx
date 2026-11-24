@@ -97,9 +97,9 @@ export function Week({ onTab }) {
       {w.mode === 'digest' && (
         <section className="mcard stack g8" aria-labelledby="aa2-digest-h" data-testid="aa2-week-digest">
           <h2 id="aa2-digest-h" className="mcard-title">This week’s list</h2>
-          {w.approvals === 0 ? <p className="small muted" style={{ margin: 0 }}>Nothing is waiting for your Approve.</p> : (
+          {w.approvals === 0 ? <p className="small muted" style={{ margin: 0 }}>Nothing is waiting for your approval.</p> : (
             <>
-              <p className="small" style={{ margin: 0 }}>{w.approvals} job{w.approvals === 1 ? '' : 's'} waiting for your Approve. Nothing is sent until you approve.</p>
+              <p className="small" style={{ margin: 0 }}>{w.approvals} job{w.approvals === 1 ? '' : 's'} waiting for your approval. Nothing is sent until you approve.</p>
               <ul className="aa2-plain small">{w.digest.map((x) => <li key={x.id} className="aa2-wrap">{x.title} at {x.company}{x.score != null ? ` · match ${x.score}` : ''}</li>)}</ul>
               <button type="button" className="btn btn-signal btn-sm" style={{ alignSelf: 'flex-start' }} onClick={() => onTab('approve')} data-testid="aa2-week-approve">Open this week’s list</button>
             </>

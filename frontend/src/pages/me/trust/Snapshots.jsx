@@ -41,7 +41,7 @@ export function SnapshotChoice({ kind }) {
       <legend className="vet-legend">Optional: webcam snapshots</legend>
       <p className="xs muted" style={{ margin: 0 }} data-testid="snap-text">{d.text}</p>
       <label className="vet-check">
-        <input type="checkbox" checked={on} disabled={busy} onChange={(e) => change(e.target.checked)} data-testid="snap-tick" />
+        <input type="checkbox" checked={on} disabled={busy} onChange={(e) => change(e.target.checked)} aria-label="Yes, take a few still photos" data-testid="snap-tick" />
         <span><strong>Yes, take a few still photos</strong><span className="xs muted" style={{ display: 'block' }}>{d.perSession} photos at random times. Leave it unticked and the {kind === 'interview' ? 'interview' : 'test'} works exactly the same.</span></span>
       </label>
       {d.consent && !on && <span className="xs muted">Skipped this time. To turn it off for good: Profile &amp; settings &gt; Privacy &amp; consent.</span>}

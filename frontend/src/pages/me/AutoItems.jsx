@@ -1,6 +1,6 @@
 // What Auto Apply did and what waits for the student (Phase 3, A3 and the preview days): "Needs your answer" (the
 // job's questions, one tap each, "remember for next time"; or a borderline match: Apply anyway / Skip), "Waiting for
-// your Approve" (preview days: Approve, Approve all, Skip), answered after today's limit (sent first thing tomorrow),
+// your approval" (preview days: Approve, Approve all, Skip), answered after today's limit (sent first thing tomorrow),
 // and what was applied. Answering applies at once. English, Telugu and Hindi (aa.items.*). No pop-up dialogs.
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';

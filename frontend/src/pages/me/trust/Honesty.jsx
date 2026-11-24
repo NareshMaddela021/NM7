@@ -7,7 +7,7 @@
 //                opens (date + countdown) and what counts (the latest passed attempt).
 //   ExplainNote  in the interview set-up: 1–2 questions may ask about their own practical task.
 //   PledgeNote   on a result: "You took the honesty pledge (version 1) on …".
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { http } from '../../../services/http';
 import { trustOn } from '../../../lib/trustAccess';
 import { dayText, pledgeText, retakeLines } from './honestyLib';
@@ -21,6 +21,7 @@ const pledge = () => {
 export function Pledge({ kind, lang = 'en', onChange }) {
   const [p, setP] = useState(null);
   const [ok, setOk] = useState(false);
+  const id = useId(); // the tick's name is its promise line, its description the note under it (never "on")
   useEffect(() => {
     let live = true;
     pledge().then((x) => { if (live && x) { setP(x); onChange?.(null); } });
@@ -34,8 +35,8 @@ export function Pledge({ kind, lang = 'en', onChange }) {
       <legend className="vet-legend">{t.title}</legend>
       <p className="small" style={{ margin: 0 }} lang={lang} data-testid="pledge-text">{t.text}</p>
       <label className="vet-check">
-        <input type="checkbox" checked={ok} onChange={(e) => { setOk(e.target.checked); onChange?.(e.target.checked ? p.version : null); }} data-testid="pledge-tick" />
-        <span><strong lang={lang}>{t.tick}</strong><span className="xs muted" style={{ display: 'block' }}>Needed to start the {what}. It is a promise in plain words, not a trap: nothing is decided by it.</span></span>
+        <input type="checkbox" checked={ok} onChange={(e) => { setOk(e.target.checked); onChange?.(e.target.checked ? p.version : null); }} aria-labelledby={`${id}-tick`} aria-describedby={`${id}-note`} data-testid="pledge-tick" />
+        <span><strong lang={lang} id={`${id}-tick`}>{t.tick}</strong><span className="xs muted" style={{ display: 'block' }} id={`${id}-note`}>Needed to start the {what}. It is a promise in plain words, not a trap: nothing is decided by it.</span></span>
       </label>
     </fieldset>
   );

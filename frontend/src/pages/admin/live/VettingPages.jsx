@@ -25,7 +25,14 @@ export function signalLines(sig = {}) {
   if (n('contextMenus', 'context_menus')) out.push(['Right-click menus', String(n('contextMenus', 'context_menus'))]);
   if (n('devtools')) out.push(['Developer tools opened', String(n('devtools'))]);
   if (n('pauses')) out.push(['Pauses', String(n('pauses'))]);
-  for (const [k, l] of [['samePosition', 'Same answer position almost every time'], ['patternMatch', 'Same answer pattern as another account'], ['textMatch', 'Task text matches another account'], ['sharedDevice', 'Same device as another account'], ['resumeMismatch', 'Experience claimed doesn’t match easy-question results']]) {
+  // how the written practical task was typed (the server's clock for the time and the speed)
+  if (n('taskSeconds')) out.push(['Task open before it was sent', mmss(n('taskSeconds') * 1000)]);
+  if (n('cps')) out.push(['Characters a second (from the first key press)', String(n('cps'))]);
+  if (sig.keys !== undefined && sig.keys !== null) out.push(['Key presses in the answer', String(n('keys'))]);
+  if (sig.firstKeyMs !== undefined && sig.firstKeyMs !== null) out.push(['First key press after', mmss(n('firstKeyMs'))]);
+  if (n('typingMs')) out.push(['Time spent typing', mmss(n('typingMs'))]);
+  if (n('paperSeconds') && sig.fastPaper === true) out.push(['Whole test sent after', mmss(n('paperSeconds') * 1000)]);
+  for (const [k, l] of [['typingImpossible', 'Faster than a person can type'], ['untypedText', 'Text appeared without typing or a paste'], ['fastPaper', 'Whole test sent faster than it can be read'], ['samePosition', 'Same answer position almost every time'], ['patternMatch', 'Same answer pattern as another account'], ['textMatch', 'Task text matches another account'], ['sharedDevice', 'Same device as another account'], ['resumeMismatch', 'Experience claimed doesn’t match easy-question results']]) {
     if (sig[k] === true) out.push([l, 'Yes']);
   }
   return out;
@@ -303,6 +310,9 @@ function IntegrityItem({ x, onDone }) {
       </div>
       {integ.reasons?.length > 0 && (
         <div className="stack g4"><span className="label">Why</span><ul className="small vi-reasons">{integ.reasons.map((r) => <li key={r}>{r}</li>)}</ul></div>
+      )}
+      {integ.explain?.length > 0 && (
+        <div className="stack g4"><span className="label">In plain words</span><ul className="small vi-reasons" data-testid="vi-explain">{integ.explain.map((r) => <li key={r}>{r}</li>)}</ul></div>
       )}
       {sig.length > 0 && (
         <div className="stack g4"><span className="label">Key signals</span>
