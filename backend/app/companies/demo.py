@@ -458,6 +458,7 @@ async def open_demo(request: Request, response: Response, db: DB, auth: AdminAut
         # the made-up people who are ready to join, some "Skill verified" for the live jobs, so Hire now has people
         # (one insert per collection, as in the Hire in 60 minutes demo)
         out["candidates"] = len(await hire_demo.seed_people(db))
+        await hire_demo.seed_matching(db)  # they agreed to matching: Met / Not met for the demo jobs' requirements
     session = await issue_session(db, MAIN[0], MAIN[1], request=request)
     await audit(db, auth.user.id, "demo_company_open", target=COMPANY_ID, data=out, ip=client_ip(request))
     from app.admin.views import company_view
