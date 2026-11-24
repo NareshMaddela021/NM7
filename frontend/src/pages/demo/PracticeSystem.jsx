@@ -111,11 +111,12 @@ export function SystemForm({ slug, start = 0 }) {
         </div>
       ))}
       <Fields list={s.after} sys={sys} prefix={`${slug}-${step}-after`} />
+      {/* keys: Next and Submit are different buttons, so React never turns the pressed Next into a Submit mid-click */}
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
         {step > 0 && <button type="button" style={btn} onClick={() => { setStep(step - 1); setSaid(''); }}>Back</button>}
         {last
-          ? <button type="submit" data-testid="practice-submit" style={{ ...btn, background: '#1d4ed8', color: '#fff', border: 0 }}>Submit application</button>
-          : <button type="button" data-testid="practice-next" style={{ ...btn, background: '#1d4ed8', color: '#fff', border: 0 }}
+          ? <button key="submit" type="submit" data-testid="practice-submit" style={{ ...btn, background: '#1d4ed8', color: '#fff', border: 0 }}>Submit application</button>
+          : <button key="next" type="button" data-testid="practice-next" style={{ ...btn, background: '#1d4ed8', color: '#fff', border: 0 }}
             onClick={() => { setStep(step + 1); setSaid(STEP_TEXT(step + 1, total)); }}>{slug === 'classic-portal' ? 'Save and Continue' : 'Next'}</button>}
       </div>
       <p role="status" data-testid="practice-sent" style={said ? { margin: 0, padding: '10px 12px', borderRadius: 8, background: '#dcfce7', border: '1px solid #16a34a', fontWeight: 600 } : { margin: 0 }}>{said}</p>

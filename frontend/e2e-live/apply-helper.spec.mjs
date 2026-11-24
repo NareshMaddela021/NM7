@@ -89,7 +89,11 @@ for (const [slug, sys] of Object.entries(SYSTEMS)) {
       const values = await frame.evaluate(() => [...document.querySelectorAll('input:not([type=file]):not([type=radio]):not([type=checkbox]), textarea, select')].map((e) => e.value).filter(Boolean));
       for (const v of values) if (/@/.test(v) && v !== 'chrome-review@nm7.si') wrong += 1;
       expect(await frame.evaluate(() => window.__pressed)).toEqual([]);
-      if (step < sys.steps.length - 1) await frame.getByTestId('practice-next').click(); // the candidate presses Next
+      if (step < sys.steps.length - 1) {
+        await frame.getByTestId('practice-next').click(); // the candidate presses Next
+        await expect(frame.getByTestId('practice-sent')).toHaveText(/^Practice step \d+ of \d+: nothing was sent\.$/); // Next never submits
+        await expect(frame.locator('#nm7-helper-bar')).toHaveCount(0);
+      }
     }
     const ms = Date.now() - t0;
     const rate = Math.round((1000 * good) / Math.max(1, good + left)) / 10;
