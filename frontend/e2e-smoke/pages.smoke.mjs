@@ -8,7 +8,7 @@ import { test } from '@playwright/test';
 import { STATE, checkPage } from './common.mjs';
 
 const PUBLIC = ['/', '/jobs', '/salaries', '/templates', '/builder', '/linkedin', '/for-companies', '/for-orgs', '/pricing', '/grievance', '/login', '/signup',
-  '/forgot-password', '/admin/login', '/terms', '/privacy', '/refund-policy', '/delivery-policy', '/expert-terms', '/contact', '/blog', '/status',
+  '/forgot-password', '/admin/login', '/terms', '/privacy', '/refund-policy', '/delivery-policy', '/expert-terms', '/company-terms', '/contact', '/blog', '/status',
   '/accessibility', '/partners', '/partner', '/recruiter', '/new-home', '/old-home'];
 // a detail page of each kind, found from its list page: [list, link pattern]
 const DETAILS = [['/jobs', /^\/jobs\/[^/?#]+$/], ['/salaries', /^\/salaries\/[^/?#]+$/], ['/blog', /^\/blog\/(?!category\/)[^/?#]+\/?$/], ['/jobs', /^\/companies\/[^/?#]+$/]];

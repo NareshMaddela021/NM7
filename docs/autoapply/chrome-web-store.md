@@ -177,7 +177,7 @@ so avoid that.
 6. Click the helper icon and paste the code. It shows "Signed in as …".
 7. Open one of the jobs' apply pages (the kit's **Apply now**), click the helper, choose the job, tap **Fill this
    page**. Check what it filled. Press the company's Submit only if it's a real test you want to send.
-8. After Submit, the helper's icon shows ✓ and the page shows "Mark as applied on Nm7". The job moves to Applied on
+8. After Submit, the helper's icon shows OK and the page shows "Mark as applied on Nm7". The job moves to Applied on
    nm7.si.
 9. To sign the browser out: in the helper, "Sign this browser out", or on nm7.si next to the browser in the helper
    panel.

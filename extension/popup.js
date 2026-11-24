@@ -55,7 +55,7 @@ function pairView(error) {
   } } }, el('label', { for: 'code' }, 'Pairing code from Nm7'), input, go);
   show(
     el('p', {}, 'Connect this browser to your Nm7 account with a short code. No password, ever.'),
-    el('p', { id: 'code-help', class: 'small muted' }, 'On nm7.si open Auto Apply 2.0 → Jobs ready → Nm7 Apply helper → Make a code. The code works once, for 10 minutes.'),
+    el('p', { id: 'code-help', class: 'small muted' }, 'On nm7.si open Auto Apply 2.0, then Jobs ready, then Nm7 Apply helper, then Make a code. The code works once, for 10 minutes.'),
     form, msg,
   );
   input.focus();
@@ -76,7 +76,7 @@ async function fill(tab, kit) {
     if (result.blocked) lines.push(el('p', { class: 'warn' }, 'This is a job board. The helper does nothing here.'));
     else {
       lines.push(el('p', { class: 'ok' }, `Filled ${result.filled} field${result.filled === 1 ? '' : 's'}${result.attached ? ' and attached your resume' : ''}.`));
-      if (result.resumeField && !result.attached) lines.push(el('p', { class: 'small' }, 'Attach your resume yourself: download it from Nm7 (Jobs ready → the job → Download resume).'));
+      if (result.resumeField && !result.attached) lines.push(el('p', { class: 'small' }, 'Attach your resume yourself: download it from Nm7 (Jobs ready, then the job, then Download resume).'));
       if (result.password) lines.push(el('p', { class: 'warn small' }, 'This page asks for a password or an account. The helper never signs in or creates accounts. Sign in yourself, then tap Fill again.'));
       if (result.captcha) lines.push(el('p', { class: 'small' }, 'There is a “I’m not a robot” check. Do it yourself; the helper never touches it.'));
       if (result.sensitive) lines.push(el('p', { class: 'small' }, `${result.sensitive} personal question${result.sensitive === 1 ? ' was' : 's were'} left for you (like gender or date of birth).`));

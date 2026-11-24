@@ -90,6 +90,10 @@
       "destination": "/expert-terms/index.html"
     },
     {
+      "source": "/company-terms",
+      "destination": "/company-terms/index.html"
+    },
+    {
       "source": "/for-companies",
       "destination": "/for-companies/index.html"
     },

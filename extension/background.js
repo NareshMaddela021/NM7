@@ -65,7 +65,7 @@ async function handle(msg, sender) {
       if (!sender || !sender.tab) return { ok: false };
       await chrome.storage.local.set({ submitted: { kitId: msg.kitId, tabId: sender.tab.id, at: Date.now() } });
       chrome.action.setBadgeBackgroundColor({ tabId: sender.tab.id, color: '#111827' });
-      chrome.action.setBadgeText({ tabId: sender.tab.id, text: '✓' });
+      chrome.action.setBadgeText({ tabId: sender.tab.id, text: 'OK' });
       return { ok: true };
     }
     case 'unpair': {

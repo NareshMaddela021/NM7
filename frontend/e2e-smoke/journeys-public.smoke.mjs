@@ -8,7 +8,7 @@ import { guard, recorder, menuLinks } from './journeys-common.mjs';
 const googleOn = async (request) => { try { return !!(await (await request.get(`${API}/api/public/site-flags`, { timeout: 60_000 })).json()).googleClientId; } catch { return true; } };
 
 const PUBLIC = ['/', '/jobs', '/salaries', '/templates', '/builder', '/linkedin', '/for-companies', '/for-orgs', '/pricing', '/grievance', '/login', '/signup',
-  '/signup?role=expert', '/forgot-password', '/admin/login', '/terms', '/privacy', '/refund-policy', '/delivery-policy', '/expert-terms', '/contact', '/blog',
+  '/signup?role=expert', '/forgot-password', '/admin/login', '/terms', '/privacy', '/refund-policy', '/delivery-policy', '/expert-terms', '/company-terms', '/contact', '/blog',
   '/status', '/accessibility', '/partners', '/partner', '/recruiter', '/new-home', '/old-home', '/scan', '/checkout', '/editor', '/start/jobseeker', '/start/student',
   '/start/expert', '/demo-student', '/org/demo-login'];
 

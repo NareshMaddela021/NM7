@@ -109,6 +109,7 @@ function StartFree({ open, t }) {
           <button type="submit" className="btn btn-signal btn-lg" disabled={busy}>{busy ? t('orgs.start.creating') : t('orgs.start.create')}</button>
         </div>
         <span className="xs muted">{t('orgs.start.owner')}</span>
+        <span className="xs muted" lang="en" data-testid="org-start-terms">By creating it, you agree to the <Link to="/company-terms" target="_blank">Terms for companies and colleges</Link>.</span>
         {error && <p className="small fo-error" role="alert" lang="en">{error}</p>}
       </form>
       <StartSide t={t} />

@@ -27,6 +27,7 @@ export default function SiteFooter() {
           <Link to="/refund-policy">Refunds & cancellation</Link>
           <Link to="/delivery-policy">Delivery</Link>
           <Link to="/expert-terms">Expert terms</Link>
+          <Link to="/company-terms">Company terms</Link>
           <Link to="/status">Status</Link>
           <Link to="/accessibility">Accessibility</Link>
         </nav>

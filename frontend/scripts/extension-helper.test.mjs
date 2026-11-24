@@ -158,6 +158,19 @@ describe('manifest', () => {
     }
     expect(read('src/config.js')).toContain("api: 'https://nm7-api.onrender.com/api/helper'");
   });
+
+  it('is ready for the store: version 1.0.0, icons 16 / 32 / 48 / 128 of the right size, no emoji or icon symbols', () => {
+    expect(m.version).toBe('1.0.0');
+    for (const n of [16, 32, 48, 128]) {
+      expect(m.icons[n]).toBe(`icons/icon${n}.png`);
+      expect(m.action.default_icon[n]).toBe(`icons/icon${n}.png`);
+      const png = readFileSync(join(EXT, m.icons[n]));
+      expect([png.readUInt32BE(16), png.readUInt32BE(20)], `icon${n}`).toEqual([n, n]); // the PNG's own width and height
+    }
+    // the same rule as src/noEmoji.test.js: plain typography (· … ’ “ ” × and so on) is fine, icon symbols are not
+    const BANNED = /[\u2190-\u21FF\u2300-\u23FF\u2460-\u24FF\u25A0-\u25FF\u2600-\u27BF\u2900-\u297F\u2B00-\u2BFF\u{1F000}-\u{1FAFF}]|\uFE0F|\u20E3/u;
+    for (const p of files.filter((f) => /\.(js|html|css|json)$/.test(f))) expect(read(p), p).not.toMatch(BANNED);
+  });
 });
 
 describe('never submits', () => {
