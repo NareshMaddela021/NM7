@@ -1,8 +1,8 @@
 """The Chrome Web Store reviewer's demo account, so Google's reviewer can test the Nm7 Apply helper.
 
 One made-up person, Priya Sharma (demo), who signs in at nm7.si/login with email (chrome-review@nm7.si) and a
-password (no two-step login, no Google). Her Auto Apply 2.0 "Jobs ready" list always holds the same three demo jobs,
-each with its apply kit (the same kit the helper reads through /api/helper), whose apply links are the practice pages on
+password (no two-step login, no Google). Her Auto Apply 2.0 "Jobs ready" list always holds the same two demo jobs, each
+with its apply kit (the same kit the helper reads through /api/helper), whose apply links are the practice pages on
 nm7.si (frontend/src/pages/demo/PracticeApply.jsx: a made-up company form that sends nothing).
 
 What keeps it safe is in app/core/reviewer.py: marked demo (left out of every number, report, morning run and company
@@ -10,7 +10,7 @@ search), nothing is ever sent for it on any channel, no email ever goes to its a
 password or email, delete the account, pay, upload ID documents or join Ready to join.
 
 Every sign-in resets her data (fast: a few writes and two rules-only tailored versions, never the AI): the two jobs
-ready, nothing applied, no paired browser, no saved helper answers left over.
+ready, nothing applied, no paired browser left over.
 
 The password: a strong random one made here (or CWS_REVIEWER_PASSWORD from the server's settings, when set). The
 account keeps the usual hash for sign-in; a copy encrypted with the app's key (app/core/security.encrypt) sits in the
@@ -46,7 +46,6 @@ from app.core.db import (
     AUTO_REPLIES,
     CWS_REVIEWER,
     DB,
-    HELPER_ANSWERS,
     HELPER_CODES,
     HELPER_TOKENS,
     HIRE_PROFILES,
@@ -58,7 +57,7 @@ from app.core.db import (
     USERS,
 )
 from app.core.errors import ApiError
-from app.core.reviewer import EMAIL, ID, NAME, PRACTICE, practice_company
+from app.core.reviewer import EMAIL, ID, NAME, PRACTICE, PRACTICE_COMPANY
 from app.core.security import decrypt, encrypt, hash_password, password_issue
 from app.core.time import now
 
@@ -187,7 +186,7 @@ async def _ensure_user(db, password_hash: str) -> bool:
 
 
 async def _jobs(db, t) -> list[dict[str, Any]]:
-    """The practice jobs: demo (never on the board, no company), applied for on the practice pages."""
+    """The two practice jobs: demo (never on the board, no company), applied for on the practice pages."""
     from app.jobs.model import JobIn, slug_for, to_doc
 
     out = []
@@ -196,7 +195,7 @@ async def _jobs(db, t) -> list[dict[str, Any]]:
         body = JobIn.model_validate(
             {
                 "title": title,
-                "company": {"name": practice_company(slug), "website": ""},
+                "company": {"name": PRACTICE_COMPANY, "website": ""},
                 "description": f"{title} at a made-up company, for the Chrome Web Store review of the Nm7 Apply "
                 f"helper. Work with {', '.join(skills)} in a small team. Freshers welcome.",
                 "locations": ["Pune"],
@@ -211,7 +210,7 @@ async def _jobs(db, t) -> list[dict[str, Any]]:
         doc = {
             **to_doc(body),
             "_id": jid,
-            "slug": f"{slug_for(title, practice_company(slug))[:-7]}-cws",
+            "slug": f"{slug_for(title, PRACTICE_COMPANY)[:-7]}-cws",
             "status": "active",
             "posted_at": t,
             "source": "admin",
@@ -241,7 +240,7 @@ async def reset(db) -> dict[str, Any]:
     t = now()
     mine = {"user_id": ID}
     for coll in (AUTO_ITEMS, AUTO_COPIES, APPLICATIONS, AUTO_MORNINGS, AUTO_REPLIES, AUTO_MAIL, HELPER_CODES,
-                 HELPER_TOKENS, HELPER_ANSWERS, TRUST_CONSENTS, RESUMES):  # fmt: skip
+                 HELPER_TOKENS, TRUST_CONSENTS, RESUMES):  # fmt: skip
         await db[coll].delete_many(mine)
     await db[HIRE_PROFILES].delete_many({"_id": ID})
     await db[TRUST_PROFILES].delete_many({"_id": ID})  # an age check she may have typed in
@@ -257,16 +256,14 @@ async def reset(db) -> dict[str, Any]:
     p = fitmod.Person(r)
     day = engine.today(t)
     ids = []
-    for n, j in enumerate(await _jobs(db, t)):
+    for j in await _jobs(db, t):
         parts = score.parts(j, fitmod.fit(j, p), a, 1, None, t)
         copy = await tailoring.build(db, ID, r, j, a, use_ai=False)  # the rules version: never the AI
         doc = {"_id": str(ObjectId()), "user_id": ID, "job_id": j["_id"], "company_id": None,
-               "company": (j.get("company") or {}).get("name") or "", "title": j["title"], "slug": j["slug"],
-               "channel": "link",
+               "company": PRACTICE_COMPANY, "title": j["title"], "slug": j["slug"], "channel": "link",
                "state": "ready", "copy_id": copy["_id"], "created_at": t, "updated_at": t, "demo": True,
                **v2engine._item_extra(parts, j), "channel_v2": "one_tap", "ready_day": day, "listed_day": day,
                "reason": "demo"}  # fmt: skip
-        doc["score"] = 90 - 3 * n  # always in PRACTICE order: the first one is the kit the test instructions open
         await db[AUTO_ITEMS].insert_one(doc)
         ids.append(doc["_id"])
     await db[AUTO_MORNINGS].replace_one(

@@ -1,5 +1,5 @@
 // The Chrome Web Store review account, against the real API: the owner creates it in Admin -> Auto Apply (the
-// password stays hidden until "Show password"), the reviewer signs in with email and password and finds 3 jobs ready
+// password stays hidden until "Show password"), the reviewer signs in with email and password and finds 2 jobs ready
 // with the Nm7 Apply helper panel; the account can't change its password; the practice form fills, and its Submit
 // sends no request at all and only says "Practice form: nothing was sent". Not indexed. No sideways scrolling on a phone.
 import { expect, test } from '@playwright/test';
@@ -8,7 +8,7 @@ import { SIZES, call, json, noSideScroll } from './college.mjs';
 
 const REVIEWER = 'chrome-review@nm7.si';
 
-test('owner makes the review account; the reviewer sees 3 jobs ready and can’t change the password', async ({ page, browser }) => {
+test('owner makes the review account; the reviewer sees 2 jobs ready and can’t change the password', async ({ page, browser }) => {
   test.setTimeout(150_000);
   const owner = `cws-owner-${Date.now().toString(36)}@nm7.si`;
   const { secret } = seed('admin', owner, 'owner', PASSWORD);
@@ -34,8 +34,7 @@ test('owner makes the review account; the reviewer sees 3 jobs ready and can’t
   await login(rp, REVIEWER, password);
   await expect(rp).not.toHaveURL(/\/login/);
   await rp.goto('/me/auto-apply/v2?tab=ready');
-  await expect(rp.getByTestId('aa2-onetap-head')).toContainText('3 jobs ready');
-  await expect(rp.getByTestId('aa2-onetap')).toContainText('Operations Trainee');
+  await expect(rp.getByTestId('aa2-onetap-head')).toContainText('2 jobs ready');
   await expect(rp.getByTestId('aa2-onetap')).toContainText('Customer Support Executive');
   await expect(rp.getByTestId('aa2-onetap')).toContainText('Junior Data Analyst');
   await rp.getByTestId('aa2-helper-make').click();

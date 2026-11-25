@@ -8,7 +8,6 @@ import { Kpi, PageHead, Panel } from '../AdminUI';
 import { langsShown, useLang } from '../../../lib/i18n';
 import { Loading, http, useAction, useApi, when } from './common';
 import CwsReviewer from './CwsReviewer';
-import ApplyHelper from './ApplyHelper';
 import '../../../styles/me-kit.css';
 import '../../../styles/admin-jobs.css';
 
@@ -39,7 +38,6 @@ export function LiveAutoApply() {
       <PageHead title="Auto Apply" sub="Every morning Nm7 applies for students within their own rules. Only Auto Apply 2.0 sends simple forms, and only on companies’ own sites (see “company form sites”); never a CAPTCHA, a login or a job board." />
       <V2Admin toast={toast} />
       <V2Stats />
-      <ApplyHelper toast={toast} />
       <EmailHealth toast={toast} />
       <PartnerHealth />
       <FormSites toast={toast} />

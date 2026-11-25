@@ -70,13 +70,6 @@ AUTO_APPLY_V2 = {
     "payments_on": False,
     # A3: while the switch is OFF, Auto Apply 2.0 emails go here (or to the tester's own inbox), never to a company
     "test_inbox": "",
-    # the Nm7 Apply helper 1.1.0 (Admin > Auto Apply > Apply helper): smart answers' daily spending limit for the whole
-    # site (rupees) and per person (answers drafted by AI), and the launch switch "Promote the helper" (OFF until the
-    # Chrome Web Store listing is approved) with the store link (a placeholder until then)
-    "helper_rupees_day": 200,
-    "helper_per_user": 20,
-    "helper_promote": False,
-    "helper_store_url": "https://chromewebstore.google.com/search/Nm7%20Apply%20helper",
 }
 
 

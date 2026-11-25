@@ -2,7 +2,7 @@
 Only the standard library, so anything (the mailer, the route guards, the send points) can use it.
 
 One made-up person, "Priya Sharma (demo)", who signs in at nm7.si/login with email and password so Google's reviewer
-can try the Nm7 Apply helper on practice pages (nm7.si/demo/apply/...). The account is marked demo (left out of
+can try the Nm7 Apply helper on two practice pages (nm7.si/demo/apply/...). The account is marked demo (left out of
 every number, report, morning run and company search, like the other made-up people) and on top of that:
 - nothing is ever sent for it: no Auto Apply email, no partner hiring system, no company form, no Nm7 application to
   a company (each send point checks is_reviewer as well as demo);
@@ -17,22 +17,13 @@ import uuid
 EMAIL = "chrome-review@nm7.si"
 NAME = "Priya Sharma (demo)"
 ID = str(uuid.uuid5(uuid.NAMESPACE_URL, "https://nm7.si/chrome-web-store-reviewer"))
-# the practice pages on nm7.si (frontend/src/pages/demo/PracticeApply.jsx) the demo jobs' apply links point to: a
-# multi-step one that copies a hiring system's structure (PracticeSystem.jsx) and the two plain forms (the first is
-# the one the test instructions open: its kit is first in Jobs ready, so the helper picks it there by the address)
+# the two practice pages on nm7.si (frontend/src/pages/demo/PracticeApply.jsx) the demo jobs' apply links point to
+# (the first is the one the test instructions open: its kit is first in Jobs ready, so the helper picks it there)
 PRACTICE = (
-    ("cloud-portal", "Operations Trainee", ["Customer service", "Excel", "Reporting"]),
     ("customer-support-executive", "Customer Support Executive", ["Customer service", "Email", "CRM"]),
     ("junior-data-analyst", "Junior Data Analyst", ["SQL", "Excel", "Power BI"]),
 )
 PRACTICE_COMPANY = "Demo Tech Solutions"
-# the made-up company each multi-step practice page shows (frontend/src/pages/demo/practiceSystems.js)
-PRACTICE_COMPANIES = {"cloud-portal": "Nimbus Freight (demo)"}
-
-
-def practice_company(slug: str) -> str:
-    return PRACTICE_COMPANIES.get(slug, PRACTICE_COMPANY)
-
 
 MESSAGE = (
     "This is the Chrome Web Store review account. It can’t change its password or email, delete the account, "

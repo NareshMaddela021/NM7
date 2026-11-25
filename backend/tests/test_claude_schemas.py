@@ -18,7 +18,6 @@ SENT = {
     "app.hire.vetting.grade": ["rubric_schema", "PHOTO_SCHEMA"],
     "app.hire.vetting.interview": ["FOLLOW_SCHEMA", "GRADE_SCHEMA"],
     "app.autoapply.tailoring": ["SCHEMA"], "app.autoapply.replies": ["SCHEMA"],
-    "app.autoapply.helper": ["ANSWER_SCHEMA"],  # Apply helper 1.1.0: smart answers
     "app.jobs.ai_health": ["SCHEMA"],  # "Test the AI now": the collector's own schema
     "app.trust.agent.understand": ["SCHEMA"],  # Vetting Trust T5: a WhatsApp reply the rules can't read
     "app.trust.criteria.extract": ["SCHEMA"],  # Vetting Trust T7: a job's requirements

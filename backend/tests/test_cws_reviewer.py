@@ -1,5 +1,5 @@
 """The Chrome Web Store reviewer's demo account (app/autoapply/reviewer.py, app/core/reviewer.py): made by the owner in
-Admin → Auto Apply, signs in with email and password, always starts with the same three jobs ready (kits whose apply
+Admin → Auto Apply, signs in with email and password, always starts with the same two jobs ready (kits whose apply
 links are the practice pages), never sends anything on any channel, is left out of every number and company search,
 can't change its password or email, delete itself, pay, upload ID documents or join Ready to join, and its password
 is only ever shown to the owner (never in other answers, the audit log, emails or logs)."""
@@ -72,7 +72,6 @@ async def test_owner_creates_it_and_only_the_owner_sees_the_password(admin_clien
     made = ok(await owner.post(f"{ADMIN}/password"))
     assert made["exists"] is True and "password" not in made and made["passwordSetAt"]
     assert [p["url"] for p in made["practice"]] == [
-        "https://nm7.si/demo/apply/cloud-portal",
         "https://nm7.si/demo/apply/customer-support-executive",
         "https://nm7.si/demo/apply/junior-data-analyst",
     ]
@@ -120,19 +119,14 @@ async def test_server_setting_password_is_used(admin_client, make_client, monkey
     await reviewer_client(make_client, "Review-Setting-2026-abc")
 
 
-async def test_three_jobs_ready_with_kits_for_the_practice_pages_and_reset_on_sign_in(admin_client, make_client, db):
+async def test_two_jobs_ready_with_kits_for_the_practice_pages_and_reset_on_sign_in(admin_client, make_client, db):
     _, pw = await owner_with_account(admin_client)
     c = await reviewer_client(make_client, pw)
     listing = ok(await c.get(f"{V2}/onetap"))
-    assert listing["open"] == 3 and [x["applyHost"] for x in listing["items"]] == ["nm7.si"] * 3
-    # the first kit is the multi-step practice page the test instructions open (the helper also picks by the path)
-    assert [x["job"]["title"] for x in listing["items"]] == [
-        "Operations Trainee",
-        "Customer Support Executive",
-        "Junior Data Analyst",
-    ]
-    assert listing["items"][0]["applyUrl"] == "https://nm7.si/demo/apply/cloud-portal"
-    assert listing["items"][0]["job"]["company"] == "Nimbus Freight (demo)"
+    assert listing["open"] == 2 and [x["applyHost"] for x in listing["items"]] == ["nm7.si", "nm7.si"]
+    # the helper picks the first kit whose host matches the page: the one the test instructions open
+    assert [x["job"]["title"] for x in listing["items"]] == ["Customer Support Executive", "Junior Data Analyst"]
+    assert listing["items"][0]["applyUrl"] == "https://nm7.si/demo/apply/customer-support-executive"
     assert {x["applyUrl"] for x in listing["items"]} == {account.practice_url(s) for s, _, _ in reviewer.PRACTICE}
     # the helper pairs and reads the same kits (the shape background.js fetches)
     code = ok(await c.post(f"{V2}/helper/code"))["code"]
@@ -141,34 +135,30 @@ async def test_three_jobs_ready_with_kits_for_the_practice_pages_and_reset_on_si
     tok = ok(await ext.post("/api/helper/pair", json={"code": code, "device": "Chrome"}))["token"]
     ext.headers["Authorization"] = f"Bearer {tok}"
     kits = ok(await ext.get("/api/helper/kits"))["items"]
-    assert len(kits) == 3 and {k["job"]["company"] for k in kits} == {"Nimbus Freight (demo)", "Demo Tech Solutions"}
+    assert len(kits) == 2 and {k["job"]["company"] for k in kits} == {"Demo Tech Solutions"}
     kit = ok(await ext.get(f"/api/helper/kits/{kits[0]['id']}"))
     fields = {f["key"]: f["value"] for f in kit["fields"]}
     assert fields["full_name"] == "Priya Sharma (demo)" and fields["email"] == "chrome-review@nm7.si"
     for key in ("phone", "city", "linkedin", "notice", "degree"):
         assert fields.get(key), key
     assert kit["coverNote"] and kit["resume"]["name"].endswith(".pdf")
-    # 1.1.0: her work and education for the repeating blocks of a multi-step form
-    assert kit["experience"][0]["company"] == "Demo Retail (demo)" and kit["experience"][0]["from"] == "2025-01"
-    edu = {"school": "Demo College of Commerce (demo)", "degree": "B.Com", "field": "Computer Applications"}
-    assert kit["education"][0] == {**edu, "from": "2021-07", "to": "2024-05", "grade": "8.1 CGPA"}
     pdf = await ext.get(f"/api/helper/kits/{kits[0]['id']}/resume.pdf")
     assert pdf.status_code == 200 and pdf.content.startswith(b"%PDF")
     # "Mark as applied on Nm7": only her own tracker (a demo row, no company)
     ok(await ext.post(f"/api/helper/kits/{kits[0]['id']}/applied"))
     app = await db[APPLICATIONS].find_one({"user_id": reviewer.ID})
     assert app["demo"] is True and app["status"] == "applied" and not app.get("company_id")
-    assert ok(await c.get(f"{V2}/onetap"))["open"] == 2
-    # the next sign-in: the same three jobs ready again, nothing applied, no paired browser left over
+    assert ok(await c.get(f"{V2}/onetap"))["open"] == 1
+    # the next sign-in: the same two jobs ready again, nothing applied, no paired browser left over
     await reviewer_client(make_client, pw)
-    assert ok(await c.get(f"{V2}/onetap"))["open"] == 3
+    assert ok(await c.get(f"{V2}/onetap"))["open"] == 2
     assert await db[APPLICATIONS].count_documents({"user_id": reviewer.ID}) == 0
     assert await db[HELPER_TOKENS].count_documents({"user_id": reviewer.ID}) == 0
     assert (await ext.get("/api/helper/kits")).status_code == 401
-    assert await db[AUTO_ITEMS].count_documents({"user_id": reviewer.ID}) == 3
-    assert await db[AUTO_COPIES].count_documents({"user_id": reviewer.ID}) == 3
+    assert await db[AUTO_ITEMS].count_documents({"user_id": reviewer.ID}) == 2
+    assert await db[AUTO_COPIES].count_documents({"user_id": reviewer.ID}) == 2
     # the practice jobs are demo jobs: never on the job board
-    assert await db[JOBS].count_documents({"_id": {"$regex": "^cws-review-"}, "demo": True}) == 3
+    assert await db[JOBS].count_documents({"_id": {"$regex": "^cws-review-"}, "demo": True}) == 2
     board = ok(await make_client().get("/api/jobs", params={"q": "Customer Support Executive"}))
     assert "cws-review" not in str(board)
 
@@ -359,7 +349,7 @@ async def test_reset_is_quick_and_needs_no_ai(admin_client, db, monkeypatch):
     monkeypatch.setattr(tailoring, "_ai", no_ai)
     await owner_with_account(admin_client)
     t = time.monotonic()
-    assert (await account.reset(db)) == {"items": 3}
+    assert (await account.reset(db)) == {"items": 2}
     assert time.monotonic() - t < 5
     assert await db[SESSIONS].count_documents({"user_id": reviewer.ID}) == 0
     assert onetap.closed_reason(await db[JOBS].find_one({"_id": "cws-review-junior-data-analyst"})) is None

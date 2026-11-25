@@ -275,7 +275,6 @@ NOT_GRADING: dict[str, str] = {
     "app.seek.offers": "explains a job offer to the person",
     "app.seek.roles": "suggests roles to the person from their answers",
     "app.autoapply.replies": "reads a company's email reply (no candidate evaluation)",
-    "app.autoapply.helper": "drafts the person's own answer to a form question from their own profile; they approve it (no evaluation)",
     "app.jobs.ai_health": "tests that the AI answers (fixed text)",
     "app.trust.agent.understand": "reads a WhatsApp reply into yes / no / a number (the answer, not the person)",
     "app.trust.criteria.extract": "reads a job description into requirements (no candidate)",

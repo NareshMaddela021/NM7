@@ -72,8 +72,7 @@ describe('legal pages', () => {
     expect(out).toMatch(/<section id="extension"[^>]*><h2[^>]*>\d+\. Nm7 Apply helper \(Chrome extension\)<\/h2>/);
     expect(out).toContain('href="#extension"');
     expect(out).toContain('The use of information received from Nm7 Apply helper will adhere to the Chrome Web Store User Data Policy, including the Limited Use requirements.');
-    for (const p of ['activeTab', 'chrome.storage.local', 'chrome.storage.session', 'nm7-api.onrender.com', 'never presses Submit', 'never reads your other tabs or your browsing history', 'no analytics',
-      'optional permission', 'Anthropic', 'Smart answers', 'Improvement report', 'not linked to you', '180 days', 'counts only']) expect(out).toContain(p);
+    for (const p of ['activeTab', 'chrome.storage.local', 'nm7-api.onrender.com', 'never presses Submit', 'never reads your other tabs or your browsing history', 'no analytics']) expect(out).toContain(p);
   });
   it('/privacy names the AI provider and the other processors', () => {
     const out = html(Privacy);
