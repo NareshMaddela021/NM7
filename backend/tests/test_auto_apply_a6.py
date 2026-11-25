@@ -264,7 +264,7 @@ async def test_pairing_code_is_short_lived_and_works_once(client, outbox, db, ma
     ext = make_client()
     assert (await ext.post(f"{HELPER}/pair", json={"code": "ABCD-EFGH"})).status_code == 400
     got = ok(await ext.post(f"{HELPER}/pair", json={"code": code["code"].lower().replace("-", " ")}))
-    assert got["token"].startswith("nm7h_") and got["scope"] == ["kits:read", "applied:write"]
+    assert got["token"].startswith("nm7h_") and got["scope"] == list(onetap.SCOPE)
     assert got["expiresAt"] - int(now().timestamp() * 1000) <= 30 * 86400 * 1000 + 1000
     assert (await ext.post(f"{HELPER}/pair", json={"code": code["code"]})).status_code == 400  # one use
     tok = await db[HELPER_TOKENS].find_one({})
@@ -289,7 +289,7 @@ async def test_helper_token_is_scoped_revocable_and_does_nothing_else(client, ou
     uid, jobs, items = await ready(client, outbox, db)
     ext, got = await paired(client, make_client)
     me = ok(await ext.get(f"{HELPER}/me"))
-    assert me["firstName"] == "Sai" and me["scope"] == ["kits:read", "applied:write"]
+    assert me["firstName"] == "Sai" and me["scope"] == list(onetap.SCOPE)
     kits = ok(await ext.get(f"{HELPER}/kits"))["items"]
     assert {k["id"] for k in kits} == {i["_id"] for i in items} and kits[0]["applyHost"] == "zeta.in"
     k = ok(await ext.get(f"{HELPER}/kits/{items[0]['_id']}"))
@@ -316,7 +316,7 @@ async def test_helper_token_is_scoped_revocable_and_does_nothing_else(client, ou
     # a read-only token can't mark applied
     await db[HELPER_TOKENS].update_one({}, {"$set": {"scope": ["kits:read"]}})
     assert (await ext.post(f"{HELPER}/kits/{items[0]['_id']}/applied")).status_code == 403
-    await db[HELPER_TOKENS].update_one({}, {"$set": {"scope": ["kits:read", "applied:write"]}})
+    await db[HELPER_TOKENS].update_one({}, {"$set": {"scope": list(onetap.SCOPE)}})
     # marks applied (the candidate pressed Submit themselves): channel One tap, via the helper
     assert ok(await ext.post(f"{HELPER}/kits/{items[0]['_id']}/applied"))["channel"] == "one_tap"
     app = await db[APPLICATIONS].find_one({"user_id": uid, "job_id": jobs[0]["_id"]})
