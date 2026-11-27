@@ -174,7 +174,7 @@ function Kit({ id, toast }) {
   );
 }
 
-function KitCard({ it, toast, onChanged }) {
+export function KitCard({ it, toast, onChanged, helper }) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState('');
   const act = async (what, msg) => {
@@ -205,6 +205,9 @@ function KitCard({ it, toast, onChanged }) {
       {it.closed && <span className="small aa2-wrap" data-testid="aa2-kit-closed">{it.closedText} You can’t apply to it any more.</span>}
       {!it.closed && it.readyText && <span className="xs muted aa2-wrap">{it.readyText}</span>}
       {!it.closed && it.reminded && <span className="xs aa2-wrap" data-testid="aa2-kit-reminded">Did you apply? Tap “I applied” so your tracker is right.</span>}
+      {helper && !it.closed && !it.byEmail && it.applyUrl && (
+        <span className="xs aa2-wrap" data-testid="aa2-helper-promo">{helper.text}: <a href={helper.storeUrl} target="_blank" rel="noopener noreferrer">get it on the Chrome Web Store</a></span>
+      )}
       <div className="row g8 aa2-actions">
         {!it.closed && it.applyUrl && <button type="button" className="btn btn-signal btn-sm" disabled={!!busy} onClick={applyNow} data-testid="aa2-apply-now">{it.byEmail ? 'Write the email' : 'Apply now'}</button>}
         {!it.closed && <button type="button" className="btn btn-outline btn-sm" aria-expanded={open} onClick={() => setOpen(!open)} data-testid="aa2-kit-open">{open ? 'Hide kit' : 'Open kit'}</button>}
@@ -285,7 +288,7 @@ export default function OneTap({ toast, onChanged }) {
         </span>
       </div>
       {d.items.length === 0 ? <Empty compact title="No jobs ready right now" testid="aa2-onetap-empty">When a job can only be applied to on the company’s own page, it comes here each morning with its kit.</Empty> : (
-        <ul className="stack g8 aa2-list">{d.items.map((it) => <KitCard key={it.id} it={it} toast={toast} onChanged={changed} />)}</ul>
+        <ul className="stack g8 aa2-list">{d.items.map((it) => <KitCard key={it.id} it={it} toast={toast} onChanged={changed} helper={d.helper} />)}</ul>
       )}
       <HelperPanel toast={toast} />
     </div>

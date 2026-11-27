@@ -1,11 +1,14 @@
-// /demo/apply/:slug — a practice apply page for the Chrome Web Store review of the Nm7 Apply helper. A plain form of
+// /demo/apply/:slug — a practice apply page (the multi-step ones, copying the structure of each kind of hiring
+// system, are PracticeSystem.jsx) — a practice apply page for the Chrome Web Store review of the Nm7 Apply helper. A plain form of
 // a made-up company (Demo Tech Solutions): the review account's two "Jobs ready" kits link here, the helper fills it,
 // and Submit only says "Practice form: nothing was sent". Nothing is stored or sent (no request of any kind), the page
 // is not indexed (robots meta here, X-Robots-Tag in vercel.json) and not in the sitemap. Lazy-loaded (App.jsx).
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { usePageMeta } from '../../lib/meta';
 import { COMPANY, FIELDS, JOBS, SENT_TEXT, practiceSubmit } from './practiceForm';
+import { SYSTEMS } from './practiceSystems';
+import PracticeSystem from './PracticeSystem';
 
 const box = { width: '100%', boxSizing: 'border-box', padding: '10px 12px', font: 'inherit', border: '1px solid #9ca3af', borderRadius: 8, background: '#fff', color: '#111827' };
 
@@ -52,6 +55,9 @@ export function PracticeForm({ slug }) {
 
 export default function PracticeApply() {
   const { slug } = useParams();
-  usePageMeta({ title: `Practice apply form · ${COMPANY}`, description: 'A practice form for trying the Nm7 Apply helper. Nothing is sent.', noindex: true });
+  const { search } = useLocation();
+  const sys = SYSTEMS[slug];
+  usePageMeta({ title: `Practice apply form · ${sys ? sys.company : COMPANY}`, description: 'A practice form for trying the Nm7 Apply helper. Nothing is sent.', noindex: true });
+  if (sys) return <PracticeSystem slug={slug} embed={new URLSearchParams(search).get('embed') === '1'} />;
   return <PracticeForm slug={slug} />;
 }
