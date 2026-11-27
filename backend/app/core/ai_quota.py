@@ -29,11 +29,11 @@ from app.core.time import IST, now
 
 Feature = Literal[
     "photos", "summary", "linkedin", "jobs", "projects", "roles", "offers", "vetting", "interview", "autoapply_tailor",
-    "autoapply_reply", "agent_reply", "criteria", "explain", "spoken", "regrade",
+    "autoapply_reply", "agent_reply", "criteria", "explain", "spoken", "regrade", "helper_answer",
 ]  # fmt: skip
 FEATURES: tuple[Feature, ...] = (
     "photos", "summary", "linkedin", "jobs", "projects", "roles", "offers", "vetting", "interview", "autoapply_tailor",
-    "autoapply_reply", "agent_reply", "criteria", "explain", "spoken", "regrade",
+    "autoapply_reply", "agent_reply", "criteria", "explain", "spoken", "regrade", "helper_answer",
 )  # fmt: skip
 PER_PERSON: dict[str, int] = {
     "photos": 5,
@@ -52,6 +52,7 @@ PER_PERSON: dict[str, int] = {
     "explain": 4,  # Vetting Trust T9: "Explain your answer" questions from the practical task, and checking the answers
     "spoken": 3,  # Vetting Trust T10: grammar and comprehension of the spoken-English score (one call per interview)
     "regrade": 3,  # Vetting Trust T12: the weekly second-opinion re-grade of an AI-graded answer (5% sample, capped)
+    "helper_answer": 100,  # Apply helper smart answers: a backstop (the editable cap is in autoapply/helper.py)
 }
 PER_KIOSK: dict[str, int] = {
     "photos": 300,
@@ -70,6 +71,7 @@ PER_KIOSK: dict[str, int] = {
     "explain": 600,
     "spoken": 600,
     "regrade": 600,
+    "helper_answer": 600,
 }
 DAILY_CAP = 2000  # every AI call on the site, all features together
 OUTCOMES = ("fallback", "failed", "limited", "capped", "dropped")  # always present per feature in usage()
@@ -91,6 +93,7 @@ PERSON_MESSAGE = {
     "explain": "Today's AI checks are used up, so your interview uses a standard question about your task instead.",
     "spoken": "Today's AI checks are used up, so your spoken English is scored by simple rules instead.",
     "regrade": "Today's second-opinion checks are used up; they run again next week.",
+    "helper_answer": "Smart answers are paused for today, type this one yourself.",
 }
 KIOSK_MESSAGE = "This kiosk has used today's AI limit. Please type your details instead."
 

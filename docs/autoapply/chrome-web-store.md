@@ -33,7 +33,7 @@ in plain words, what you (Naresh) need to do to publish it, and how to try it be
 
 1. The Auto Apply 2.0 switch must let people see the Jobs ready tab (testers while it is OFF).
 2. A privacy policy page on nm7.si that covers the helper (see "Privacy policy URL" below). The store requires it.
-3. Decide the version number in `extension/manifest.json` (`"version": "1.0.0"`). Every new upload needs a higher one.
+3. Decide the version number in `extension/manifest.json` (`"version": "1.1.0"`, the first public version; 1.0.0 was never submitted). Every new upload needs a higher one.
 
 ## Step 1. Make a Chrome Web Store developer account (one time)
 
@@ -53,7 +53,7 @@ From the repository root:
 
 ```sh
 cd extension
-zip -r ../nm7-apply-helper-1.0.0.zip . -x '.*'
+zip -r ../nm7-apply-helper-1.1.0.zip . -x '.*'
 ```
 
 The zip must have `manifest.json` at its top level (not inside an `extension/` folder). Nothing else is needed: there
