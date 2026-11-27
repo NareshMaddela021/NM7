@@ -54,7 +54,8 @@ test('kiosk: switch on → kiosk link → code sign-in → build → print → w
   // a deploy during the event: the PDF maker's file of this (old) build is gone (404, served as HTML) until the
   // kiosk reloads onto the new build
   let loads = 0;
-  k.on('load', () => { loads += 1; });
+  // counted when the page is requested, not on 'load': the reloaded kiosk can ask for the PDF file before 'load' arrives
+  k.on('request', (r) => { if (r.isNavigationRequest() && r.frame() === k.mainFrame()) loads += 1; });
   await k.route(/\/src\/pages\/builder\/resumePdf\.js/, (r) => (loads < 2 ? r.fulfill({ status: 404, contentType: 'text/html', body: '<!doctype html><title>404</title>' }) : r.continue()));
   await k.goto(kioskPath);
   await expect(k.getByRole('heading', { name: 'Make your resume here' })).toBeVisible();
