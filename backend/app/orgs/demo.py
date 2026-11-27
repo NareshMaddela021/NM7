@@ -8,11 +8,20 @@ Everything it makes is marked `demo: true` (the organization and every student a
 numbers: admin dashboard customer counts, the customers list, paid-organization counts and renewals. Demo students
 can't sign in (no usable password), are never emailed (reminders skip them) and use addresses that can't receive mail
 (…@demo.nm7.invalid). The groups are closed, so nobody real can join them.
+
+Speed (27 Nov: "Reset and open as coordinator" took ~40 s on the live server, ~290 database round trips one after
+another, each a network hop to the database, plus four slow password hashes): every record is built in memory first
+(a few hundred small documents, well under 1 MB) and written with one insert_many per collection, a few collections at
+a time; the deletes run a few at a time too, still in id batches (the 512 MB server). One unusable password hash is
+shared by every demo account. About 30 round trips in all, so a reset takes a few seconds.
 """
 
+import asyncio
 import random
 import re
 import secrets
+from collections import defaultdict
+from collections.abc import Awaitable, Iterable
 from datetime import datetime, timedelta
 from datetime import time as dtime
 from typing import Any
@@ -143,7 +152,6 @@ async def remove_demo(db: AsyncDatabase) -> int:
     """Deletes the demo organization and every demo student (and what they own). Returns how many students."""
     from app.jobs import demo_jobs
 
-    await demo_jobs.remove(db)
     # only this demo's own people (the college's students, coordinator, reviewer, alumni: ...@demo.nm7.invalid); the
     # other demos' made-up people (Hire in 60 minutes, the student demos) are theirs to reset. Ids are read in small
     # batches and deleted chunk by chunk, so a reset never holds a big list in memory (the server has 512 MB).
@@ -166,7 +174,7 @@ async def remove_demo(db: AsyncDatabase) -> int:
     if batch:
         await _remove_people(db, batch)
         n += len(batch)
-    for coll, q in (
+    rest = (
         (MEMBERSHIPS, {"org_id": ORG_ID}),
         (ROLL_LISTS, {"org_id": ORG_ID}),
         (DRIVES, {"org_id": ORG_ID}),
@@ -185,37 +193,55 @@ async def remove_demo(db: AsyncDatabase) -> int:
         (ORG_STAFF, {"org_id": ORG_ID}),
         (ORG_GROUPS, {"org_id": ORG_ID}),
         (ORGANIZATIONS, {"_id": ORG_ID}),
-    ):
-        await db[coll].delete_many(q)
+    )
+    await _few_at_a_time([demo_jobs.remove(db), *(db[coll].delete_many(q) for coll, q in rest)])
     return n
 
 
 CHUNK = 200
+Docs = defaultdict[str, list[dict[str, Any]]]  # collection → the records a reset writes to it
+AT_ONCE = 6  # database calls in flight at once during a reset (each holds one pooled connection)
+
+
+async def _few_at_a_time(calls: Iterable[Awaitable[Any]]) -> list[Any]:
+    """Runs independent database calls a few at a time: the reset waits for a few network hops, not one per call."""
+    gate = asyncio.Semaphore(AT_ONCE)
+
+    async def one(call: Awaitable[Any]) -> Any:
+        async with gate:
+            return await call
+
+    return list(await asyncio.gather(*(one(c) for c in calls)))
 
 
 async def _remove_people(db: AsyncDatabase, uids: list) -> None:
-    for coll, q in (
-        (RESUMES, {"user_id": {"$in": uids}}),
-        (LINKEDIN, {"_id": {"$in": uids}}),
-        (MEMBERSHIPS, {"user_id": {"$in": uids}}),
-        (USERS, {"_id": {"$in": uids}, "demo": True}),
-    ):
-        await db[coll].delete_many(q)
+    await _few_at_a_time(
+        db[coll].delete_many(q)
+        for coll, q in (
+            (RESUMES, {"user_id": {"$in": uids}}),
+            (LINKEDIN, {"_id": {"$in": uids}}),
+            (MEMBERSHIPS, {"user_id": {"$in": uids}}),
+            (USERS, {"_id": {"$in": uids}, "demo": True}),
+        )
+    )
 
 
 async def create_demo(db: AsyncDatabase, actor_id: str | None = None, seed: int = 2026) -> dict[str, Any]:
-    """Creates (or resets) the demo organization. Same data every time (fixed random seed)."""
-    await remove_demo(db)
+    """Creates (or resets) the demo organization. Same data every time (fixed random seed). Everything is built in
+    memory (`docs`: collection → records) and written at the end, one insert_many per collection (see the top)."""
+    # the old data goes while the one shared password hash is worked out (argon2, in a thread). Nobody knows the
+    # password: demo students, alumni, the reviewer and the coordinator can't sign in with one.
+    _, plans, pw = await asyncio.gather(remove_demo(db), get_plans(db), hash_password(new_token()))
+    docs: Docs = defaultdict(list)
     rng = random.Random(seed)
     marks = random.Random(seed + 1)  # its own sequence, so adding marks doesn't change the names and data above
     t = now()
     today = t.astimezone(IST).date()
-    plans = await get_plans(db)
     sub = {**terms_of(plans["campus"]), "starts_on": today.isoformat(),
            "ends_on": (today + timedelta(days=365)).isoformat(),
            "grace_until": (today + timedelta(days=372)).isoformat(), "price_paid": 0, "discount": 0,
            "source": "demo"}  # fmt: skip
-    await db[ORGANIZATIONS].insert_one(
+    docs[ORGANIZATIONS].append(
         {
             "_id": ORG_ID,
             "name": ORG_NAME,
@@ -234,11 +260,10 @@ async def create_demo(db: AsyncDatabase, actor_id: str | None = None, seed: int 
         {"key": "roll_number", "label": "Roll number", "type": "text", "options": [], "required": True},
         {"key": "branch", "label": "Branch", "type": "select", "options": ["CSE", "ECE"], "required": True},
     ]
-    pw = await hash_password(new_token())  # nobody knows it: demo students can't sign in
     students = 0
     names_used: set[str] = set()
     for gid, gname, code, branch, joined, on_roll in GROUPS:
-        await db[ORG_GROUPS].insert_one(
+        docs[ORG_GROUPS].append(
             {
                 "_id": gid,
                 "org_id": ORG_ID,
@@ -276,12 +301,12 @@ async def create_demo(db: AsyncDatabase, actor_id: str | None = None, seed: int 
             uid = f"demo-u-{branch.lower()}-{i + 1:03d}"
             user = User(id=uid, email=email, name=name, role="customer", password_hash=pw,
                         email_verified_at=t, created_at=t - timedelta(days=rng.randint(10, 55)))  # fmt: skip
-            await db[USERS].insert_one({**user.to_mongo(), "demo": True})
+            docs[USERS].append({**user.to_mongo(), "demo": True})
             has_resume = rng.random() > 0.12
             rid = f"demo-r-{uid}"
             updated = t - timedelta(days=rng.randint(0, 40), hours=rng.randint(0, 20))
             if has_resume:
-                await db[RESUMES].insert_one(
+                docs[RESUMES].append(
                     {
                         "key": rid,
                         "user_id": uid,
@@ -294,13 +319,13 @@ async def create_demo(db: AsyncDatabase, actor_id: str | None = None, seed: int 
                     }  # fmt: skip
                 )
             if quality >= 2 and rng.random() < 0.6:
-                await db[LINKEDIN].insert_one(
+                docs[LINKEDIN].append(
                     {"_id": uid, "url": "", "result": {"score": rng.choice([55, 72, 81])}, "updated_at": t}
                 )
             approval = "pending" if rng.random() < 0.1 else "approved"
             review = rng.choices(["none", "needs_changes", "ready"], weights=[4, 2, 4])[0] if has_resume else "none"
             joined_at = t - timedelta(days=rng.randint(1, 50))
-            await db[MEMBERSHIPS].insert_one(
+            docs[MEMBERSHIPS].append(
                 {
                     "_id": f"demo-m-{uid}",
                     "user_id": uid,
@@ -333,7 +358,7 @@ async def create_demo(db: AsyncDatabase, actor_id: str | None = None, seed: int 
                 }  # fmt: skip
             )
             students += 1
-        await db[ROLL_LISTS].insert_one(
+        docs[ROLL_LISTS].append(
             {
                 "_id": gid,
                 "org_id": ORG_ID,
@@ -342,17 +367,15 @@ async def create_demo(db: AsyncDatabase, actor_id: str | None = None, seed: int 
                 "uploaded_by": actor_id,
             }  # fmt: skip
         )
-    recruiter_path = await _demo_invite(db, rng, actor_id)
-    await _demo_drive(db, rng)
-    await _demo_offers(db, rng)
-    await _demo_alumni(db, rng)
-    await _demo_reviewer(db)
-    await _demo_coordinator(db)
-    await _demo_stories(db)
-    from app.jobs import demo_jobs
-
-    await demo_jobs.seed(db)  # 30 demo jobs: admin and tests only, never on the public job pages
-    await db[COLLEGE_GROUPS].insert_one(
+    members = docs[MEMBERSHIPS]  # in the order written, as the database would list them
+    token, session = _demo_invite(docs, members, rng, actor_id)
+    _demo_drive(docs, members, rng)
+    _demo_offers(docs, members, rng)
+    _demo_alumni(docs, members, pw)
+    _demo_reviewer(docs, members, pw)
+    _demo_coordinator(docs, pw)
+    _demo_stories(docs, members)
+    docs[COLLEGE_GROUPS].append(
         {
             "_id": "demo-college-group",
             "name": "Demo College Group (demo)",
@@ -361,6 +384,18 @@ async def create_demo(db: AsyncDatabase, actor_id: str | None = None, seed: int 
             "created_at": now(),
         }  # fmt: skip
     )  # Admin → College groups: add your own email as owner to see the roll-up
+    from app.jobs import demo_jobs
+    from app.orgs.recruiter_account import issue_session
+
+    written = await _few_at_a_time(
+        [
+            # the demo recruiter's account (no code: the address is made up), so My drives opens from the shortcut
+            issue_session(db, f"recruiter@{EMAIL_DOMAIN}", "Demo Recruiter"),
+            demo_jobs.seed(db),  # 30 demo jobs: admin and tests only, never on the public job pages
+            *(db[coll].insert_many(rows) for coll, rows in docs.items() if rows),
+        ]
+    )
+    recruiter_path = f"/recruiter/{token}#s={session}&a={written[0]}"
     if actor_id:
         await audit(db, actor_id, "demo_org_reset", target=ORG_ID, data={"orgs": [ORG_ID], "students": students})
     return {
@@ -372,24 +407,21 @@ async def create_demo(db: AsyncDatabase, actor_id: str | None = None, seed: int 
     }
 
 
-async def _demo_invite(db: AsyncDatabase, rng: random.Random, actor_id: str | None) -> str:
+def _demo_invite(docs: Docs, members: list[dict], rng: random.Random, actor_id: str | None) -> tuple[str, str]:
     """A recruiter invite from a made-up company, with a few students on its board. Its sign-in code would go to a
     made-up address, so the path returned carries a ready session (after #, never sent to a server log): only the
-    admin who reset the demo gets it, and only for this demo invite."""
-    from app.orgs.recruiter_account import issue_session
+    admin who reset the demo gets it, and only for this demo invite. Returns the invite's token and session (the
+    recruiter's account session is issued with the writes, in create_demo)."""
     from app.orgs.recruiter_portal import SESSION_HOURS, _hash
 
     t = now()
     token, session = secrets.token_urlsafe(32), secrets.token_urlsafe(32)
     iid = "demo-recruiter-invite"
-    mids = [
-        m["_id"]
-        async for m in db[MEMBERSHIPS].find({"org_id": ORG_ID, "recruiter_opt_in": True, "approval": "approved"})
-    ]
+    mids = [m["_id"] for m in members if m["recruiter_opt_in"] and m["approval"] == "approved"]
     picks = rng.sample(sorted(mids), min(6, len(mids)))
     stages = ["shortlisted", "shortlisted", "interview", "interview", "selected", "rejected"]
     board = {mid: {"stage": stages[i], "note": "Demo note", "at": t} for i, mid in enumerate(picks)}
-    await db[RECRUITER_INVITES].insert_one(
+    docs[RECRUITER_INVITES].append(
         {
             "_id": iid,
             "org_id": ORG_ID,
@@ -415,16 +447,16 @@ async def _demo_invite(db: AsyncDatabase, rng: random.Random, actor_id: str | No
     )
     # an interview round tomorrow for the two students in "Interview": one confirmed, one asked for another time
     two = [mid for mid in picks if board[mid]["stage"] == "interview"]
-    members = {m["_id"]: m async for m in db[MEMBERSHIPS].find({"_id": {"$in": two}})}
+    by_id = {m["_id"]: m for m in members if m["_id"] in two}
     start = datetime.combine(t.astimezone(IST).date() + timedelta(days=1), dtime(10, 30), IST)
-    await db[INTERVIEWS].insert_one(
+    docs[INTERVIEWS].append(
         {
             "_id": "demo-interview",
             "org_id": ORG_ID,
             "invite_id": iid,
             "company": "Demo Tech Pvt Ltd (demo)",
             "recruiter_email": f"recruiter@{EMAIL_DOMAIN}",
-            "group_ids": sorted({members[m]["group_id"] for m in two if m in members}),
+            "group_ids": sorted({by_id[m]["group_id"] for m in two if m in by_id}),
             "round": "Technical round 1 (demo)",
             "minutes": 45,
             "place": "Placement cell, Block A (demo)",
@@ -434,11 +466,11 @@ async def _demo_invite(db: AsyncDatabase, rng: random.Random, actor_id: str | No
             "starts_at": start,
             "seq": 0,
             "students": [
-                {"membership_id": m, "user_id": members[m]["user_id"], "group_id": members[m]["group_id"],
+                {"membership_id": m, "user_id": by_id[m]["user_id"], "group_id": by_id[m]["group_id"],
                  "status": st, "reason": why, "at": t, "reminded_seq": 0}
                 for m, (st, why) in zip(two, [("confirmed", ""), ("reschedule", "University exam that morning (demo)")],
                                         strict=False)
-                if m in members
+                if m in by_id
             ],
             "demo": True,
             "created_at": t,
@@ -448,7 +480,7 @@ async def _demo_invite(db: AsyncDatabase, rng: random.Random, actor_id: str | No
     )  # fmt: skip
     # a past drive (another made-up company, ended months ago): My drives shows its counts and notes, not students
     old = sorted(mids)[-3:]
-    await db[RECRUITER_INVITES].insert_one(
+    docs[RECRUITER_INVITES].append(
         {
             "_id": "demo-recruiter-invite-past",
             "org_id": ORG_ID,
@@ -483,23 +515,21 @@ async def _demo_invite(db: AsyncDatabase, rng: random.Random, actor_id: str | No
         }
     )
     # the past drive's feedback: what "What recruiters said" shows on the demo college's dashboard
-    await db[RECRUITER_FEEDBACK].insert_one(
+    docs[RECRUITER_FEEDBACK].append(
         {"_id": "demo-recruiter-invite-past", "org_id": ORG_ID, "company": "Demo Analytics LLP (demo)",
          "group_ids": sorted(g[0] for g in GROUPS), "rating": 4, "skills": ["SQL", "Power BI"], "basics": ["Python"],
          "projects_no_results": True, "communication": False, "other": "", "went_well": "Punctual, well-prepared "
          "students (demo).", "visit_again": "yes", "demo": True, "created_at": t - timedelta(days=139),
          "updated_at": t - timedelta(days=139)}
     )  # fmt: skip
-    # the demo recruiter's account (no code: the address is made up), so My drives opens from the same shortcut
-    account = await issue_session(db, f"recruiter@{EMAIL_DOMAIN}", "Demo Recruiter")
-    return f"/recruiter/{token}#s={session}&a={account}"
+    return token, session
 
 
-async def _demo_drive(db: AsyncDatabase, rng: random.Random) -> None:
+def _demo_drive(docs: Docs, members: list[dict], rng: random.Random) -> None:
     """Drive day (today): two companies, test rooms and interview slots, students assigned, some checked in."""
     t = now()
     day = t.astimezone(IST).date().isoformat()
-    mids = sorted([m["_id"] async for m in db[MEMBERSHIPS].find({"org_id": ORG_ID, "approval": "approved"})])
+    mids = sorted(m["_id"] for m in members if m["approval"] == "approved")
     companies = [
         {"id": "demo-co-infosys", "name": "Infosys (demo)", "rules": {"cgpa_min": 7.0, "backlogs_max": 0}},
         {"id": "demo-co-tcs", "name": "TCS (demo)", "rules": {"cgpa_min": 6.0, "tenth_min": 60}},
@@ -516,7 +546,7 @@ async def _demo_drive(db: AsyncDatabase, rng: random.Random) -> None:
                   "room": "Seminar hall", "start": "14:00", "end": "16:00", "members": picks})  # fmt: skip
     slots.append({"id": "demo-slot-gd-0", "company_id": "demo-co-tcs", "round": "gd", "room": "Room 204",
                   "start": "11:00", "end": "12:00", "members": mids[:10]})  # fmt: skip
-    await db[DRIVES].insert_one(
+    docs[DRIVES].append(
         {
             "_id": "demo-drive",
             "org_id": ORG_ID,
@@ -540,13 +570,13 @@ async def _demo_drive(db: AsyncDatabase, rng: random.Random) -> None:
                              "membership_id": mid, "org_id": ORG_ID, "at": at,
                              "by": "self" if rng.random() < 0.85 else "staff", "actor_id": None})  # fmt: skip
     if rows:
-        await db[DRIVE_CHECKINS].insert_many(rows)
+        docs[DRIVE_CHECKINS].extend(rows)
 
 
-async def _demo_offers(db: AsyncDatabase, rng: random.Random) -> None:
+def _demo_offers(docs: Docs, members: list[dict], rng: random.Random) -> None:
     """About a third of the demo students placed; a few with two offers; one declined; a few internships."""
     t = now()
-    ms_ = [m async for m in db[MEMBERSHIPS].find({"org_id": ORG_ID}).sort("_id", 1)]
+    ms_ = sorted(members, key=lambda m: m["_id"])
     picks = rng.sample(ms_, max(1, len(ms_) // 3))
     companies = [("Infosys (demo)", "Systems Engineer", 3.6), ("TCS (demo)", "Assistant System Engineer", 3.36),
                  ("Wipro (demo)", "Project Engineer", 3.5), ("Zoho (demo)", "Member Technical Staff", 7.2),
@@ -563,7 +593,7 @@ async def _demo_offers(db: AsyncDatabase, rng: random.Random) -> None:
                          "offer_date": (t - timedelta(days=rng.randint(1, 40))).date().isoformat(), "status": status,
                          "created_by": None, "created_at": t, "updated_at": t})  # fmt: skip
     if rows:
-        await db[OFFERS].insert_many(rows)
+        docs[OFFERS].extend(rows)
 
 
 ALUMNI_PEOPLE = (
@@ -574,17 +604,16 @@ ALUMNI_PEOPLE = (
 )
 
 
-async def _demo_alumni(db: AsyncDatabase, rng: random.Random) -> None:
+def _demo_alumni(docs: Docs, members: list[dict], pw: str) -> None:
     """Four made-up alumni (demo accounts that can't sign in) and two requests from demo students, one replied."""
     t = now()
     ids = []
-    pw = await hash_password(new_token())  # nobody knows it: demo alumni can't sign in
     for i, (name, co, role, city, batch, ref, men) in enumerate(ALUMNI_PEOPLE):
         uid = f"demo-alum-{i}"
         user = User(id=uid, email=f"alumni{i}@{EMAIL_DOMAIN}", name=name, role="customer", password_hash=pw,
                     email_verified_at=t, created_at=t)  # fmt: skip
-        await db[USERS].insert_one({**user.to_mongo(), "demo": True})
-        await db[ALUMNI].insert_one(
+        docs[USERS].append({**user.to_mongo(), "demo": True})
+        docs[ALUMNI].append(
             {
                 "_id": f"demo-alumni-{i}",
                 "org_id": ORG_ID,
@@ -602,7 +631,7 @@ async def _demo_alumni(db: AsyncDatabase, rng: random.Random) -> None:
             }  # fmt: skip
         )
         ids.append((f"demo-alumni-{i}", uid))
-    students = [m["user_id"] async for m in db[MEMBERSHIPS].find({"org_id": ORG_ID}).limit(2)]
+    students = [m["user_id"] for m in members[:2]]
     for j, s in enumerate(students):
         aid, to = ids[j]
         r = {"_id": f"demo-alumni-req-{j}", "org_id": ORG_ID, "alumni_id": aid, "from_user": s, "to_user": to,
@@ -611,18 +640,19 @@ async def _demo_alumni(db: AsyncDatabase, rng: random.Random) -> None:
         if j == 0:
             r["replies"] = [{"by": to, "text": "Happy to — apply on the careers page and tell me the job id.", "at": t}]
             r["replied_at"] = t
-        await db[ALUMNI_REQUESTS].insert_one(r)
+        docs[ALUMNI_REQUESTS].append(r)
 
 
-async def _demo_reviewer(db: AsyncDatabase) -> None:
+def _demo_reviewer(docs: Docs, members: list[dict], pw: str) -> None:
     """A made-up faculty reviewer (a demo account that can't sign in) with six students and a few comments."""
     t = now()
     uid = "demo-reviewer"
     user = User(id=uid, email=f"reviewer@{EMAIL_DOMAIN}", name="Dr. Anitha Rao (demo)", role="customer",
-                password_hash=await hash_password(new_token()), email_verified_at=t, created_at=t)  # fmt: skip
-    await db[USERS].insert_one({**user.to_mongo(), "demo": True})
-    mids = [m["_id"] async for m in db[MEMBERSHIPS].find({"org_id": ORG_ID}).sort("_id", 1).limit(6)]
-    await db[ORG_STAFF].insert_one(
+                password_hash=pw, email_verified_at=t, created_at=t)  # fmt: skip
+    docs[USERS].append({**user.to_mongo(), "demo": True})
+    by_id = {m["_id"]: m for m in members}
+    mids = sorted(by_id)[:6]
+    docs[ORG_STAFF].append(
         {
             "_id": "demo-staff-reviewer",
             "org_id": ORG_ID,
@@ -641,8 +671,8 @@ async def _demo_reviewer(db: AsyncDatabase) -> None:
              ("summary", "", "Two lines are enough: role you want + your strongest skill."),
              ("skills", "", "Group these: languages, tools, cloud.")]  # fmt: skip
     for i, (sec, line, text) in enumerate(notes):
-        m = await db[MEMBERSHIPS].find_one({"_id": mids[i % len(mids)]})
-        await db[REVIEW_COMMENTS].insert_one(
+        m = by_id[mids[i % len(mids)]]
+        docs[REVIEW_COMMENTS].append(
             {
                 "_id": f"demo-review-{i}",
                 "org_id": ORG_ID,
@@ -658,24 +688,24 @@ async def _demo_reviewer(db: AsyncDatabase) -> None:
         )
 
 
-async def _demo_coordinator(db: AsyncDatabase) -> None:
+def _demo_coordinator(docs: Docs, pw: str) -> None:
     """A made-up coordinator of the demo college (all groups). It has no password anyone knows: an admin opens it
     with "Reset and open as coordinator" (app/orgs/demo_login.py), and that session reaches only the demo college."""
     t = now()
     user = User(id=COORDINATOR_ID, email=f"coordinator@{EMAIL_DOMAIN}", name="Demo Coordinator (demo)", role="customer",
-                password_hash=await hash_password(new_token()), email_verified_at=t, created_at=t)  # fmt: skip
-    await db[USERS].insert_one({**user.to_mongo(), "demo": True})
-    await db[ORG_STAFF].insert_one(
+                password_hash=pw, email_verified_at=t, created_at=t)  # fmt: skip
+    docs[USERS].append({**user.to_mongo(), "demo": True})
+    docs[ORG_STAFF].append(
         {"_id": "demo-staff-coordinator", "org_id": ORG_ID, "email": user.email, "email_lc": user.email,
          "user_id": COORDINATOR_ID, "role": "coordinator", "group_ids": None, "status": "active",
          "created_at": t, "accepted_at": t}
     )  # fmt: skip
 
 
-async def _demo_stories(db: AsyncDatabase) -> None:
+def _demo_stories(docs: Docs, members: list[dict]) -> None:
     """Two made-up placement stories for trying Admin > Stories. Marked demo: never shown on the public site."""
     t = now()
-    uids = [m["user_id"] async for m in db[MEMBERSHIPS].find({"org_id": ORG_ID}).sort("_id", 1).limit(2)]
+    uids = [m["user_id"] for m in sorted(members, key=lambda m: m["_id"])[:2]]
     texts = [
         ("Demo student A (demo)", "Infosys (demo)", "Systems Engineer",
          "Demo story: the placement cell asked us to finish our resumes on Nm7 before the drive. The ATS check showed "
@@ -685,7 +715,7 @@ async def _demo_stories(db: AsyncDatabase) -> None:
          "left comments right next to my projects."),
     ]  # fmt: skip
     for i, (name, company, role, story) in enumerate(texts):
-        await db[STORIES].insert_one(
+        docs[STORIES].append(
             {"_id": f"demo-story-{i}", "user_id": uids[i % len(uids)] if uids else None, "story": story,
              "display_name": name, "company": company, "role": role, "photo": None, "consent_at": t,
              "status": "approved", "decided_at": t, "created_at": t, "demo": True}

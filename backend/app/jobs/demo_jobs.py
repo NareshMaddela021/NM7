@@ -1,17 +1,19 @@
 """30 made-up jobs for trying the job board in the demo college and the test environment. Each is marked demo: True
 and "(demo)" in the company name, uses example.com links, and is never shown on the public job pages or sitemap.
-They are made with the demo college and removed with it (app/orgs/demo.py)."""
+They are made with the demo college and removed with it (app/orgs/demo.py). The 30 are written in two round trips
+(one look-up for the dedupe keys, one insert_many), not two per job: the demo college reset waits on them."""
 
 import random
 from datetime import timedelta
 from typing import Any
 
 from pymongo.asynchronous.database import AsyncDatabase
+from pymongo.errors import BulkWriteError
 
+from app.auth.models import new_id
 from app.core.db import JOBS
 from app.core.time import now
-from app.jobs import service
-from app.jobs.model import JobIn
+from app.jobs.model import JobIn, slug_for, to_doc
 
 ROLES = [
     ("Data Analyst", ["SQL", "Python", "Power BI", "Excel"], "fresher"),
@@ -31,8 +33,8 @@ CITIES = [["Hyderabad"], ["Bengaluru"], ["Chennai"], ["Hyderabad", "Pune"], ["Vi
 
 async def seed(db: AsyncDatabase) -> int:
     rng = random.Random(4207)  # its own sequence: the rest of the demo data stays the same
-    made = 0
     t = now()
+    rows: list[dict[str, Any]] = []
     for i in range(30):
         title, skills, exp = ROLES[i % len(ROLES)]
         company = COMPANIES[i % len(COMPANIES)]
@@ -64,9 +66,22 @@ async def seed(db: AsyncDatabase) -> int:
             "applyEmail": f"jobs{i + 1}@example.com" if method == "email" else "",
             "postedAt": (t - timedelta(hours=3 + i * 9)).isoformat(),
         })  # fmt: skip
-        result, _ = await service.save(db, job, "admin", None, demo=True)
-        made += result == "created"
-    return made
+        # the same record app/jobs/service.py save() makes for a new job
+        rows.append({"_id": new_id(), "slug": slug_for(job.title, job.company.name), **to_doc(job),
+                     "status": job.status, "closed_reason": "" if job.status != "closed" else "closed by the source",
+                     "posted_at": job.posted_at or t, "source": "admin",
+                     "link_check": {"at": None, "ok": None, "status": None, "fails": 0, "error": ""}, "demo": True,
+                     "created_by": None, "created_at": t, "updated_at": t})  # fmt: skip
+    # one already there (the same job saved another way, rare): left as it is, never overwritten with demo text
+    there = {j["dedupe_key"] async for j in db[JOBS].find({"dedupe_key": {"$in": [j["dedupe_key"] for j in rows]}},
+                                                           {"dedupe_key": 1})}  # fmt: skip
+    rows = [j for j in rows if j["dedupe_key"] not in there]
+    if not rows:
+        return 0
+    try:
+        return len((await db[JOBS].insert_many(rows, ordered=False)).inserted_ids)
+    except BulkWriteError as e:  # made at the same moment by another reset: those are skipped
+        return int(e.details.get("nInserted", 0))
 
 
 async def remove(db: AsyncDatabase) -> int:
