@@ -88,6 +88,8 @@ test('kiosk: switch on → kiosk link → code sign-in → build → print → w
   const settled = () => k.evaluate(() => Promise.all(document.getAnimations().filter((a) => a instanceof CSSTransition).map((a) => a.finished.catch(() => {}))));
   const boxes = async () => { await k.mouse.move(1, 1); await settled(); return Promise.all(['k-print', 'k-mail', 'k-status', 'k-edit', 'k-finish'].map((id) => k.getByTestId(id).boundingBox())); };
   const same = (a, b) => a.forEach((x, i) => ['x', 'y', 'width', 'height'].forEach((p) => expect(Math.abs(x[p] - b[i][p]), `box ${i} ${p}`).toBeLessThan(1)));
+  // the kiosk asked for fullscreen at the start; newer Chromium will not resize a fullscreen window
+  await k.evaluate(() => document.fullscreenElement && document.exitFullscreen());
   await k.setViewportSize({ width: 820, height: 1180 });
   await expect(k.getByTestId('k-print')).toBeVisible();
   const tablet = await boxes();
