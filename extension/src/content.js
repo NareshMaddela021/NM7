@@ -59,6 +59,40 @@
     return String(fs.getAttribute('aria-label') || '').slice(0, 200);
   }
 
+  // A radio group's question when the page has no fieldset or radiogroup: the text just before the choices, e.g. a
+  // plain <label> or <p> above them that is not linked to any input by for= ("Are you willing to relocate?").
+  const CONTROLS = 'input, select, textarea, button';
+  function looseText(n, inputs) {
+    if (!n || n.matches(CONTROLS) || n.querySelector(CONTROLS)) return '';
+    const f = n.tagName === 'LABEL' && n.getAttribute('for');
+    if (f && inputs.some((i) => i.id === f)) return '';
+    const t = textOf(n);
+    return t.length > 1 && t.length <= 300 ? t : '';
+  }
+  function groupQuestionOf(inputs) {
+    const q = questionOf(inputs[0]);
+    if (q) return q;
+    let box = inputs[0].parentElement;
+    while (box && !inputs.every((i) => box.contains(i))) box = box.parentElement;
+    for (let n = box, up = 0; n && n !== document.body && up < 4; n = n.parentElement, up += 1) {
+      // inside the box: the last text before the first choice; then the box's own previous siblings
+      if (n === box) {
+        let last = '';
+        for (const c of n.children) {
+          if (inputs.some((i) => c.contains(i))) break;
+          last = looseText(c, inputs) || last;
+        }
+        if (last) return last.slice(0, 200);
+      }
+      for (let p = n.previousElementSibling, k = 0; p && k < 3; p = p.previousElementSibling, k += 1) {
+        if (p.querySelector(CONTROLS) || p.matches(CONTROLS)) break;
+        const t = looseText(p, inputs);
+        if (t) return t.slice(0, 200);
+      }
+    }
+    return '';
+  }
+
   function wrapIdOf(el) {
     let n = el.parentElement;
     for (let i = 0; n && i < 5; i += 1, n = n.parentElement) {
@@ -152,7 +186,7 @@
       name: el.getAttribute('name') || '',
       id: el.id || '',
       label: it.radio ? '' : labelOf(el),
-      question: questionOf(el),
+      question: it.radio ? groupQuestionOf(it.inputs) : questionOf(el),
       placeholder: el.getAttribute('placeholder') || '',
       autocomplete: el.getAttribute('autocomplete') || '',
       aria: el.getAttribute('aria-label') || '',

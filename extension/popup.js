@@ -89,7 +89,7 @@ function pairView(error) {
   } } }, el('label', { for: 'code' }, 'Pairing code from Nm7'), input, go);
   show(
     el('p', {}, 'Connect this browser to your Nm7 account with a short code. No password, ever.'),
-    el('p', { id: 'code-help', class: 'small muted' }, 'On nm7.si open Auto Apply 2.0, then Jobs ready, then Nm7 Apply helper, then Make a code. The code works once, for 10 minutes.'),
+    el('p', { id: 'code-help', class: 'small muted' }, 'On nm7.si open Auto Apply 2.0, then Jobs ready, then Nm7 Apply helper, then Make a pairing code. The code works once, for 10 minutes.'),
     form, msg,
   );
   input.focus();

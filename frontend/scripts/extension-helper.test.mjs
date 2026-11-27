@@ -432,6 +432,45 @@ describe('colours, status bar and Undo', () => {
 // The Chrome Web Store review: the practice pages on nm7.si (src/pages/demo/PracticeApply.jsx) that the review
 // account's kits link to. The helper must work there: nm7.si is no job board, the kit's applyHost matches the page,
 // every field of the practice form is filled from the kit, and the submit listener offers "Mark as applied on Nm7".
+describe('a radio group whose question is a plain label above it (no fieldset, no for=)', () => {
+  const RELOCATE = `<form><div class="q">
+    <label>Are you willing to relocate?</label>
+    <label><input type="radio" name="reloc" value="y"> Yes</label>
+    <label><input type="radio" name="reloc" value="n"> No</label></div>
+    <p>Can you join within 30 days?</p>
+    <div><label><input type="radio" name="join" value="1"> Yes</label><label><input type="radio" name="join" value="0"> No</label></div></form>`;
+  const kit = { ...KIT, answers: [...KIT.answers, { question: 'Are you willing to relocate?', answer: 'Yes' }] };
+
+  it('picks the kit-backed Yes and marks it yellow (please check), not red', async () => {
+    const p = makePage(RELOCATE);
+    await p.box.Nm7Fill(kit, PDF);
+    const [yes, no] = p.doc.querySelectorAll('input[name="reloc"]');
+    expect(yes.checked).toBe(true);
+    expect(no.checked).toBe(false);
+    expect((yes.closest('[data-nm7-mark]') || p.doc.querySelector('.q[data-nm7-mark]') || yes.parentElement.closest('[data-nm7-mark]')).getAttribute('data-nm7-mark')).toBe('check');
+    p.close();
+  });
+
+  it('a plain paragraph above the choices is the question too; with no kit answer it is left for the candidate', async () => {
+    const p = makePage(RELOCATE);
+    const r = await p.box.Nm7Fill(kit, PDF);
+    const join = p.doc.querySelectorAll('input[name="join"]');
+    expect([...join].some((i) => i.checked)).toBe(false);
+    expect(r.list.find((x) => x.label === 'Can you join within 30 days?')).toEqual({ label: 'Can you join within 30 days?', state: 'left' });
+    p.close();
+  });
+});
+
+describe('the popup pairing help names the real button', () => {
+  const popup = readFileSync(join(EXT, 'popup.js'), 'utf8');
+  const page = readFileSync(join(EXT, '..', 'frontend', 'src', 'pages', 'me', 'AutoApplyOneTap.jsx'), 'utf8');
+  it('says Make a pairing code, the button on Jobs ready', () => {
+    expect(page).toContain('>Make a pairing code</button>');
+    expect(popup).toContain('then Make a pairing code.');
+    expect(popup).not.toMatch(/Make a code\b/);
+  });
+});
+
 describe('the practice pages for the Chrome Web Store review', () => {
   it('nm7.si is never blocked and the manifest needs no new required permission', () => {
     for (const h of ['nm7.si', 'www.nm7.si']) expect(B.isBlocked(h)).toBe(false);
