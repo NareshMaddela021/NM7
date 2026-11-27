@@ -1,0 +1,25 @@
+<!-- Fixture: the shape of a SuccessFactors career-site application (SAPUI5 controls, "--field-inner" ids,
+     sapMLabel labels, an employment block and an education block), written by hand. Values are made up. -->
+<div id="rcmCandidateProfile" data-sap-ui-area="content">
+  <h2 class="rcmStepTitle">Candidate Profile</h2>
+  <div class="sapMFlexItem"><label class="sapMLabel" for="rcmCandidateProfile--firstName-inner">First Name</label><input id="rcmCandidateProfile--firstName-inner" class="sapMInputBaseInner" type="text"></div>
+  <div class="sapMFlexItem"><label class="sapMLabel" for="rcmCandidateProfile--lastName-inner">Last Name</label><input id="rcmCandidateProfile--lastName-inner" class="sapMInputBaseInner" type="text"></div>
+  <div class="sapMFlexItem"><label class="sapMLabel" for="rcmCandidateProfile--contactEmail-inner">Email</label><input id="rcmCandidateProfile--contactEmail-inner" class="sapMInputBaseInner" type="email"></div>
+  <div class="sapMFlexItem"><label class="sapMLabel" for="rcmCandidateProfile--cellPhone-inner">Cell Phone</label><input id="rcmCandidateProfile--cellPhone-inner" class="sapMInputBaseInner" type="tel"></div>
+  <div class="sapMFlexItem"><label class="sapMLabel" for="rcmCandidateProfile--city-inner">City</label><input id="rcmCandidateProfile--city-inner" class="sapMInputBaseInner" type="text"></div>
+  <div id="rcmCandidateProfile--outsideWorkExperience-0" class="sapMPanel">
+    <h3>Previous Employment</h3>
+    <label class="sapMLabel" for="rcmCandidateProfile--outsideWorkExperience-0--employer-inner">Employer</label><input id="rcmCandidateProfile--outsideWorkExperience-0--employer-inner" class="sapMInputBaseInner">
+    <label class="sapMLabel" for="rcmCandidateProfile--outsideWorkExperience-0--jobTitle-inner">Job Title</label><input id="rcmCandidateProfile--outsideWorkExperience-0--jobTitle-inner" class="sapMInputBaseInner">
+    <label class="sapMLabel" for="rcmCandidateProfile--outsideWorkExperience-0--startDate-inner">Start Date</label><input id="rcmCandidateProfile--outsideWorkExperience-0--startDate-inner" class="sapMInputBaseInner" placeholder="MM/YYYY">
+    <label class="sapMLabel" for="rcmCandidateProfile--outsideWorkExperience-0--endDate-inner">End Date</label><input id="rcmCandidateProfile--outsideWorkExperience-0--endDate-inner" class="sapMInputBaseInner" placeholder="MM/YYYY">
+  </div>
+  <div id="rcmCandidateProfile--education-0" class="sapMPanel">
+    <h3>Education</h3>
+    <label class="sapMLabel" for="rcmCandidateProfile--education-0--school-inner">School</label><input id="rcmCandidateProfile--education-0--school-inner" class="sapMInputBaseInner">
+    <label class="sapMLabel" for="rcmCandidateProfile--education-0--degree">Degree</label><select id="rcmCandidateProfile--education-0--degree"><option value="">No Selection</option><option>Bachelor of Commerce (B.Com)</option><option>Master of Business Administration (MBA)</option></select>
+  </div>
+  <label class="sapMLabel" for="rcmCandidateProfile--dateOfBirth-inner">Date of Birth</label><input id="rcmCandidateProfile--dateOfBirth-inner" class="sapMInputBaseInner" placeholder="DD/MM/YYYY">
+  <label class="sapMLabel" for="rcmCandidateProfile--resumeUpload-input">Resume</label><input id="rcmCandidateProfile--resumeUpload-input" type="file">
+  <button type="button" class="sapMBtn">Apply</button>
+</div>
