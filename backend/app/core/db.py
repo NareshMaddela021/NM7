@@ -117,6 +117,9 @@ FORM_SITES = "auto_form_sites"  # A5: _id = a company site (host, no www): form 
 AUTO_MORNINGS = "auto_mornings"  # _id = user:day: the morning "N jobs ready" list (items, count, seen, mailed)
 HELPER_CODES = "auto_helper_codes"  # _id = keyed hash of a pairing code for the Nm7 Apply helper: 10 minutes, one use
 HELPER_TOKENS = "auto_helper_tokens"  # one per paired browser: token hash, scope (kits, mark applied), expiry, revoked
+HELPER_ANSWERS = "auto_helper_answers"  # answers the candidate approved in the Apply helper (reused later)
+HELPER_MISSES = "auto_helper_misses"  # opt-in, anonymous: labels the helper couldn't fill, by host, counts
+HELPER_STATS = "auto_helper_stats"  # _id = IST day: fills, fields filled / on the page, smart answers (counts only)
 CWS_REVIEWER = "cws_reviewer"  # _id "account": the Chrome Web Store reviewer's password, encrypted (Admin only)
 TALENT_POOL = "talent_pool"  # a company's saved applicants (company_id, user_id), kept as long as the application
 JOB_REMOVALS = "job_removals"  # round J: "remove this job" requests from companies (Admin → Jobs → Removal requests)
@@ -297,6 +300,9 @@ COLLECTIONS = (
     AUTO_MORNINGS,
     HELPER_CODES,
     HELPER_TOKENS,
+    HELPER_ANSWERS,
+    HELPER_MISSES,
+    HELPER_STATS,
     CWS_REVIEWER,
     HIRE_PROFILES,
     HIRE_INVITES,
@@ -464,6 +470,8 @@ INDEXES: dict[str, list[IndexModel]] = {
     FORM_SITES: [IndexModel([("state", ASCENDING), ("last_tried", DESCENDING)])],
     AUTO_MORNINGS: [IndexModel([("user_id", ASCENDING), ("day", DESCENDING)])],
     HELPER_CODES: [IndexModel("user_id"), IndexModel("expires_at", expireAfterSeconds=0)],
+    HELPER_ANSWERS: [IndexModel([("user_id", ASCENDING), ("q_norm", ASCENDING)], unique=True), IndexModel("at")],
+    HELPER_MISSES: [IndexModel([("count", DESCENDING)]), IndexModel("last_at")],
     HELPER_TOKENS: [
         IndexModel("token_hash", unique=True),
         IndexModel([("user_id", ASCENDING), ("created_at", DESCENDING)]),

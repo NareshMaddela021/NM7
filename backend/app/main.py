@@ -25,6 +25,7 @@ from app.auth.roles import router as roles_router
 from app.auth.router import router as auth_router
 from app.autoapply import admin as auto_admin
 from app.autoapply import demo as auto_demo
+from app.autoapply import helper as auto_helper  # noqa: F401  (Apply helper 1.1.0: its routes join /api/helper and Admin)
 from app.autoapply import inbound as auto_inbound
 from app.autoapply import items as auto_items
 from app.autoapply import onetap as auto_onetap

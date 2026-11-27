@@ -83,7 +83,12 @@ CODE_TTL = timedelta(minutes=10)
 TOKEN_TTL = timedelta(days=30)
 CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"  # no 0 / O / 1 / I
 TOKEN_PREFIX = "nm7h_"
-SCOPE = ("kits:read", "applied:write")  # everything a helper token can do
+SCOPE = (
+    "kits:read",
+    "applied:write",
+    "answers:write",
+    "misses:write",
+)  # everything a helper token can do (1.1.0: drafts, the opt-in report)
 MAX_DEVICES = 5
 PAIR_RULES = [(10, timedelta(minutes=10)), (40, timedelta(days=1))]  # pairing tries per IP
 CODE_RULES = [(10, timedelta(hours=1))]  # new codes per candidate
@@ -189,9 +194,15 @@ async def morning_out(db, uid: str, open_count: int) -> dict[str, Any] | None:
 
 
 async def listing(db, uid: str) -> dict[str, Any]:
+    from app.autoapply.helper import store_link
+
     rows = await cards(db, uid)
     n = sum(1 for c in rows if not c["closed"])
-    return {"morning": await morning_out(db, uid, n), "items": rows, "open": n}
+    out = {"morning": await morning_out(db, uid, n), "items": rows, "open": n}
+    link = store_link(await get_site(db))
+    if link:  # "Promote the helper" (Admin, OFF until the store listing is approved)
+        out["helper"] = {"storeUrl": link, "text": "Fill it in one tap: add the Nm7 Apply helper"}
+    return out
 
 
 def _cover_text(copy: dict[str, Any], profile: str) -> str:
@@ -256,6 +267,31 @@ async def kit(db, u: dict[str, Any], it: dict[str, Any], j: dict[str, Any] | Non
             if x.get("answer")
         ],
         "fields": fields,
+        # the candidate's own work and education (the tailored resume), for the repeating blocks on a company's form
+        "experience": [
+            {
+                "company": str(e.get("company") or "")[:120],
+                "title": str(e.get("role") or "")[:120],
+                "from": str(e.get("from") or "")[:10],
+                "to": "" if e.get("current") else str(e.get("to") or "")[:10],
+                "current": bool(e.get("current")),
+                "description": str(e.get("description") or "")[:1500],
+            }
+            for e in (data.get("exp") or [])[:6]
+            if isinstance(e, dict) and (e.get("company") or e.get("role"))
+        ],  # fmt: skip
+        "education": [
+            {
+                "school": str(e.get("institution") or "")[:160],
+                "degree": str(e.get("degree") or "")[:80],
+                "field": str(e.get("field") or "")[:80],
+                "from": str(e.get("from") or "")[:10],
+                "to": str(e.get("to") or "")[:10],
+                "grade": str(e.get("grade") or "")[:20],
+            }
+            for e in (data.get("edu") or [])[:4]
+            if isinstance(e, dict) and e.get("institution")
+        ],  # fmt: skip
         "subject": f"Application for {it.get('title') or 'the role'}" if card["byEmail"] else "",
     }
 
@@ -385,11 +421,31 @@ async def morning(db, u: dict[str, Any], site: dict[str, Any], day: str, mailer=
     await db[AUTO_ITEMS].update_many(
         {"_id": {"$in": ids}, "remind_at": None, "reminded_at": None}, {"$set": {"remind_at": t + REMIND_AFTER}}
     )
-    await _mail_morning(db, uid, site, day, len(ids), mailer)
+    await _mail_morning(db, uid, site, day, len(ids), mailer, ids)
     return len(ids)
 
 
-async def _mail_morning(db, uid: str, site: dict[str, Any], day: str, n: int, mailer=None) -> bool:
+async def helper_lines(db, site: dict[str, Any], ids: list[str]) -> list[str]:
+    """While "Promote the helper" is on: the jobs on a company's own form, which the Nm7 Apply helper can fill."""
+    from app.autoapply.helper import store_link
+
+    link = store_link(site)
+    if not link or not ids:
+        return []
+    items = await db[AUTO_ITEMS].find({"_id": {"$in": ids}}).to_list(len(ids))
+    jobs = await _jobs(db, items)
+    ready = [i for i in items if apply_url(i, jobs.get(i["job_id"])).startswith("http")]
+    if not ready:
+        return []
+    names = [f"{i.get('title') or 'A job'} at {i.get('company') or 'a company'}" for i in ready[:5]]
+    return [
+        f"Ready for the Nm7 Apply helper (fill the company's form in one tap, you press Submit): {'; '.join(names)}"
+        + (" and more." if len(ready) > 5 else "."),
+        f"Add the helper: {link}",
+    ]
+
+
+async def _mail_morning(db, uid: str, site: dict[str, Any], day: str, n: int, mailer=None, ids=None) -> bool:
     from app.autoapply.summary import _can_email, _mail
     from app.core.email import send_safely
 
@@ -407,6 +463,7 @@ async def _mail_morning(db, uid: str, site: dict[str, Any], day: str, n: int, ma
     if c["applied"] or c["needsAnswer"] or c["waiting"]:
         lines.append(f"Today Auto Apply sent {c['applied']} · {c['needsAnswer']} question(s) wait for your answer"
                      + (f" · {c['waiting']} wait for your approval" if c["waiting"] else "") + ".")  # fmt: skip
+    lines += await helper_lines(db, site, ids or [])
     mail = _mail(fresh, f"{n} job{'s' if n != 1 else ''} ready to apply", lines,
                  [("Open my jobs ready list", "/me/auto-apply/v2?tab=ready")])  # fmt: skip
     if await send_safely(mailer, mail):
@@ -487,7 +544,9 @@ async def new_code(db, uid: str) -> dict[str, Any]:
     return {"code": f"{code[:4]}-{code[4:]}", "expiresAt": ms(t + CODE_TTL), "minutes": int(CODE_TTL.seconds // 60)}
 
 
-async def pair(db, code: str, device: str, ip: str | None) -> dict[str, Any]:
+async def pair(
+    db, code: str, device: str, ip: str | None, installed_at: int | None = None, version: str = ""
+) -> dict[str, Any]:
     key = f"helper_pair:{ip or '-'}"
     await rate_limit.check(db, key, PAIR_RULES, "Too many tries. Wait a few minutes, then make a new code on Nm7.")
     await rate_limit.record(db, key)
@@ -517,7 +576,10 @@ async def pair(db, code: str, device: str, ip: str | None) -> dict[str, Any]:
         "expires_at": t + TOKEN_TTL,
         "last_used_at": t,
         "revoked_at": None,
+        "version": str(version or "")[:20],
     }
+    if installed_at and 0 < t.timestamp() * 1000 - installed_at < 365 * 86400 * 1000:  # when the helper was installed
+        doc["install_at"] = datetime.fromtimestamp(installed_at / 1000, tz=t.tzinfo)
     await db[HELPER_TOKENS].insert_one(doc)
     live = await db[HELPER_TOKENS].find({"user_id": uid, "revoked_at": None}).sort("created_at", -1).to_list(50)
     for old in live[MAX_DEVICES:]:  # at most MAX_DEVICES browsers: the oldest is signed out
@@ -657,19 +719,24 @@ async def helper_revoke(tid: str, auth: CustomerAuth, db: DB) -> dict[str, Any]:
 class PairIn(CamelModel):
     code: str = Field(min_length=4, max_length=20)
     device: str = Field("Chrome", max_length=60)
+    installed_at: int | None = Field(None, ge=0)
+    version: str = Field("", max_length=20)
 
 
 @helper.post("/pair")
 async def helper_pair(body: PairIn, request: Request, db: DB) -> dict[str, Any]:
-    return await pair(db, body.code, body.device, client_ip(request))
+    return await pair(db, body.code, body.device, client_ip(request), body.installed_at, body.version)
 
 
 @helper.get("/me")
 async def helper_me(request: Request, db: DB) -> dict[str, Any]:
     tok = await helper_token(request, db, "kits:read")
+    from app.autoapply import helper as plus
+
     u = await _user(db, tok["user_id"])
     return {"firstName": (u.get("name") or "").split(" ")[0], "expiresAt": ms(tok["expires_at"]),
-            "scope": tok.get("scope") or []}  # fmt: skip
+            "scope": tok.get("scope") or [], "missReports": await plus.consent_on(db, tok["user_id"]),
+            "storeUrl": plus.store_link(await get_site(db))}  # fmt: skip
 
 
 @helper.get("/kits")

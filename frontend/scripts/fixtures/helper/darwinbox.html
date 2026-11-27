@@ -1,0 +1,20 @@
+<!-- Fixture: the shape of a Darwinbox career-page application (Angular, formcontrolname in snake_case,
+     db-form-field wrappers, a type-to-search city, native dates in an experience block). Values are made up. -->
+<div class="db-career-apply">
+  <div class="db-step-heading">Basic details</div>
+  <db-form-field><label for="d1">First name</label><input id="d1" formcontrolname="first_name"></db-form-field>
+  <db-form-field><label for="d2">Last name</label><input id="d2" formcontrolname="last_name"></db-form-field>
+  <db-form-field><label for="d3">Email ID</label><input id="d3" formcontrolname="email_id" type="email"></db-form-field>
+  <db-form-field><label for="d4">Mobile number</label><input id="d4" formcontrolname="mobile_no"></db-form-field>
+  <db-form-field class="db-autocomplete"><label for="d5">Current location</label><input id="d5" formcontrolname="current_location" role="combobox" aria-controls="d5-list"><div id="d5-list" role="listbox"></div></db-form-field>
+  <db-form-field><label for="d6">Notice period</label><select id="d6" formcontrolname="notice_period"><option value="">Select</option><option>Immediate</option><option>1 Month</option><option>2 Months</option></select></db-form-field>
+  <div data-block="experience">
+    <h3>Work experience</h3>
+    <db-form-field><label for="x1">Company name</label><input id="x1" formcontrolname="company_name"></db-form-field>
+    <db-form-field><label for="x2">Designation</label><input id="x2" formcontrolname="designation"></db-form-field>
+    <db-form-field><label for="x3">Start date</label><input id="x3" type="date" formcontrolname="start_date"></db-form-field>
+    <db-form-field><label for="x4">End date</label><input id="x4" type="date" formcontrolname="end_date"></db-form-field>
+  </div>
+  <db-form-field><label for="d7">Religion</label><select id="d7" formcontrolname="religion"><option value="">Select</option><option>Hindu</option><option>Muslim</option></select></db-form-field>
+  <button type="button" class="db-btn-primary">Next</button>
+</div>
