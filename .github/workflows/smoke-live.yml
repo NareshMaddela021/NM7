@@ -32,15 +32,15 @@ jobs:
       SMOKE_ADMIN_PASSWORD: ${{ secrets.SMOKE_ADMIN_PASSWORD }}
       SMOKE_ADMIN_TOTP: ${{ secrets.SMOKE_ADMIN_TOTP }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version-file: frontend/.nvmrc
           cache: npm
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - name: Cache the Playwright browser
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('frontend/package-lock.json') }}
@@ -55,7 +55,7 @@ jobs:
       - name: Journey findings in the log (screenshots of signed-out pages only; the log is public)
         if: always()
         run: node e2e-smoke/dump-findings.mjs test-results --shots
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: smoke-live-results
