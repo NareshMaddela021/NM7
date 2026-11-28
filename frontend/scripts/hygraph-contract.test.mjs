@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { CATEGORIES_QUERY, DEFAULT_ENDPOINT, POSTS_QUERY, POST_QUERY, buildEndpoint, gql } from '../src/lib/blog/hygraph.js';
-import { prerenderBlog } from './prerender-blog.mjs';
+import { pageCount, prerenderBlog } from './prerender-blog.mjs';
 
 const BUILD = buildEndpoint();
 const CDN = process.env.VITE_HYGRAPH_ENDPOINT || DEFAULT_ENDPOINT;
@@ -46,8 +46,10 @@ describe.skipIf(!process.env.HYGRAPH_CONTRACT)('Hygraph contract (live endpoints
     if (published.length > 0) expect(res.posts).toBeGreaterThanOrEqual(1);
     const data = JSON.parse(readFileSync(join(dist, 'blog/data.json'), 'utf8'));
     expect(data.posts.map((p) => p.slug).sort()).toEqual(published);
-    const list = readFileSync(join(dist, 'blog/index.html'), 'utf8');
-    if (published.length === 0) expect(list).toContain('First articles coming soon.');
+    // the list is split into pages of PER_PAGE (/blog, /blog/page/2, ...): every post is linked from one of them
+    const pages = Array.from({ length: pageCount(published.length) }, (_, i) => readFileSync(join(dist, 'blog', ...(i ? ['page', String(i + 1)] : []), 'index.html'), 'utf8'));
+    const list = pages.join('\n');
+    if (published.length === 0) expect(pages[0]).toContain('First articles coming soon.');
     for (const slug of published) {
       expect(list).toContain(`href="/blog/${slug}"`);
       expect(readFileSync(join(dist, 'blog', slug, 'index.html'), 'utf8')).toContain(`<link rel="canonical" href="https://nm7.si/blog/${slug}" />`);
