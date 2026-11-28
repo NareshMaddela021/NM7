@@ -11,6 +11,7 @@ import { Big, WaitNote, useSay } from './SimpleApp';
 import { savePrefs } from '../../lib/simple';
 import { useScreen } from '../../lib/simple';
 import { SayButton, SpeakField } from './voice';
+import { showPhone } from '../../lib/phone';
 
 const useGet = (path) => useScreen(path); // the last data at once, then fresh (re-test N6)
 export const Wait = ({ t, err }) => <WaitNote t={t} err={err} />;
@@ -24,7 +25,7 @@ export function resumeParts(d) {
   const skills = list(d?.skillGroups).flatMap((g) => String(g.value || '').split(',')).map((x) => x.trim()).filter(Boolean);
   return {
     name: p.name || '',
-    contact: [p.email, p.phone].filter(Boolean).join(' · '),
+    contact: [p.email, showPhone(p.phone)].filter(Boolean).join(' · '),
     studied: [[edu.degree, edu.field].filter(Boolean).join(' '), edu.institution, edu.to].filter(Boolean).join(' · '),
     skills,
     projects: list(d?.proj).filter((x) => x.title).map((x) => ({ title: x.title, lines: lines(x.description) })),

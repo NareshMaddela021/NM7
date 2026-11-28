@@ -41,6 +41,7 @@ import { liveParams } from '../../../lib/liveParams';
 import '../../../styles/org-groups.css';
 import { IcArrowDown, IcArrowRight, IcArrowUp, IcFile, IcPrint, IcSearch, IcSettings, IcSpark, IcUser, IcUsers } from '../../../components/icons';
 import { actionWords } from '../../../lib/activityWords';
+import { showPhone } from '../../../lib/phone';
 
 export const ORG_TYPES = [
   ['college', 'College'], ['institute', 'Coaching / training institute'], ['job_fair', 'Job fair'], ['skill_centre', 'Skill centre'],
@@ -908,7 +909,7 @@ export function SharedResumes({ ctx = ADMIN_CTX, groups: portalGroups = null, ti
               <tbody>{d.rows.map((r) => (
                 <tr key={r.membershipId}>
                   <td className="og-sel"><input type="checkbox" aria-label={`Select ${r.name}`} checked={selected.has(r.membershipId)} onChange={() => toggle(r.membershipId)} /></td>
-                  <td className="small og-name-cell" data-label="Name"><span className="og-person"><span className="mavatar og-av" aria-hidden="true">{(r.name || '?').trim().charAt(0).toUpperCase()}</span><span className="stack" style={{ minWidth: 0 }}><strong>{r.name}</strong><span className="xs faint og-wrap">{r.email}{r.phone ? ` · ${r.phone}` : ''}</span></span></span></td>
+                  <td className="small og-name-cell" data-label="Name"><span className="og-person"><span className="mavatar og-av" aria-hidden="true">{(r.name || '?').trim().charAt(0).toUpperCase()}</span><span className="stack" style={{ minWidth: 0 }}><strong>{r.name}</strong><span className="xs faint og-wrap">{r.email}{r.phone ? ` · ${showPhone(r.phone)}` : ''}</span></span></span></td>
                   <td className="small" data-label="Group"><span>{r.orgName}<span className="xs faint og-block">{r.groupName}</span></span></td>
                   <td className="xs" data-label="Fields"><span>{(r.fieldDefs || []).filter((f) => r.fields[f.key]).map((f) => <span key={f.key} className="og-block">{f.label}: {r.fields[f.key]}</span>)}</span></td>
                   <td className="small" data-label="Resume"><span>{r.resumeTitle}{r.sample && <span className="badge b-warning" style={{ marginLeft: 6 }} data-testid="sample-badge" title="Still holds the example person’s details (Sai Varsha) from an older version of the builder">Contains sample data</span>}<span className="xs faint og-block">{TEMPLATE_PRESETS[r.template]?.name || 'Custom'}{r.pages ? ` · ${r.pages} page${r.pages > 1 ? 's' : ''}` : ''}</span></span></td>

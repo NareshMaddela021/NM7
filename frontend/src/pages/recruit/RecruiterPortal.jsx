@@ -26,6 +26,7 @@ import FeedbackForm from './FeedbackForm';
 import { Still } from '../newhome/ParticleStage';
 import { Chip, Empty } from '../me/kit';
 import { IcAlert, IcCalendar, IcClock, IcGrid, IcSearch, IcShield, IcTarget } from '../../components/icons';
+import { showPhone } from '../../lib/phone';
 
 const initial = (s) => (s || '?').trim().charAt(0).toUpperCase();
 const STAGE_TONE = { shortlisted: 'info', interview: 'accent', selected: 'ok', rejected: 'bad' };
@@ -359,7 +360,7 @@ function Card({ c, onView, onStage, pick }) {
         {c.projects && <Chip tone="accent">projects</Chip>}
         {c.stage !== 'none' && <Chip tone={STAGE_TONE[c.stage] || 'neutral'}>{STAGE_LABEL[c.stage]}</Chip>}
       </div>
-      {c.email && <span className="rc-contact" data-testid="contact">{c.email}{c.phone ? ` · ${c.phone}` : ''}</span>}
+      {c.email && <span className="rc-contact" data-testid="contact">{c.email}{c.phone ? ` · ${showPhone(c.phone)}` : ''}</span>}
       <div className="rc-card-actions">
         <button type="button" className="btn btn-outline" onClick={onView}>Quick view</button>
         {c.stage === 'none'
@@ -498,7 +499,7 @@ function CompareView({ data, onClose }) {
     ['Projects', (c) => (c.projects.length ? <ul className="stack g4" style={{ margin: 0, paddingLeft: 16 }}>{c.projects.map((p, i) => <li key={i}><strong>{p.title}</strong>{p.tech ? ` · ${p.tech}` : ''}{p.line ? <div className="xs muted">{p.line}</div> : null}</li>)}</ul> : '—')],
     ['Internships', (c) => (c.internships.length ? <ul className="stack g4" style={{ margin: 0, paddingLeft: 16 }}>{c.internships.map((e, i) => <li key={i}>{[e.role, e.company].filter(Boolean).join(' · ')}{e.when ? <div className="xs muted">{e.when}</div> : null}</li>)}</ul> : '—')],
     ['Certificates', (c) => ([...c.certificates, ...c.walletCertificates.map((t) => `${t} (file shared)`)].join(', ') || '—')],
-    ['Contact', (c) => (c.email ? `${c.email}${c.phone ? ` · ${c.phone}` : ''}` : 'Through the college')],
+    ['Contact', (c) => (c.email ? `${c.email}${c.phone ? ` · ${showPhone(c.phone)}` : ''}` : 'Through the college')],
   ];
   return (
     <Dialog showTitle wide title={`Compare ${data.candidates.length} students`} onClose={onClose}>

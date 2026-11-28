@@ -10,6 +10,7 @@ import { Loading, day, emptyIf, http, useAction, useApi } from './common';
 import { Chip, Stat } from '../../me/kit';
 import '../../../styles/me-kit.css';
 import '../../../styles/admin-orgs.css';
+import { showPhone } from '../../../lib/phone';
 
 const STATUS = { applied: ['Applied', 'b-warning'], approved: ['Approved', 'b-success'], paused: ['Paused', 'b-neutral'], rejected: ['Rejected', 'b-neutral'] };
 const STATE = { pending: 'Pending', payable: 'Payable', paid: 'Paid' };
@@ -30,7 +31,7 @@ function Partner({ id, onChanged }) {
           <span className="ao-av ao-av-lg" aria-hidden="true">{(p.name || '?').trim().charAt(0).toUpperCase()}</span>
           <span className="ao-partner-t">
             <strong className="ao-partner-name">{p.name}{p.organisation ? <span className="muted"> · {p.organisation}</span> : null}</strong>
-            <span className="small">{p.email} · {p.phone}{p.hasAccount ? ' · has an Nm7 account' : ' · no account yet (linked when they sign up with this email)'}</span>
+            <span className="small">{p.email} · {showPhone(p.phone)}{p.hasAccount ? ' · has an Nm7 account' : ' · no account yet (linked when they sign up with this email)'}</span>
           </span>
           <span className={`badge ${STATUS[p.status][1]}`}>{STATUS[p.status][0]}</span>
         </header>

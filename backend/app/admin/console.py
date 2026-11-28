@@ -34,6 +34,7 @@ from app.core.db import (
 from app.core.email import Email, MailerDep, send_safely
 from app.core.errors import ApiError
 from app.core.exports import CSV_BOM, csv_safe
+from app.core.phone import national
 from app.core.schemas import CamelModel
 from app.core.time import IST, now
 from app.experts.service import active_order_counts, load_profile, load_profiles, profile_out, set_status
@@ -66,6 +67,13 @@ def _ip(request: Request) -> str | None:
 
 def _like(q: str) -> dict[str, str]:
     return {"$regex": re.escape(q.strip()), "$options": "i"}
+
+
+def _phone_like(q: str) -> dict[str, str] | None:
+    """A search with 5+ digits also finds the phone however it was saved ("+919876543210" or "+91 98765 43210"):
+    the digits in order, with anything but a digit allowed between them."""
+    d = national(q) or re.sub(r"\D", "", q)
+    return {"$regex": r"\D*".join(d[:10])} if len(d) >= 5 else None
 
 
 async def _revenue(db, since: datetime | None = None) -> tuple[int, int]:
@@ -160,7 +168,10 @@ async def customers(
 ) -> dict[str, Any]:
     match: dict[str, Any] = {**CUSTOMER, "demo": {"$ne": True}}  # the demo organization's students: not real
     if q:
-        match["$and"] = [{"$or": [{"name": _like(q)}, {"email": _like(q)}, {"phone": _like(q)}]}]
+        ors: list[dict[str, Any]] = [{"name": _like(q)}, {"email": _like(q)}, {"phone": _like(q)}]
+        if digits := _phone_like(q):
+            ors.append({"phone": digits})
+        match["$and"] = [{"$or": ors}]
     total = await db[USERS].count_documents(match)
     users = await db[USERS].find(match).sort("created_at", DESCENDING).skip(offset).limit(limit).to_list()
     ids = [u["_id"] for u in users]

@@ -14,6 +14,7 @@ import '../../../styles/me-kit.css';
 import '../../../styles/admin-jobs.css';
 import { IcAlert, IcExternal } from '../../../components/icons';
 import { actionWords } from '../../../lib/activityWords';
+import { showPhone } from '../../../lib/phone';
 
 const STATES = [['pending', 'Waiting for review'], ['approved', 'Verified'], ['rejected', 'Rejected'], ['blocked', 'Blocked'], ['draft', 'Not finished'], ['all', 'All']];
 const TRUST = { verified: ['Verified', 'b-success'], basic: ['Basic', 'b-signal'], unverified: ['Unverified', 'b-warning'], blocked: ['Blocked', 'b-danger'] };
@@ -136,7 +137,7 @@ function CompanyReview({ id, onClose, onChanged }) {
               {c.individual && <div><dt>LinkedIn</dt><dd><a href={c.individual.linkedin} target="_blank" rel="noopener noreferrer nofollow">{c.individual.linkedin}</a> · {c.individual.declared ? 'declaration ticked' : 'no declaration'}</dd></div>}
               <div><dt>Category</dt><dd>{plainWords(c.details.category, c.details.structure, c.details.size)}</dd></div>
               <div><dt>Emails</dt><dd data-testid="co-emails">{c.adminEmail} ({c.emailsConfirmed?.admin ? 'confirmed' : 'not confirmed'}){c.kind !== 'individual' && ` · ${c.companyEmail || 'company email not added'}${c.companyEmail ? ` (${c.emailsConfirmed?.company ? 'confirmed' : 'not confirmed'})` : ''}`}</dd></div>
-              {c.phone && <div><dt>Phone</dt><dd>{c.phone}</dd></div>}
+              {c.phone && <div><dt>Phone</dt><dd>{showPhone(c.phone)}</dd></div>}
               <div><dt>Team</dt><dd>{c.members.map((m) => `${m.email} (${m.role}${m.status === 'invited' ? ', invited' : ''})`).join(', ')}</dd></div>
               {c.verifiedUntil && <div><dt>Verified until</dt><dd>{day(c.verifiedUntil)}</dd></div>}
             </dl>

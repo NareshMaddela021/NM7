@@ -1490,7 +1490,9 @@
     "simple.fix.other": "Fix this part of your resume",
     "jobs.apply.confirmTitle": "Send your application",
     "jobs.apply.confirm": "Send your active resume to {company} on Nm7? It is saved in My applications.",
-    "jobs.apply.cancel": "Cancel"
+    "jobs.apply.cancel": "Cancel",
+    "phone.err": "Enter a 10-digit mobile number",
+    "phone.hint": "Just the 10 digits, without 0 in front"
   },
   "te": {
     "home.more.roles.eyebrow": "నిజమైనవిలా కనిపించే నమూనాలు · ఊహించిన వ్యక్తులు",
@@ -2982,7 +2984,9 @@
     "simple.fix.other": "మీ రెజ్యూమ్‌లో ఈ భాగాన్ని సరిచేయండి",
     "jobs.apply.confirmTitle": "మీ దరఖాస్తు పంపండి",
     "jobs.apply.confirm": "మీ యాక్టివ్ రెజ్యూమ్‌ను Nm7లో {company}కు పంపాలా? ఇది నా అప్లికేషన్లలో సేవ్ అవుతుంది.",
-    "jobs.apply.cancel": "రద్దు"
+    "jobs.apply.cancel": "రద్దు",
+    "phone.err": "10 అంకెల మొబైల్ నంబర్ ఇవ్వండి",
+    "phone.hint": "ముందు 0 లేకుండా 10 అంకెలు మాత్రమే"
   },
   "hi": {
     "home.more.roles.eyebrow": "असली जैसे दिखने वाले नमूने · काल्पनिक लोग",
@@ -4474,6 +4478,8 @@
     "simple.fix.other": "अपने रिज़्यूमे का यह हिस्सा ठीक करें",
     "jobs.apply.confirmTitle": "अपना आवेदन भेजें",
     "jobs.apply.confirm": "अपना चालू रिज़्यूमे Nm7 पर {company} को भेजें? यह मेरे आवेदन में सेव होगा।",
-    "jobs.apply.cancel": "रद्द करें"
+    "jobs.apply.cancel": "रद्द करें",
+    "phone.err": "10 अंकों का मोबाइल नंबर लिखें",
+    "phone.hint": "आगे 0 लगाए बिना सिर्फ़ 10 अंक"
   }
 }

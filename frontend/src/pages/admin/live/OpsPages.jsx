@@ -12,6 +12,7 @@ import { SortTh, useSort } from './sort';
 import { aiDetail } from './aiUsageText';
 import { HomeClicks, OrgRevenue } from './BillingPages';
 import { liveParams } from '../../../lib/liveParams';
+import { showPhone } from '../../../lib/phone';
 
 /** badge tone -> chip tone */
 const CHIP = { success: 'ok', danger: 'bad', warning: 'warn', neutral: 'neutral' };
@@ -199,7 +200,7 @@ function OrderPanel({ id, onClose, onChanged }) {
         const canAssign = ['offer', 'in_progress'].includes(o.status) && o.plan !== 'diy';
         return (
           <div className="stack g12">
-            <span className="small">{o.customer.name} · {o.customer.email}{o.customer.phone ? ` · ${o.customer.phone}` : ''}</span>
+            <span className="small">{o.customer.name} · {o.customer.email}{o.customer.phone ? ` · ${showPhone(o.customer.phone)}` : ''}</span>
             <div className="ops-panel-sum">
               <span className="ops-panel-cell"><span>Plan</span><strong>{o.planName}</strong></span>
               <span className="ops-panel-cell"><span>Amount</span><strong>{rupees(o.amount)}</strong></span>

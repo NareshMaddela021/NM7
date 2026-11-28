@@ -24,6 +24,7 @@ import { Empty } from '../me/kit';
 import '../../styles/me-kit.css';
 import '../../styles/recruit.css';
 import { IcAlert, IcClock, IcShield } from '../../components/icons';
+import { showPhone } from '../../lib/phone';
 
 /** /r/:slug — a recruiter link (long token) or a member's public resume link (a short name). */
 export default function ShareRoute() {
@@ -163,7 +164,7 @@ function RecruiterPage({ token }) {
             <thead><tr><th>Candidate</th>{d.answerLabels.map((l) => <th key={l}>{l}</th>)}<th>Complete</th><th>Interested</th><th /></tr></thead>
             <tbody>{shown.map((c) => (
               <tr key={c.id} data-testid="candidate">
-                <td className="small rc-td-name"><span className="rc-item-top"><span className="rc-avatar rc-avatar-sm" aria-hidden="true">{(c.name || '?').charAt(0).toUpperCase()}</span><span><strong>{c.name}</strong>{c.headline && <div className="xs muted">{c.headline}</div>}{c.email && <div className="xs">{c.email}{c.phone ? ` · ${c.phone}` : ''}</div>}</span></span></td>
+                <td className="small rc-td-name"><span className="rc-item-top"><span className="rc-avatar rc-avatar-sm" aria-hidden="true">{(c.name || '?').charAt(0).toUpperCase()}</span><span><strong>{c.name}</strong>{c.headline && <div className="xs muted">{c.headline}</div>}{c.email && <div className="xs">{c.email}{c.phone ? ` · ${showPhone(c.phone)}` : ''}</div>}</span></span></td>
                 {d.answerLabels.map((l) => <td key={l} className="small" data-label={l}>{c.answers[l] || '—'}</td>)}
                 <td className="small" data-label="Complete"><span className="rc-complete"><span className="rc-complete-bar" aria-hidden="true"><span style={{ width: `${c.completeness}%` }} /></span>{c.completeness}%</span></td>
                 <td data-label="Interested"><label className="rc-check"><input type="checkbox" checked={c.interested} onChange={() => interest(c)} aria-label={`Interested in ${c.name}`} /> Interested</label></td>

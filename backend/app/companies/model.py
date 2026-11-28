@@ -26,6 +26,7 @@ from pydantic import Field, field_validator, model_validator
 
 from app.companies.checks import check_registration, clean_number, domain_gap, free_site, site_domain
 from app.core.db import COMPANIES
+from app.core.phone import to_e164
 from app.core.schemas import CamelModel
 from app.core.time import now
 
@@ -110,14 +111,13 @@ class CompanyIn(CamelModel):
     @field_validator("phone")
     @classmethod
     def _phone(cls, v: str) -> str:
-        d = re.sub(r"\D", "", v or "")
-        if not d:
+        """Any old shape ("98765 43210", "+91 98765-43210", ...) → E.164 "+919876543210"; "" when empty."""
+        if not re.sub(r"\D", "", v or ""):
             return ""
-        if d.startswith("91") and len(d) == 12:
-            d = d[2:]
-        if len(d) != 10 or d[0] not in "6789":
-            raise ValueError("Enter a 10-digit Indian mobile number, or leave it empty.")
-        return d
+        try:
+            return to_e164(v) or ""
+        except ValueError:
+            raise ValueError("Enter a 10-digit mobile number, or leave it empty.") from None
 
     @model_validator(mode="after")
     def _by_kind(self):

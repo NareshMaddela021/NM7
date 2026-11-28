@@ -9,6 +9,7 @@ import { Children, cloneElement, isValidElement, useEffect, useState } from 'rea
 import { Link } from 'react-router-dom';
 import Header from '../../components/Header';
 import LangSwitch from '../../components/LangSwitch';
+import PhoneInput from '../../components/PhoneInput';
 import SiteFooter from '../../components/SiteFooter';
 import { BLANK, CATEGORIES, SIZES, STRUCTURES, TEAM_ROLES, cleanNumber, companyBody, keepDraft, readDraft, registrationProblem, rq, websiteProblem } from '../../lib/company';
 import { headerLabels, useLang } from '../../lib/i18n';
@@ -218,9 +219,7 @@ export default function CompanySignup() {
                 {c.registration.number && <p id="co-reg-check" className={`small cs-check ${regProblem ? 'bad' : 'ok'}`} style={{ margin: 0 }} data-testid="co-reg-check">{regProblem ? t(regProblem) : t('co.reg.ok', { n: cleanNumber(c.registration.number) })}</p>}
               </>
             )}
-            <Field id="co-phone" error={fieldErr['co-phone']} label={t('co.f.phone')} hint={t('co.f.phoneHint')}>
-              <input id="co-phone" className="input" inputMode="tel" maxLength={20} value={c.phone} onChange={(e) => set('phone', e.target.value)} />
-            </Field>
+            <PhoneInput id="co-phone" fieldClass="field cs-field" error={fieldErr['co-phone']} label={t('co.f.phone')} hint={t('co.f.phoneHint')} value={c.phone} onChange={(v) => set('phone', v)} />
             <div className="cs-actions">
               <button type="button" className="btn btn-outline" onClick={() => go(0)}>{t('co.back')}</button>
               <button type="submit" className="btn btn-signal" disabled={!!busy}>{busy ? t('co.wait') : t('co.next')}</button>

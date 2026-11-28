@@ -1,5 +1,6 @@
 // Vetting V4, the Nm7 human check (L4): status words and small helpers shared by the company control, the candidate's
 // /me/verification, the reviewer workspace and the Admin "L4 checks" tab. Only those pages import this.
+import { isPhone, phoneDigits } from './phone';
 
 /** status -> [words, chip tone] */
 export const L4_STATUS = {
@@ -43,10 +44,10 @@ export function refereeProblems(r) {
   if ((r.name || '').trim().length < 2) out.push('their name');
   if (!RELATIONS.includes(r.relation)) out.push('how you know them');
   const email = (r.email || '').trim();
-  const phone = (r.phone || '').replace(/\D/g, '');
+  const phone = phoneDigits(r.phone);
   if (!email && !phone) out.push('an email or a phone number');
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) out.push('a valid email');
-  if (phone && phone.length < 10) out.push('a 10-digit phone number');
+  if (phone && !isPhone(r.phone)) out.push('a 10-digit phone number');
   return out;
 }
 

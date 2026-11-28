@@ -54,6 +54,7 @@ from app.core.db import (
 )
 from app.core.email import Email, Mailer, MailerDep, send_safely
 from app.core.errors import ApiError
+from app.core.phone import e164_or_keep
 from app.core.schemas import CamelModel
 from app.core.security import keyed_hash, same
 from app.core.time import IST, now
@@ -394,7 +395,9 @@ async def referees(body: RefereesIn, auth: CustomerAuth, db: DB, mailer: MailerD
         if others >= 2:
             flags.append(f"The same referee was named by {others} other candidates")
         rid = str(ObjectId())
-        out.append({"rid": rid, **x.model_dump(), "keys": keys, "flags": flags, "sent_at": t})
+        out.append(
+            {"rid": rid, **x.model_dump(), "phone": e164_or_keep(x.phone), "keys": keys, "flags": flags, "sent_at": t}
+        )
         if x.email.strip():
             site = get_settings().site_url.rstrip("/")
             link = f"{site}/reference#t={ref_token(rid)}"

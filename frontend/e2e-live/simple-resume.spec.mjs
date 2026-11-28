@@ -110,7 +110,7 @@ for (const [label, opts] of SIZES) {
       const rs = (await call(page, '/api/me/resumes')).body;
       expect(rs).toHaveLength(1);
       const d = rs[0].data;
-      expect(d.personal).toMatchObject({ name: 'Asha Rao', phone: '98765 43210' });
+      expect(d.personal).toMatchObject({ name: 'Asha Rao', phone: '+91 98765 43210' }); // shown formatted on the resume
       expect(d.edu[0]).toMatchObject({ degree: 'B.Tech', field: 'Mechanical', institution: 'JNTU Anantapur', to: '2025' });
       expect(d.skillGroups[0].value).toBe('AutoCAD, SolidWorks, Welding');
       expect(d.proj[0].description).toContain('Built a go-kart frame for our college team using SolidWorks');

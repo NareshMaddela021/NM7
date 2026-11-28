@@ -1,4 +1,5 @@
 // Builder sections, field definitions and starting data.
+import { phoneIssue } from '../../lib/phone';
 import { ALL_SKILLS } from './skillNames';
 // Fields: [key, label, type, options]; types: text | email | tel | url | month | date | select | area | check | chips
 import { migrateEntries } from './entries';
@@ -294,7 +295,7 @@ const URLISH = /^(https?:\/\/)?[^\s/]+\.[^\s]{2,}$/i;
 export function fieldError(type, value) {
   if (!value) return '';
   if (type === 'email' && !EMAIL.test(value.trim())) return 'Check this email — it should look like name@example.com.';
-  if (type === 'tel') { const n = value.replace(/[^\d]/g, ''); if (n.length < 10 || n.length > 13) return 'Enter a 10-digit mobile number, with or without +91.'; }
+  if (type === 'tel' && phoneIssue(value)) return 'Enter a 10-digit mobile number';
   if (type === 'url' && !URLISH.test(value.trim())) return 'This doesn’t look like a link. Example: linkedin.com/in/yourname';
   return '';
 }

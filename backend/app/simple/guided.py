@@ -33,6 +33,7 @@ from app.auth.sessions import client_ip
 from app.autoapply.settings import resume_for
 from app.core.db import CERTIFICATES, DB, RESUMES, USERS
 from app.core.errors import ApiError
+from app.core.phone import pretty
 from app.core.pii import scrub_id_numbers
 from app.core.schemas import CamelModel
 from app.core.time import now
@@ -190,7 +191,7 @@ def fill_contact(d: dict[str, Any], account: dict[str, Any]) -> dict[str, Any]:
     p = dict(d.get("personal") or {})
     for k in ("name", "email", "phone"):
         if account.get(k) and not str(p.get(k) or "").strip():
-            p[k] = account[k]
+            p[k] = pretty(account[k]) if k == "phone" else account[k]  # a resume shows "+91 98765 43210", not E.164
     return {**d, "personal": p}
 
 
@@ -256,6 +257,7 @@ def check_value(step: str, raw: Any) -> dict[str, Any]:
             raise ApiError(400, "need_name", "Please tell us your name.")
         if out["phone"] and not PHONE.match(out["phone"]):
             raise ApiError(400, "phone", "Please give a phone number with digits only.")
+        out["phone"] = pretty(out["phone"])  # an Indian mobile in any shape → "+91 98765 43210" on the resume
         if out["linkedin"] and "linkedin.com/" not in out["linkedin"].lower():
             raise ApiError(400, "linkedin", "Please give your LinkedIn link, like linkedin.com/in/your-name.")
         return out

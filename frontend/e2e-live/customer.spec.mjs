@@ -76,11 +76,16 @@ test('dashboard data is saved on the server and only shown to its owner', async 
   // profile: saved via the API, email can't be edited here
   await page.goto('/me/settings');
   await expect(page.getByLabel('Email', { exact: true })).toHaveAttribute('readonly', '');
-  await page.getByLabel('Mobile (WhatsApp)').fill('98765 43210');
+  const phone = page.getByLabel('Mobile (WhatsApp)');
+  await expect(phone).toHaveAttribute('placeholder', 'XXXXX XXXXX'); // the mask, never a real-looking number
+  await phone.fill('+91 98765-43210'); // pasted with +91: cleaned to the 10 digits, a space after the 5th
+  await expect(phone).toHaveValue('98765 43210');
   await page.getByRole('button', { name: 'Save', exact: true }).click();
   await expect(page.getByText('Saved')).toBeVisible();
   await page.reload();
-  await expect(page.getByLabel('Mobile (WhatsApp)')).toHaveValue('+91 98765 43210'); // stored in one format
+  await expect(page.getByLabel('Mobile (WhatsApp)')).toHaveValue('98765 43210'); // +91 sits outside the box
+  const acct = await page.evaluate(async (api) => (await fetch(`${api}/api/auth/me`, { credentials: 'include' })).json(), API);
+  expect(acct.phone).toBe('+919876543210'); // stored as E.164
 
   // Raise an issue → stored on the server and emailed to info@nm7.si
   await page.goto('/me/help');

@@ -1,6 +1,5 @@
 """Account rules shared by the auth routes."""
 
-import re
 from datetime import timedelta
 
 from pymongo.asynchronous.database import AsyncDatabase
@@ -9,6 +8,7 @@ from app.auth.models import EmailCode, User
 from app.core import rate_limit
 from app.core.db import EMAIL_CODES, USERS, Session
 from app.core.errors import ApiError
+from app.core.phone import to_e164
 from app.core.security import keyed_hash, new_code, password_issue
 from app.core.time import now
 
@@ -35,15 +35,12 @@ def login_keys(email: str, ip: str | None) -> list[str]:
 
 
 def normalize_phone(phone: str | None) -> str | None:
-    """Indian mobile → '+91 98765 43210' (same as normPhone in the frontend)."""
-    if not phone or not phone.strip():
-        return None
-    digits = re.sub(r"\D", "", phone)
-    if len(digits) == 12 and digits.startswith("91"):
-        digits = digits[2:]
-    if len(digits) != 10 or digits[0] not in "6789":
-        raise ApiError(400, "invalid_phone", "Enter a 10-digit Indian mobile number.")
-    return f"+91 {digits[:5]} {digits[5:]}"
+    """Indian mobile in any old shape ("98765 43210", "+91 98765-43210", "09876543210", ...) → E.164 "+919876543210"
+    (app/core/phone.py); None when empty."""
+    try:
+        return to_e164(phone)
+    except ValueError:
+        raise ApiError(400, "invalid_phone", "Enter a 10-digit mobile number.") from None
 
 
 def check_new_password(password: str, confirm: str) -> None:

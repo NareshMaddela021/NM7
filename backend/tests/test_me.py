@@ -173,7 +173,7 @@ async def test_profile_save_keeps_email(client, outbox):
     assert r.status_code == 200, r.text
     p = r.json()
     assert p["name"] == "Sai V" and p["email"] == "sai@example.com" and p["targetRole"] == "Data Analyst"
-    assert p["phone"] == "+91 98765 43210" and p["notify"]["email"]["order"] is True
+    assert p["phone"] == "+919876543210" and p["notify"]["email"]["order"] is True
     assert (await client.get("/api/auth/me")).json()["email"] == "sai@example.com"
     assert (await client.patch("/api/me/profile", json={"notify": {"pigeon": {"order": True}}})).status_code == 422
 
