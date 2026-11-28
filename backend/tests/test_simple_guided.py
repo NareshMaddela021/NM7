@@ -149,7 +149,7 @@ async def test_account_contact_on_the_resume_whichever_question_comes_first(clie
     assert (await client.get(URL)).json()["account"]["phone"] == "+919876543210"
     await client.put(f"{URL}/skills", json={"value": {"skills": ["AutoCAD"]}})
     d, _ = await data_of(db, uid)
-    assert d["personal"] == {"name": "Ravi Kumar", "email": "ravi@example.com", "phone": "+91 98765 43210"}  # shown formatted
+    assert d["personal"] == {"name": "Ravi Kumar", "email": "ravi@example.com", "phone": "+91 98765 43210"}
     r = await client.put(f"{URL}/about", json={"value": {"name": "Ravi K", "linkedin": "not a link"}})
     assert r.status_code == 400
     await client.put(f"{URL}/about", json={"value": {"name": "Ravi K", "linkedin": "linkedin.com/in/ravi-k"}})

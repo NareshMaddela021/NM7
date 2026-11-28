@@ -58,7 +58,7 @@ async def test_signup_sends_code_and_verify_signs_in(client, outbox):
     r = await client.post("/api/auth/verify-email", json={"email": "sai@example.com", "code": code})
     assert r.status_code == 200
     user = r.json()
-    assert user["verified"] is True and user["name"] == "Sai Varsha" and user["phone"] == "+919876543210"  # stored as E.164
+    assert user["verified"] is True and user["name"] == "Sai Varsha" and user["phone"] == "+919876543210"
     assert user["role"] == "customer" and user["expertStatus"] is None
     assert "nm7_session" in r.cookies
 
