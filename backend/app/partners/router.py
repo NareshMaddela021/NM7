@@ -31,6 +31,7 @@ from app.core.config import get_settings
 from app.core.db import COMMISSIONS, DB, ORDERS, ORGANIZATIONS, PARTNER_PAYOUTS, PARTNERS, USERS, transaction
 from app.core.email import MailerDep, send_safely
 from app.core.errors import ApiError
+from app.core.phone import e164_or_keep
 from app.core.schemas import CamelModel
 from app.core.time import now
 from app.me.service import ms
@@ -83,7 +84,7 @@ async def apply(body: ApplyIn, request: Request, db: DB, mailer: MailerDep) -> d
         "organisation": body.organisation.strip(),
         "email": str(body.email),
         "email_lc": email_lc,
-        "phone": body.phone.strip(),
+        "phone": e164_or_keep(body.phone),
         "note": body.note.strip(),
         "status": "applied",
         "code": None,

@@ -159,7 +159,7 @@ export function analyzeResume({ lines: rawLines, role = '', layout = {}, pages =
     add({ kind: 'contact', sev: !email || !phone ? 'High' : 'Low', line: (top.lines.find((l) => l !== nameLine) || nameLine || lines[0])?.id, pts: WEIGHTS.contact - contact,
       title: `Add your ${missingContact.join(' and ')}`,
       why: `Recruiters need a way to reach you${!linkedin ? ', and many check LinkedIn before calling' : ''}. We couldn’t find your ${missingContact.join(' or ')}.`,
-      suggest: `${nameLine?.text || 'Your Name'} · City · your.name@email.com · +91 98765 43210 · linkedin.com/in/your-name` });
+      suggest: `${nameLine?.text || 'Your Name'} · City · your.name@email.com · +91 XXXXX XXXXX · linkedin.com/in/your-name` });
   }
 
   // ---------- sections (15) ----------

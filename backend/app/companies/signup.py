@@ -40,6 +40,7 @@ from app.core import rate_limit
 from app.core.db import COMPANIES, DB, RECRUITERS
 from app.core.email import Email, MailerDep, send_safely
 from app.core.errors import ApiError
+from app.core.phone import national
 from app.core.schemas import CamelModel
 from app.core.security import keyed_hash, new_code, same
 from app.core.time import now
@@ -142,7 +143,8 @@ def _apply(c: dict[str, Any], body: CompanyIn) -> None:
     c["individual"] = ({"linkedin": body.individual.linkedin, "declared": body.individual.declared}
                        if body.individual else None)  # fmt: skip
     c["phone"] = body.phone
-    c["phone_key"] = keyed_hash("company-phone", body.phone)[:32] if body.phone else None
+    # the key is made from the 10 digits, so numbers saved before E.164 (just the 10 digits) still match
+    c["phone_key"] = keyed_hash("company-phone", national(body.phone))[:32] if body.phone else None
 
 
 async def _domain_facts(website: str) -> dict[str, Any]:

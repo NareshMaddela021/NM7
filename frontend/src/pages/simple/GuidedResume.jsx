@@ -5,6 +5,7 @@
 // Accept / Change by voice / Edit. Never asks for ID numbers, caste, religion, gender or a photo.
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import PhoneInput from '../../components/PhoneInput';
 import { Icon } from '../../components/ui';
 import { http } from '../../services/http';
 import { SayButton, SpeakField } from './voice';
@@ -112,7 +113,8 @@ export default function GuidedResume({ t, lang, setSay, onDone }) {
   const field = (key, label, extra = {}) => <SpeakField id={`sx-${step}-${key}`} label={label} value={v[key] ?? ''} onChange={(x) => setV({ ...v, [key]: x })} t={t} lang={lang} testid={`sx-${step}-${key}`} {...extra} />;
   let body;
   if (step === 'about') {
-    body = <>{field('name', t('simple.r.q.about.name'), { autoComplete: 'name' })}{field('phone', t('simple.r.q.about.phone'), { inputMode: 'tel', autoComplete: 'tel' })}{field('linkedin', t('simple.r.q.about.linkedin'), { inputMode: 'url' })}<p className="sx-hint">{t('simple.r.q.about.email', { email: s.account.email })}</p></>;
+    body = <>{field('name', t('simple.r.q.about.name'), { autoComplete: 'name' })}<PhoneInput id="sx-about-phone" testid="sx-about-phone" label={t('simple.r.q.about.phone')} value={v.phone ?? ''} onChange={(x) => setV({ ...v, phone: x })}
+      fieldClass="sx-stack sx-field" labelClass="sx-flabel" inputClass="sx-input" />{field('linkedin', t('simple.r.q.about.linkedin'), { inputMode: 'url' })}<p className="sx-hint">{t('simple.r.q.about.email', { email: s.account.email })}</p></>;
   } else if (step === 'studied') {
     body = <><Chips options={s.chips.degrees} picked={v.degree ? [v.degree] : []} onToggle={(o) => setV({ ...v, degree: v.degree === o ? '' : o })} testid="sx-degree" />{field('field', t('simple.r.q.studied.field'))}</>;
   } else if (step === 'college') {

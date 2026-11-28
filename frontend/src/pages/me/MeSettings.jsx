@@ -21,6 +21,8 @@ import { deleteJobData } from '../../lib/jobs';
 import { MeHead } from './MeLayout';
 import { http } from '../../services/http';
 import { fmtDay } from './shared';
+import PhoneInput from '../../components/PhoneInput';
+import { phoneIssue, toE164 } from '../../lib/phone';
 import { Bar, Chip, FieldGroup, MeCard, StickyBar } from './kit';
 import '../../styles/me-account.css';
 import { IcAlert, IcArrowRight, IcBell, IcHeart, IcKey, IcLock, IcMail } from '../../components/icons';
@@ -109,7 +111,6 @@ function JobAlerts() {
 
 const EVENTS = [['order', 'Order updates'], ['draft', 'Drafts ready to review'], ['jobs', 'Matched jobs'], ['tips', 'Tips & offers']];
 const CHANNELS = [['whatsapp', 'WhatsApp'], ['email', 'Email'], ['sms', 'SMS']];
-const PHONE_RE = /^(\+91[\s-]?)?[6-9]\d{4}[\s-]?\d{5}$/;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 /** Data rules in plain words (Vetting V5 / DPDP); the server's scheduled cleanup does the deleting. */
@@ -135,14 +136,14 @@ export function MeSettings() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [tried, setTried] = useState(false); // show field errors once Save was pressed
-  const errs = { name: !f.name.trim() && 'Enter your name', email: !EMAIL_RE.test(f.email) && 'Enter a valid email', phone: f.phone && !PHONE_RE.test(f.phone.trim()) && 'Enter a 10-digit Indian mobile number' };
+  const errs = { name: !f.name.trim() && 'Enter your name', email: !EMAIL_RE.test(f.email) && 'Enter a valid email', phone: phoneIssue(f.phone) && 'Enter a 10-digit mobile number' };
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
   const save = async (e) => {
     e.preventDefault(); setTried(true);
     if (errs.name || errs.phone) { document.getElementById(errs.name ? 'p-n' : 'p-p')?.focus(); return; }
     if (busy) return;
     setBusy(true); setError('');
-    try { await saveProfile({ ...f, email: me.account.email }); toast('Saved'); } catch (err) { setError(err.message || 'Not saved. Please try again.'); } finally { setBusy(false); }
+    try { await saveProfile({ ...f, phone: toE164(f.phone), email: me.account.email }); toast('Saved'); } catch (err) { setError(err.message || 'Not saved. Please try again.'); } finally { setBusy(false); }
   };
   const exportAll = async () => {
     if (LIVE && vet) { // the live build: everything the server holds about you (DPDP), as one JSON file
@@ -170,7 +171,7 @@ export function MeSettings() {
         <header className="mcard-h"><span className="mavatar" aria-hidden="true">{(me.account.name || '?').trim()[0]?.toUpperCase()}</span><span className="mcard-ht"><h2 className="mcard-title">Profile</h2><span className="mcard-sub">Your name and mobile number. Career details live in your Job Profile.</span></span></header>
         <FieldGroup>
           <div className="field"><label htmlFor="p-n" className="label">Full name</label><input id="p-n" className="input" value={f.name} onChange={set('name')} aria-invalid={tried && errs.name ? 'true' : undefined} aria-describedby={tried && errs.name ? 'p-n-err' : undefined} />{tried && errs.name && <span id="p-n-err" role="alert" className="error">{errs.name}</span>}</div>
-          <div className="field"><label htmlFor="p-p" className="label">Mobile (WhatsApp)</label><input id="p-p" className="input" value={f.phone} onChange={set('phone')} aria-invalid={!!errs.phone} aria-describedby={errs.phone ? 'p-p-err' : undefined} />{errs.phone && <span id="p-p-err" className="error">{errs.phone}</span>}</div>
+          <PhoneInput id="p-p" label="Mobile (WhatsApp)" value={f.phone || ''} onChange={(v) => setF({ ...f, phone: v })} error={tried ? errs.phone || '' : ''} />
           <div className="field full"><label htmlFor="p-e" className="label">Email</label><input id="p-e" type="email" className="input" style={{ background: 'var(--sunken)', color: 'var(--text2)', cursor: 'not-allowed' }} value={me.account.email} readOnly aria-readonly="true" aria-describedby="p-e-h" /><span id="p-e-h" className="xs faint">This is your sign-in email. To change it, write to info@nm7.si from this address.</span></div>
         </FieldGroup>
         {error && <span className="small" role="alert" style={{ color: 'var(--danger)' }}>{error}</span>}

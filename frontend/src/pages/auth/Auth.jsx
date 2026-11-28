@@ -5,9 +5,11 @@ import { Logo, ThemeToggle } from '../../components/Header';
 import { Spinner, useToast } from '../../components/ui';
 import {
   useAuth, signIn, signUp, verifyEmail, resendCode, sendReset, resetPassword, adminPassword, adminVerify, signOut,
-  homeFor, passwordIssue, EMAIL_RE, PHONE_RE, DEMO_CODE, SAMPLE_PASSWORD, LIVE, adminSetupStart, adminSetupVerify, adminSetupStatus,
+  homeFor, passwordIssue, EMAIL_RE, DEMO_CODE, SAMPLE_PASSWORD, LIVE, adminSetupStart, adminSetupVerify, adminSetupStatus,
 } from '../../lib/auth';
 import SiteFooter from '../../components/SiteFooter';
+import PhoneInput from '../../components/PhoneInput';
+import { phoneIssue, toE164 } from '../../lib/phone';
 import LangSwitch from '../../components/LangSwitch';
 import { useLang } from '../../lib/i18n';
 import { usePageMeta } from '../../lib/meta';
@@ -228,7 +230,7 @@ export function Signup() {
   const errs = {
     name: f.name.trim().length < 2 && 'Enter your full name',
     email: !EMAIL_RE.test(f.email.trim()) && 'Enter a valid email address',
-    phone: !!f.phone.trim() && !PHONE_RE.test(f.phone.trim()) && 'Enter a 10-digit Indian mobile number',
+    phone: phoneIssue(f.phone) && 'Enter a 10-digit mobile number',
     password: passwordIssue(f.password),
     confirm: !f.confirm ? 'Type your password again' : f.confirm !== f.password ? 'Passwords don’t match' : '',
     agree: !f.agree && 'Please tick the box to continue',
@@ -243,11 +245,11 @@ export function Signup() {
   return (
     <Shell title="Create your free Nm7 account" sub="Find jobs, build your career, or work as an expert, all in one account." wide footer={<SignupFooter />}>
       {LIVE && <Google mode="signup" role="customer" next={next} onDone={(u) => run(() => after(u))} />}
-      <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); setTouched(true); setErr(''); if (!ok) return; run(async () => setPending(await signUp({ role: 'customer', pickRoles: true, ...f }))); }}>
+      <form className="card stack g16" noValidate onSubmit={(e) => { e.preventDefault(); setTouched(true); setErr(''); if (!ok) return; run(async () => setPending(await signUp({ role: 'customer', pickRoles: true, ...f, phone: toE164(f.phone) }))); }}>
         <Field id="su-n" label="Full name" autoComplete="name" value={f.name} error={e_('name')} onChange={(e) => setF({ ...f, name: e.target.value })} />
         <div className="row g12" style={{ alignItems: 'flex-start' }}>
           <div style={{ flex: '1 1 220px', minWidth: 0 }}><Field id="su-e" label="Email" type="email" autoComplete="email" value={f.email} error={e_('email')} onChange={(e) => setF({ ...f, email: e.target.value })} /></div>
-          <div style={{ flex: '1 1 200px', minWidth: 0 }}><Field id="su-p" label="Mobile (WhatsApp) — optional" hint="For updates about your account" type="tel" inputMode="tel" autoComplete="tel" placeholder="98765 43210" value={f.phone} error={e_('phone')} onChange={(e) => setF({ ...f, phone: e.target.value })} /></div>
+          <div style={{ flex: '1 1 200px', minWidth: 0 }}><PhoneInput id="su-p" label="Mobile (WhatsApp) — optional" hint="For updates about your account" inputStyle={{ height: 46 }} value={f.phone} error={e_('phone')} onChange={(v) => setF({ ...f, phone: v })} /></div>
         </div>
         <div className="row g12" style={{ alignItems: 'flex-start' }}>
           <div style={{ flex: '1 1 220px', minWidth: 0 }}><Field id="su-pw" label="Password" type={showPw ? 'text' : 'password'} autoComplete="new-password" value={f.password} error={e_('password')} hint="8+ characters, with letters and a number" onChange={(e) => setF({ ...f, password: e.target.value })} /></div>

@@ -12,6 +12,7 @@ import { PageArt } from '../../components/PageHero';
 import '../../styles/me-kit.css';
 import '../../styles/company-signup.css';
 import { IcCheck, IcEye, IcMail } from '../../components/icons';
+import { showPhone } from '../../lib/phone';
 
 export default function Grievance() {
   const [t, lang] = useLang();
@@ -56,7 +57,7 @@ export default function Grievance() {
           <section className="mcard mcard-accent cs-side gr-contact" aria-labelledby="gr-complain" data-testid="grievance-contact">
             <div className="cs-step-head"><span className="cs-step-badge" aria-hidden="true"><IcMail /></span><h2 id="gr-complain" className="job-h2 cs-step-title">{t('gr.complain.h')}</h2></div>
             <p style={{ margin: 0 }}>{t('gr.complain.1')}</p>
-            {g.name ? <p className="gr-mail" style={{ margin: 0 }}><strong>{t('gr.officer')}</strong>: {[g.name, g.phone].filter(Boolean).join(' · ')}{mail ? <> · <a href={`mailto:${mail}`}>{mail}</a></> : null}</p>
+            {g.name ? <p className="gr-mail" style={{ margin: 0 }}><strong>{t('gr.officer')}</strong>: {[g.name, showPhone(g.phone)].filter(Boolean).join(' · ')}{mail ? <> · <a href={`mailto:${mail}`}>{mail}</a></> : null}</p>
               : <p className="gr-mail" style={{ margin: 0 }}><a href={`mailto:${mail}`}>{mail}</a></p>}
             <p style={{ margin: 0 }}>{t('gr.complain.help')} <Link to="/me/help">{t('gr.complain.helpLink')}</Link></p>
             <p className="small muted" style={{ margin: 0 }}>{t('gr.complain.board')}</p>

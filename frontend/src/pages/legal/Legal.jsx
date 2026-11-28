@@ -10,6 +10,7 @@ import SiteFooter from '../../components/SiteFooter';
 import { LEGAL as L, LEGAL_UPDATED, join, missingLegal } from '../../lib/legal';
 import { LIVE } from '../../services/http';
 import { PLANS, ADDONS, PROMISES, FEES, inr } from '../../lib/pricing';
+import { showPhone } from '../../lib/phone';
 
 const PREVIEW = !LIVE && import.meta.env.VITE_PREVIEW === '1';
 /** A line of text. "?? " at the start = a decision to confirm (tagged in the preview build only). */
@@ -63,7 +64,7 @@ function Page({ title, intro, sections, updated = L.updated }) {
 
 const officer = join(', ', L.grievance.name, L.grievance.title);
 const grievance = [
-  L.grievance.name ? `Grievance Officer: ${join(' · ', officer, L.grievance.email, L.grievance.phone)}.` : `Complaints and grievances: ${L.grievance.email || L.email}.`,
+  L.grievance.name ? `Grievance Officer: ${join(' · ', officer, L.grievance.email, showPhone(L.grievance.phone))}.` : `Complaints and grievances: ${L.grievance.email || L.email}.`,
   L.address && `Postal address: ${L.company}, ${L.address}.`,
   'We acknowledge every complaint within 48 hours and aim to resolve it within one month, as the Consumer Protection (E-Commerce) Rules, 2020 require.',
 ].filter(Boolean);
@@ -328,7 +329,7 @@ export function Contact() {
             {L.address ? <span data-testid="contact-address">Registered office: {L.address}</span> : <span>{L.city}</span>}
             <strong style={{ marginTop: 8 }}>{L.grievance.name ? 'Grievance Officer' : 'Complaints'}</strong>
             {L.grievance.name
-              ? <span>{join(' · ', officer, L.grievance.phone)}{(L.grievance.email || L.email) && <> · <a href={`mailto:${L.grievance.email || L.email}`}>{L.grievance.email || L.email}</a></>}</span>
+              ? <span>{join(' · ', officer, showPhone(L.grievance.phone))}{(L.grievance.email || L.email) && <> · <a href={`mailto:${L.grievance.email || L.email}`}>{L.grievance.email || L.email}</a></>}</span>
               : <a href={`mailto:${L.grievance.email || L.email}`}>{L.grievance.email || L.email}</a>}
             <span className="small muted">We acknowledge complaints within 48 hours.</span>
             {!removal && <Link className="small" to="/contact?topic=job-removal" data-testid="contact-job-removal">Ask us to remove a job from Nm7</Link>}

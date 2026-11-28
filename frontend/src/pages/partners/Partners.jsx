@@ -8,6 +8,8 @@ import SiteFooter from '../../components/SiteFooter';
 import { LIVE } from '../../lib/auth';
 import { usePageMeta } from '../../lib/meta';
 import { http } from '../../services/http';
+import PhoneInput from '../../components/PhoneInput';
+import { phoneIssue, toE164 } from '../../lib/phone';
 
 const DEFAULT_TERMS = { commissionPct: 20, commissionMonths: 12, payableDays: 30, referralDays: 90 };
 
@@ -17,8 +19,9 @@ function Apply() {
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
   const submit = async (e) => {
     e.preventDefault();
+    if (phoneIssue(f.phone, true)) { setSt({ phone: true }); document.getElementById('pa-p')?.focus(); return; }
     setSt({ busy: true });
-    try { await http('/api/public/partners/apply', { method: 'POST', body: f }); setSt({ done: true }); } catch (err) { setSt({ error: err.message }); }
+    try { await http('/api/public/partners/apply', { method: 'POST', body: { ...f, phone: toE164(f.phone) } }); setSt({ done: true }); } catch (err) { setSt({ error: err.message }); }
   };
   if (st.done) return <p className="well small" role="status">Thank you — we’ve got your application and emailed you. Once it’s approved you’ll get your partner code and link by email.</p>;
   return (
@@ -29,7 +32,7 @@ function Apply() {
       </div>
       <div className="row g12" style={{ flexWrap: 'wrap' }}>
         <div className="field" style={{ flex: '1 1 240px' }}><label className="label" htmlFor="pa-e">Email</label><input id="pa-e" type="email" className="input" required autoComplete="email" value={f.email} onChange={set('email')} /></div>
-        <div className="field" style={{ flex: '1 1 240px' }}><label className="label" htmlFor="pa-p">Phone</label><input id="pa-p" type="tel" className="input" required minLength={8} maxLength={20} pattern="[0-9+\- ()]+" autoComplete="tel" value={f.phone} onChange={set('phone')} /></div>
+        <PhoneInput id="pa-p" label="Phone" required hint="" style={{ flex: '1 1 240px' }} value={f.phone} onChange={(v) => setF({ ...f, phone: v })} error={st.phone && phoneIssue(f.phone, true) ? 'Enter a 10-digit mobile number' : ''} />
       </div>
       <span className="xs muted">That’s all we need now. We never ask for PAN or bank details until your first payout.</span>
       <button type="submit" className="btn btn-ink btn-lg" style={{ alignSelf: 'flex-start' }} disabled={st.busy}>{st.busy ? 'Sending…' : 'Apply to be a partner'}</button>

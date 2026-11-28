@@ -46,6 +46,7 @@ import LevelBadge from '../../components/LevelBadge';
 import { BANDS, NOTICE, PART_MAX, lt } from '../../components/levelStrings';
 import '../../styles/company-hire.css';
 import { IcBolt, IcCalendar, IcCheck, IcMail } from '../../components/icons';
+import { showPhone } from '../../lib/phone';
 
 const rupees = (n) => (n == null ? '' : `₹${Math.round(n).toLocaleString('en-IN')}`);
 const day = (s) => (s ? new Date(`${s}T00:00:00`).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) : '');
@@ -355,7 +356,7 @@ export default function CompanyHire({ t, c }) {
                 <span className="mavatar hn-av-blue" aria-hidden="true">{initial(x.name)}</span>
                 <span className="mitem-main">
                   <strong className="mitem-title">{x.name}</strong>
-                  {x.contact && <span className="mitem-meta" data-testid="co-hire-contact">{[x.contact.email, x.contact.phone].filter(Boolean).join(' · ')}</span>}
+                  {x.contact && <span className="mitem-meta" data-testid="co-hire-contact">{[x.contact.email, showPhone(x.contact.phone)].filter(Boolean).join(' · ')}</span>}
                   {x.reasonText && <span className="mitem-meta">{x.reasonText}</span>}
                 </span>
                 <span className={`mchip ${CHIP[x.status]}`}>{t(`co.hire.state.${x.status}`)}</span>

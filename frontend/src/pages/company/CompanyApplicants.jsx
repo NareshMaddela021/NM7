@@ -35,6 +35,7 @@ import LevelBadge from '../../components/LevelBadge';
 import { lt } from '../../components/levelStrings';
 import { useLang } from '../../lib/i18n';
 import { IcCalendar, IcGrid, IcLock, IcMail, IcMenu } from '../../components/icons';
+import { showPhone } from '../../lib/phone';
 
 /** The level chip and the Ready now mark for an applicant row (`level` is null for people without a level yet). */
 function ApLevel({ lv }) {
@@ -199,7 +200,7 @@ function Profile({ t, c, can, a, rank, onClose, onChanged }) {
             <dl className="ca-answers">{a.answers.map((x, i) => <div key={i}><dt>{x.q}</dt><dd>{String(x.a)}</dd></div>)}</dl></div>
         )}
         <div className="stack g4">
-          {a.contact ? <span className="small"><a href={`mailto:${a.contact.email}`}>{a.contact.email}</a>{a.contact.phone ? ` · ${a.contact.phone}` : ''}</span> : <span className="xs muted">{t('co.ap.contactLater')}</span>}
+          {a.contact ? <span className="small"><a href={`mailto:${a.contact.email}`}>{a.contact.email}</a>{a.contact.phone ? ` · ${showPhone(a.contact.phone)}` : ''}</span> : <span className="xs muted">{t('co.ap.contactLater')}</span>}
           {a.interview && <span className="small">{t('co.ap.ivOn', { when: new Date(a.interview.at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) })}{[a.interview.round, a.interview.interviewer].filter(Boolean).map((x) => ` · ${x}`).join('')}</span>}
         </div>
       </div>
@@ -252,7 +253,7 @@ function Applicant({ t, c, a, rank, can, picked, canPick, onPick, open, onOpen, 
       )}
       <div className="ca-info">
         {a.contact ? (
-          <span className="xs" data-testid="co-ap-contact"><IcMail size={14} /> <a href={`mailto:${a.contact.email}`}>{a.contact.email}</a>{a.contact.phone ? ` · ${a.contact.phone}` : ''}</span>
+          <span className="xs" data-testid="co-ap-contact"><IcMail size={14} /> <a href={`mailto:${a.contact.email}`}>{a.contact.email}</a>{a.contact.phone ? ` · ${showPhone(a.contact.phone)}` : ''}</span>
         ) : <span className="xs muted"><IcLock size={14} /> {t('co.ap.contactLater')}</span>}
         {a.interview && <span className="xs" data-testid="co-ap-interview"><IcCalendar size={14} /> {t('co.ap.ivOn', { when: new Date(a.interview.at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) })}{[a.interview.round, a.interview.interviewer].filter(Boolean).map((x) => ` · ${x}`).join('')}</span>}
         {a.pooled && <span className="xs">{t('co.ap.inPool')}</span>}

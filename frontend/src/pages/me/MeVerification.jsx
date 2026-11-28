@@ -7,6 +7,8 @@
 import { useCallback, useEffect, useId, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { http } from '../../services/http';
+import PhoneInput from '../../components/PhoneInput';
+import { toE164 } from '../../lib/phone';
 import { useVettingOn } from '../../lib/vettingAccess';
 import { MeHead } from './MeLayout';
 import { Chip, Empty, MeCard, Skel } from './kit';
@@ -80,7 +82,7 @@ function RefereeForm({ onSaved }) {
     const bad = rows.map((r, i) => [i, refereeProblems(r)]).find(([, p]) => p.length);
     if (bad) { setErr(`Referee ${bad[0] + 1}: please add ${bad[1].join(', ')}.`); return; }
     setBusy(true);
-    try { onSaved(await http(`${API}/referees`, { method: 'POST', body: { referees: rows.map((r) => ({ ...r, name: r.name.trim(), company: r.company.trim(), email: r.email.trim(), phone: r.phone.trim() })) } })); }
+    try { onSaved(await http(`${API}/referees`, { method: 'POST', body: { referees: rows.map((r) => ({ ...r, name: r.name.trim(), company: r.company.trim(), email: r.email.trim(), phone: toE164(r.phone) })) } })); }
     catch (x) { setErr(x.message); } finally { setBusy(false); }
   };
   return (
@@ -99,8 +101,8 @@ function RefereeForm({ onSaved }) {
               <input className="input" autoComplete="off" maxLength={100} value={r.company} onChange={set(i, 'company')} data-testid="l4-ref-company" /></label>
             <label className="field"><span className="label">Their email</span>
               <input className="input" type="email" inputMode="email" autoComplete="off" maxLength={120} value={r.email} onChange={set(i, 'email')} aria-describedby={`${id}-c`} data-testid="l4-ref-email" /></label>
-            <label className="field"><span className="label">Their phone</span>
-              <input className="input" type="tel" inputMode="tel" autoComplete="off" maxLength={20} value={r.phone} onChange={set(i, 'phone')} aria-describedby={`${id}-c`} data-testid="l4-ref-phone" /></label>
+            <PhoneInput id={`${id}-p${i}`} label="Their phone" autoComplete="off" hint="" describedBy={`${id}-c`} value={r.phone} testid="l4-ref-phone"
+              onChange={(v) => setRows((x) => x.map((y, j) => (j === i ? { ...y, phone: v } : y)))} />
           </div>
           {i > 0 && <button type="button" className="btn btn-ghost" style={{ alignSelf: 'flex-start' }} onClick={() => setRows((x) => x.slice(0, 1))}>Remove referee 2</button>}
         </fieldset>

@@ -33,6 +33,7 @@ export function pageOf(key, file) {
   if (key.startsWith('aa.')) return '/me/auto-apply (Auto Apply)';
   if (key.startsWith('simple.')) return '/me/simple (Easy dashboard)';
   if (key.startsWith('setup.')) return '/me/simple, /me/simple/setup (Easy dashboard: profile setup steps)';
+  if (key.startsWith('phone.')) return 'Every phone box (sign-up, profile, Easy dashboard resume questions)';
   return '';
 }
 

@@ -3,6 +3,7 @@
 // the sign-up draft kept in this browser until the admin's email is confirmed.
 import { readAccount } from './recruiterPortal';
 import { API_BASE, ApiError } from '../services/http';
+import { toE164 } from './phone';
 
 export const CATEGORIES = ['startup', 'sme', 'enterprise', 'ngo', 'government', 'individual'];
 export const STRUCTURES = ['private_limited', 'public_limited', 'llp', 'partnership', 'proprietorship', 'opc', 'trust_society', 'government_body', 'other'];
@@ -103,6 +104,6 @@ export function companyBody(c) {
     details: { ...c.details, website: individual ? '' : c.details.website },
     registration: individual ? null : { kind: c.registration.kind, number: cleanNumber(c.registration.number) },
     individual: individual ? c.individual : null,
-    phone: c.phone,
+    phone: toE164(c.phone),
   };
 }

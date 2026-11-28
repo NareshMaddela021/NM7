@@ -1555,6 +1555,8 @@
 "jobs.apply.confirmTitle","/jobs (job board)","Send your application","మీ దరఖాస్తు పంపండి","अपना आवेदन भेजें","needs native review"
 "jobs.apply.confirm","/jobs (job board)","Send your active resume to {company} on Nm7? It is saved in My applications.","మీ యాక్టివ్ రెజ్యూమ్‌ను Nm7లో {company}కు పంపాలా? ఇది నా అప్లికేషన్లలో సేవ్ అవుతుంది.","अपना चालू रिज़्यूमे Nm7 पर {company} को भेजें? यह मेरे आवेदन में सेव होगा।","needs native review"
 "jobs.apply.cancel","/jobs (job board)","Cancel","రద్దు","रद्द करें","needs native review"
+"phone.err","Every phone box (sign-up, profile, Easy dashboard resume questions)","Enter a 10-digit mobile number","10 అంకెల మొబైల్ నంబర్ ఇవ్వండి","10 अंकों का मोबाइल नंबर लिखें","needs native review"
+"phone.hint","Every phone box (sign-up, profile, Easy dashboard resume questions)","Just the 10 digits, without 0 in front","ముందు 0 లేకుండా 10 అంకెలు మాత్రమే","आगे 0 लगाए बिना सिर्फ़ 10 अंक","needs native review"
 "setup.title","/me/simple, /me/simple/setup (Easy dashboard: profile setup steps)","Set up your profile","మీ ప్రొఫైల్ సిద్ధం చేయండి","अपनी प्रोफ़ाइल तैयार करें","needs native review"
 "setup.progress","/me/simple, /me/simple/setup (Easy dashboard: profile setup steps)","{done} of {total} steps done","{total} లో {done} దశలు పూర్తయ్యాయి","{total} में से {done} स्टेप पूरे","needs native review"
 "setup.minutes","/me/simple, /me/simple/setup (Easy dashboard: profile setup steps)","About {n} minutes","సుమారు {n} నిమిషాలు","लगभग {n} मिनट","needs native review"

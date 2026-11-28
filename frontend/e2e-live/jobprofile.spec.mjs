@@ -68,7 +68,7 @@ test('fill the Job Profile; it autosaves and survives a reload and another sign-
   await expect(page.getByText(/Missing:.*Languages/)).toBeVisible();
 
   const p = await serverProfile(page);
-  expect(p.personal).toMatchObject({ name: 'Kiran Rao', headline: 'Data Analyst', phone: '98765 43210', location: 'Pune' });
+  expect(p.personal).toMatchObject({ name: 'Kiran Rao', headline: 'Data Analyst', phone: '+91 98765 43210', location: 'Pune' });
   expect(p.proj.map((x) => [x.title, !!x.off])).toEqual([['Borealis App', true], ['Apollo Tracker', false]]);
   expect(p.personal.level).toBe('Fresher (0–1 yr)');
   expect(p.prefs).toBeUndefined(); // nothing saved for job preferences any more

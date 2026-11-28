@@ -3,6 +3,8 @@
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Spinner } from '../../components/ui';
+import PhoneInput from '../../components/PhoneInput';
+import { isPhone, showPhone } from '../../lib/phone';
 import { currentUser } from '../../lib/auth';
 import { ID_FIELDS, MAX_PHOTOS, isEmptyReview, preparePhoto, readPhotos, toReview } from '../../lib/photoImport';
 
@@ -149,11 +151,20 @@ function Review({ review: r, setReview, onBack, onDone, doneLabel, Wrap, pad }) 
         <section className="card stack g12" aria-labelledby="rv-about">
           <h2 id="rv-about" style={{ fontSize: 22 }}>About you</h2>
           {r.about.map((x) => (
+            x.key === 'phone' ? ( // the shared phone box (+91 outside it)
+              <div key={x.key} className="row g8" style={{ opacity: x.keep ? 1 : 0.5, alignItems: 'flex-end' }}>
+                <PhoneInput id="rv-a-phone" label={x.label} hint="" value={x.value} disabled={!x.keep} style={{ flex: '1 1 220px' }} inputStyle={{ ...big, height: 46 }}
+                  onChange={(v) => upd('about', x.key, { value: isPhone(v) ? showPhone(v) : v })} />
+                <Check on={x.check} />
+                <KeepButton item={x} label={x.label} onToggle={() => upd('about', x.key, { keep: !x.keep })} />
+              </div>
+            ) : (
             <div key={x.key} className="stack g4" style={{ opacity: x.keep ? 1 : 0.5 }}>
               <span className="row g8"><label htmlFor={`rv-a-${x.key}`} className="label">{x.label}</label><Check on={x.check} /></span>
               <div className="row g8"><input id={`rv-a-${x.key}`} className="input" style={{ ...big, flex: '1 1 220px', height: 46 }} value={x.value} disabled={!x.keep} onChange={(e) => upd('about', x.key, { value: e.target.value })} />
                 <KeepButton item={x} label={x.label} onToggle={() => upd('about', x.key, { keep: !x.keep })} /></div>
             </div>
+            )
           ))}
         </section>
       )}

@@ -98,6 +98,10 @@ p { margin: 0; }
 .input:disabled { background: var(--sunken); color: var(--text3); }
 .input[aria-invalid="true"] { border-color: var(--danger); }
 textarea.input { height: auto; padding: 12px 14px; line-height: 1.55; resize: vertical; }
+/* the phone box (components/PhoneInput.jsx): a fixed +91 in front, outside the box */
+.phone-box { display: flex; align-items: stretch; gap: 8px; min-width: 0; }
+.phone-cc { display: inline-flex; align-items: center; padding: 0 12px; border-radius: var(--r-control); border: 1px solid var(--border2); background: var(--sunken); color: var(--text2); font-weight: 600; font-variant-numeric: tabular-nums; flex: none; }
+.phone-in { flex: 1 1 auto; min-width: 0; font-variant-numeric: tabular-nums; letter-spacing: 0.02em; }
 .help { font-size: 14px; color: var(--text3); }
 .error { font-size: 14px; color: var(--danger); }
 .check { display: flex; align-items: center; gap: 10px; min-height: 44px; font-size: 15px; cursor: pointer; }

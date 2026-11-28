@@ -3,6 +3,8 @@ import { Icon } from '../../components/ui';
 import { BOLD_TIP, editMask, fromMask, htmlToRich, insertRich, sanitizeRich, settleTyped, toMask, toggleMask, tooMuchBold } from '../../lib/bold';
 import { COURSES_HINT, COURSES_PH, MAX_COURSES, addCourses, coursesOf, suggestCourses } from '../../lib/courses';
 import ChipList from './ChipList';
+import PhoneInput from '../../components/PhoneInput';
+import { isPhone, showPhone } from '../../lib/phone';
 import { GrowArea } from './GrowArea';
 
 /** Renders one schema field. `value` / `onChange(value)` are plain values. */
@@ -26,6 +28,11 @@ export function SchemaField({ field, value, onChange, disabled, onAi, idBase, er
           placeholder={COURSES_PH} hint={COURSES_HINT} suggestions={suggestCourses({ ...entry, courses: value })} />
       </div>
     );
+  }
+  if (t === 'tel') {
+    // the shared phone box (+91 outside it); the resume keeps "+91 98765 43210" once all 10 digits are in
+    return <PhoneInput id={id} label={field.label} value={value || ''} disabled={disabled} hint="" style={style}
+      onChange={(v) => onChange(isPhone(v) ? showPhone(v) : v)} />;
   }
   if (t === 'chips') {
     const arr = value || [];

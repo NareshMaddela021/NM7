@@ -2,6 +2,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Icon } from '../../components/ui';
 import { FieldGrid, SchemaField } from './Fields';
+import PhoneInput from '../../components/PhoneInput';
+import { isPhone, showPhone } from '../../lib/phone';
 import { EXP_LEVELS, LISTS, PINFO_FIELDS, DECL_FIELDS } from './schema';
 import { TEMPLATE_PRESETS, fmtDate } from './design';
 import { applyImport, counts } from '../../lib/import/apply';
@@ -121,7 +123,7 @@ export default function Import({ mode, d, onBack, onDone, onPhotos = null }) {
             ) : (
               <div className="card stack g12" style={{ padding: 20 }}>
                 <label htmlFor="imp-paste" className="label">Paste your resume or LinkedIn text</label>
-                <textarea id="imp-paste" className="input" rows={12} value={paste} onChange={(e) => setPaste(e.target.value)} placeholder={'Sai Varsha\nsaivarsha@example.com · +91 98765 43210\n\nEducation\nB.Tech, Computer Science — Anna University   2021 – 2025\n\nSkills\nPython, SQL, Power BI'} />
+                <textarea id="imp-paste" className="input" rows={12} value={paste} onChange={(e) => setPaste(e.target.value)} placeholder={'Sai Varsha\nsaivarsha@example.com · +91 XXXXX XXXXX\n\nEducation\nB.Tech, Computer Science — Anna University   2021 – 2025\n\nSkills\nPython, SQL, Power BI'} />
                 <span className="xs faint">Keep the section titles (Education, Experience, Skills…) — they help us sort everything.</span>
                 <button type="button" className="btn btn-ink btn-lg" style={{ alignSelf: 'flex-start' }} disabled={paste.trim().length < 40} onClick={() => run({ text: paste })}>Read my text <Icon name="arrow" /></button>
               </div>
@@ -258,10 +260,15 @@ export default function Import({ mode, d, onBack, onDone, onPhotos = null }) {
             <strong>Personal info</strong>
             <FieldGrid>
               {PF.map(([k, l, req]) => (
+                k === 'phone' ? ( // the shared phone box (+91 outside it); the resume keeps "+91 98765 43210"
+                  <PhoneInput key={k} id={`rvp-${k}`} hint="" labelClass="label row between g8" value={x.personal[k] || ''} onChange={(v) => setP(k, isPhone(v) ? showPhone(v) : v)}
+                    label={<><span>{l}</span>{x.personal[k] ? <span className="xs" style={{ color: 'var(--success)', display: 'inline-flex' }}><IcCheck size={14} label="Found" /></span> : <span className="xs" style={{ color: 'var(--danger)' }}>Not found</span>}</>} />
+                ) : (
                 <div key={k} className="field">
                   <label htmlFor={`rvp-${k}`} className="label row between g8"><span>{l}</span>{x.personal[k] ? <span className="xs" style={{ color: 'var(--success)', display: 'inline-flex' }}><IcCheck size={14} label="Found" /></span> : req ? <span className="xs" style={{ color: 'var(--danger)' }}>Not found</span> : null}</label>
                   <input id={`rvp-${k}`} className="input" value={x.personal[k] || ''} onChange={(e) => setP(k, e.target.value)} />
                 </div>
+                )
               ))}
               <SchemaField field={{ key: 'level', label: 'Experience level (from your dates)', type: 'select', options: EXP_LEVELS }} idBase="rvp" value={x.personal.level} onChange={(v) => setP('level', v)} />
             </FieldGrid>

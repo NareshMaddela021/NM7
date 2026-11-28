@@ -14,6 +14,7 @@ import { useAuth } from '../../../lib/auth';
 import { viewAsUser } from '../../../lib/adminViews';
 import { WaReport } from './PaymentsSettings';
 import { IcChart, IcStar, IcThumb, IcTrash, IcUsers } from '../../../components/icons';
+import { showPhone } from '../../../lib/phone';
 
 /* ---------- experts and applications ---------- */
 const EXPERT_STATUS = { draft: 'Filling in profile', review: 'To review', changes: 'Asked for changes', test: 'Doing test task', testReview: 'Test to score', approved: 'Approved', rejected: 'Not approved' };
@@ -229,7 +230,7 @@ function CustomerPanel({ id, onClose, onChanged }) {
       <Loading st={st}>{(c) => (
         <div className="stack g12">
           <div className="as-who"><Initial name={c.name} /><span className="as-who-t">
-            <span className="small"><strong>{c.name}</strong> · {c.email}{c.phone ? ` · ${c.phone}` : ''}</span>
+            <span className="small"><strong>{c.name}</strong> · {c.email}{c.phone ? ` · ${showPhone(c.phone)}` : ''}</span>
             <span className="xs muted">Joined {day(c.joined)}{c.targetRole ? ` · target role ${c.targetRole}` : ''}{c.blocked ? ' · BLOCKED' : ''}</span>
           </span></div>
           <div className="as-block">
